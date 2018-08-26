@@ -986,7 +986,7 @@ class ct01_nasabah_view extends ct01_nasabah {
 	// Set up multi pages
 	function SetupMultiPages() {
 		$pages = new cSubPages();
-		$pages->Style = "pills";
+		$pages->Parent = "#" . $this->PageObjName;
 		$pages->Add(0);
 		$pages->Add(1);
 		$pages->Add(2);
@@ -1164,16 +1164,17 @@ $t01_nasabah_view->ShowMessage();
 <input type="hidden" name="modal" value="<?php echo intval($t01_nasabah_view->IsModal) ?>">
 <?php if ($t01_nasabah->Export == "") { ?>
 <div class="ewMultiPage">
-<div class="nav-tabs-custom" id="t01_nasabah_view">
-	<ul class="nav<?php echo $t01_nasabah_view->MultiPages->NavStyle() ?>">
-		<li<?php echo $t01_nasabah_view->MultiPages->TabStyle("1") ?>><a href="#tab_t01_nasabah1" data-toggle="tab"><?php echo $t01_nasabah->PageCaption(1) ?></a></li>
-		<li<?php echo $t01_nasabah_view->MultiPages->TabStyle("2") ?>><a href="#tab_t01_nasabah2" data-toggle="tab"><?php echo $t01_nasabah->PageCaption(2) ?></a></li>
-		<li<?php echo $t01_nasabah_view->MultiPages->TabStyle("3") ?>><a href="#tab_t01_nasabah3" data-toggle="tab"><?php echo $t01_nasabah->PageCaption(3) ?></a></li>
-	</ul>
-	<div class="tab-content">
+<div class="box-group" id="t01_nasabah_view">
 <?php } ?>
 <?php if ($t01_nasabah->Export == "") { ?>
-		<div class="tab-pane<?php echo $t01_nasabah_view->MultiPages->PageStyle("1") ?>" id="tab_t01_nasabah1">
+	<div class="panel box<?php echo $t01_nasabah_view->MultiPages->PageStyle("1") ?>">
+		<div class="box-header with-border">
+			<h4 class="box-title">
+				<a data-toggle="collapse" data-parent="<?php echo $t01_nasabah_view->MultiPages->Parent ?>" href="#tab_t01_nasabah1"><?php echo $t01_nasabah->PageCaption(1) ?></a>
+			</h4>
+		</div>
+		<div class="panel-collapse collapse<?php echo $t01_nasabah_view->MultiPages->PageStyle("1") ?>" id="tab_t01_nasabah1">
+			<div class="box-body no-padding">
 <?php } ?>
 <table class="table table-striped table-bordered table-hover table-condensed ewViewTable">
 <?php if ($t01_nasabah->NoKontrak->Visible) { // NoKontrak ?>
@@ -1277,10 +1278,19 @@ $t01_nasabah_view->ShowMessage();
 <?php } ?>
 </table>
 <?php if ($t01_nasabah->Export == "") { ?>
+			</div>
 		</div>
+	</div>
 <?php } ?>
 <?php if ($t01_nasabah->Export == "") { ?>
-		<div class="tab-pane<?php echo $t01_nasabah_view->MultiPages->PageStyle("2") ?>" id="tab_t01_nasabah2">
+	<div class="panel box<?php echo $t01_nasabah_view->MultiPages->PageStyle("2") ?>">
+		<div class="box-header with-border">
+			<h4 class="box-title">
+				<a data-toggle="collapse" data-parent="<?php echo $t01_nasabah_view->MultiPages->Parent ?>" href="#tab_t01_nasabah2"><?php echo $t01_nasabah->PageCaption(2) ?></a>
+			</h4>
+		</div>
+		<div class="panel-collapse collapse<?php echo $t01_nasabah_view->MultiPages->PageStyle("2") ?>" id="tab_t01_nasabah2">
+			<div class="box-body no-padding">
 <?php } ?>
 <table class="table table-striped table-bordered table-hover table-condensed ewViewTable">
 <?php if ($t01_nasabah->NoRangka->Visible) { // NoRangka ?>
@@ -1351,10 +1361,19 @@ $t01_nasabah_view->ShowMessage();
 <?php } ?>
 </table>
 <?php if ($t01_nasabah->Export == "") { ?>
+			</div>
 		</div>
+	</div>
 <?php } ?>
 <?php if ($t01_nasabah->Export == "") { ?>
-		<div class="tab-pane<?php echo $t01_nasabah_view->MultiPages->PageStyle("3") ?>" id="tab_t01_nasabah3">
+	<div class="panel box<?php echo $t01_nasabah_view->MultiPages->PageStyle("3") ?>">
+		<div class="box-header with-border">
+			<h4 class="box-title">
+				<a data-toggle="collapse" data-parent="<?php echo $t01_nasabah_view->MultiPages->Parent ?>" href="#tab_t01_nasabah3"><?php echo $t01_nasabah->PageCaption(3) ?></a>
+			</h4>
+		</div>
+		<div class="panel-collapse collapse<?php echo $t01_nasabah_view->MultiPages->PageStyle("3") ?>" id="tab_t01_nasabah3">
+			<div class="box-body no-padding">
 <?php } ?>
 <table class="table table-striped table-bordered table-hover table-condensed ewViewTable">
 <?php if ($t01_nasabah->Pekerjaan->Visible) { // Pekerjaan ?>
@@ -1392,10 +1411,11 @@ $t01_nasabah_view->ShowMessage();
 <?php } ?>
 </table>
 <?php if ($t01_nasabah->Export == "") { ?>
+			</div>
 		</div>
+	</div>
 <?php } ?>
 <?php if ($t01_nasabah->Export == "") { ?>
-	</div>
 </div>
 </div>
 <?php } ?>

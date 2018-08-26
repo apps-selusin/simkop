@@ -1403,7 +1403,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 	// Set up multi pages
 	function SetupMultiPages() {
 		$pages = new cSubPages();
-		$pages->Style = "pills";
+		$pages->Parent = "#" . $this->PageObjName;
 		$pages->Add(0);
 		$pages->Add(1);
 		$pages->Add(2);
@@ -1631,14 +1631,15 @@ $t01_nasabah_edit->ShowMessage();
 <input type="hidden" name="a_edit" id="a_edit" value="U">
 <input type="hidden" name="modal" value="<?php echo intval($t01_nasabah_edit->IsModal) ?>">
 <div class="ewMultiPage"><!-- multi-page -->
-<div class="nav-tabs-custom" id="t01_nasabah_edit"><!-- multi-page .nav-tabs-custom -->
-	<ul class="nav<?php echo $t01_nasabah_edit->MultiPages->NavStyle() ?>">
-		<li<?php echo $t01_nasabah_edit->MultiPages->TabStyle("1") ?>><a href="#tab_t01_nasabah1" data-toggle="tab"><?php echo $t01_nasabah->PageCaption(1) ?></a></li>
-		<li<?php echo $t01_nasabah_edit->MultiPages->TabStyle("2") ?>><a href="#tab_t01_nasabah2" data-toggle="tab"><?php echo $t01_nasabah->PageCaption(2) ?></a></li>
-		<li<?php echo $t01_nasabah_edit->MultiPages->TabStyle("3") ?>><a href="#tab_t01_nasabah3" data-toggle="tab"><?php echo $t01_nasabah->PageCaption(3) ?></a></li>
-	</ul>
-	<div class="tab-content"><!-- multi-page .nav-tabs-custom .tab-content -->
-		<div class="tab-pane<?php echo $t01_nasabah_edit->MultiPages->PageStyle("1") ?>" id="tab_t01_nasabah1"><!-- multi-page .tab-pane -->
+<div class="box-group" id="t01_nasabah_edit"><!-- multi-page accordion .box-group -->
+	<div class="panel box<?php echo $t01_nasabah_edit->MultiPages->PageStyle("1") ?>"><!-- multi-page accordion .panel .box -->
+		<div class="box-header with-border">
+			<h4 class="box-title">
+				<a data-toggle="collapse" data-parent="<?php echo $t01_nasabah_edit->MultiPages->Parent ?>" href="#tab_t01_nasabah1"><?php echo $t01_nasabah->PageCaption(1) ?></a>
+			</h4>
+		</div>
+		<div class="panel-collapse collapse<?php echo $t01_nasabah_edit->MultiPages->PageStyle("1") ?>" id="tab_t01_nasabah1"><!-- multi-page accordion .panel-collapse -->
+			<div class="box-body"><!-- multi-page accordion .box-body -->
 <div class="ewEditDiv"><!-- page* -->
 <?php if ($t01_nasabah->NoKontrak->Visible) { // NoKontrak ?>
 	<div id="r_NoKontrak" class="form-group">
@@ -1736,8 +1737,17 @@ ew_CreateDateTimePicker("ft01_nasabahedit", "x_TglKontrak", {"ignoreReadonly":tr
 	</div>
 <?php } ?>
 </div><!-- /page* -->
-		</div><!-- /multi-page .tab-pane -->
-		<div class="tab-pane<?php echo $t01_nasabah_edit->MultiPages->PageStyle("2") ?>" id="tab_t01_nasabah2"><!-- multi-page .tab-pane -->
+			</div><!-- /multi-page accordion .box-body -->
+		</div><!-- /multi-page accordion .panel-collapse -->
+	</div><!-- /multi-page accordion .panel .box -->
+	<div class="panel box<?php echo $t01_nasabah_edit->MultiPages->PageStyle("2") ?>"><!-- multi-page accordion .panel .box -->
+		<div class="box-header with-border">
+			<h4 class="box-title">
+				<a data-toggle="collapse" data-parent="<?php echo $t01_nasabah_edit->MultiPages->Parent ?>" href="#tab_t01_nasabah2"><?php echo $t01_nasabah->PageCaption(2) ?></a>
+			</h4>
+		</div>
+		<div class="panel-collapse collapse<?php echo $t01_nasabah_edit->MultiPages->PageStyle("2") ?>" id="tab_t01_nasabah2"><!-- multi-page accordion .panel-collapse -->
+			<div class="box-body"><!-- multi-page accordion .box-body -->
 <div class="ewEditDiv"><!-- page* -->
 <?php if ($t01_nasabah->NoRangka->Visible) { // NoRangka ?>
 	<div id="r_NoRangka" class="form-group">
@@ -1800,8 +1810,17 @@ ew_CreateDateTimePicker("ft01_nasabahedit", "x_TglKontrak", {"ignoreReadonly":tr
 	</div>
 <?php } ?>
 </div><!-- /page* -->
-		</div><!-- /multi-page .tab-pane -->
-		<div class="tab-pane<?php echo $t01_nasabah_edit->MultiPages->PageStyle("3") ?>" id="tab_t01_nasabah3"><!-- multi-page .tab-pane -->
+			</div><!-- /multi-page accordion .box-body -->
+		</div><!-- /multi-page accordion .panel-collapse -->
+	</div><!-- /multi-page accordion .panel .box -->
+	<div class="panel box<?php echo $t01_nasabah_edit->MultiPages->PageStyle("3") ?>"><!-- multi-page accordion .panel .box -->
+		<div class="box-header with-border">
+			<h4 class="box-title">
+				<a data-toggle="collapse" data-parent="<?php echo $t01_nasabah_edit->MultiPages->Parent ?>" href="#tab_t01_nasabah3"><?php echo $t01_nasabah->PageCaption(3) ?></a>
+			</h4>
+		</div>
+		<div class="panel-collapse collapse<?php echo $t01_nasabah_edit->MultiPages->PageStyle("3") ?>" id="tab_t01_nasabah3"><!-- multi-page accordion .panel-collapse -->
+			<div class="box-body"><!-- multi-page accordion .box-body -->
 <div class="ewEditDiv"><!-- page* -->
 <?php if ($t01_nasabah->Pekerjaan->Visible) { // Pekerjaan ?>
 	<div id="r_Pekerjaan" class="form-group">
@@ -1834,9 +1853,10 @@ ew_CreateDateTimePicker("ft01_nasabahedit", "x_TglKontrak", {"ignoreReadonly":tr
 	</div>
 <?php } ?>
 </div><!-- /page* -->
-		</div><!-- /multi-page .tab-pane -->
-	</div><!-- /multi-page .nav-tabs-custom .tab-content -->
-</div><!-- /multi-page .nav-tabs-custom -->
+			</div><!-- /multi-page accordion .box-body -->
+		</div><!-- /multi-page accordion .panel-collapse -->
+	</div><!-- /multi-page accordion .panel .box -->
+</div><!-- /multi-page accordion .box-group -->
 </div><!-- /multi-page -->
 <input type="hidden" data-table="t01_nasabah" data-field="x_id" name="x_id" id="x_id" value="<?php echo ew_HtmlEncode($t01_nasabah->id->CurrentValue) ?>">
 <?php if (!$t01_nasabah_edit->IsModal) { ?>
