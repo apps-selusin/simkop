@@ -97,6 +97,12 @@ class ct98_userlevelpermissions_view extends ct98_userlevelpermissions {
 	var $GridEditUrl;
 	var $MultiDeleteUrl;
 	var $MultiUpdateUrl;
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -653,6 +659,7 @@ class ct98_userlevelpermissions_view extends ct98_userlevelpermissions {
 		$this->Row_Selected($row);
 		if (!$rs || $rs->EOF)
 			return;
+		if ($this->AuditTrailOnView) $this->WriteAuditTrailOnView($row);
 		$this->userlevelid->setDbValue($row['userlevelid']);
 		$this->_tablename->setDbValue($row['tablename']);
 		$this->permission->setDbValue($row['permission']);

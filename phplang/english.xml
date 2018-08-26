@@ -644,11 +644,14 @@
     </table>
     <table id="t01_nasabah">
       <phrase id="tblcaption" value="Nasabah" />
+      <phrase id="tblpagecaption1" value="Page 1" />
+      <phrase id="tblpagecaption2" value="Jaminan" />
+      <phrase id="tblpagecaption3" value="Identitas" />
       <field id="id">
         <phrase id="fldcaption" value="id" />
       </field>
       <field id="nokontrak">
-        <phrase id="fldcaption" value="No Kontrak" />
+        <phrase id="fldcaption" value="No. Kontrak" />
       </field>
       <field id="customer">
         <phrase id="fldcaption" value="Customer" />
@@ -660,25 +663,25 @@
         <phrase id="fldcaption" value="Alamat" />
       </field>
       <field id="notelphp">
-        <phrase id="fldcaption" value="No Telp Hp" />
+        <phrase id="fldcaption" value="No. Telp./Hp" />
       </field>
       <field id="tglkontrak">
-        <phrase id="fldcaption" value="Tgl Kontrak" />
+        <phrase id="fldcaption" value="Tgl. Kontrak" />
       </field>
       <field id="merktype">
         <phrase id="fldcaption" value="Merk Type" />
       </field>
       <field id="norangka">
-        <phrase id="fldcaption" value="No Rangka" />
+        <phrase id="fldcaption" value="No. Rangka" />
       </field>
       <field id="nomesin">
-        <phrase id="fldcaption" value="No Mesin" />
+        <phrase id="fldcaption" value="No. Mesin" />
       </field>
       <field id="warna">
         <phrase id="fldcaption" value="Warna" />
       </field>
       <field id="nopol">
-        <phrase id="fldcaption" value="No Pol" />
+        <phrase id="fldcaption" value="No. Pol." />
       </field>
       <field id="keterangan">
         <phrase id="fldcaption" value="Keterangan" />

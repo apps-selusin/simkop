@@ -65,6 +65,12 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		if ($this->UseTokenInUrl) $PageUrl .= "t=" . $this->TableVar . "&"; // Add page token
 		return $PageUrl;
 	}
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -325,9 +331,6 @@ class ct01_nasabah_edit extends ct01_nasabah {
 
 		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
 		$this->NoKontrak->SetVisibility();
 		$this->Customer->SetVisibility();
 		$this->Pekerjaan->SetVisibility();
@@ -346,6 +349,9 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		$this->DispensasiDenda->SetVisibility();
 		$this->LamaAngsuran->SetVisibility();
 		$this->JumlahAngsuran->SetVisibility();
+
+		// Set up multi page object
+		$this->SetupMultiPages();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -443,6 +449,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 	var $IsMobileOrModal = FALSE;
 	var $DbMasterFilter;
 	var $DbDetailFilter;
+	var $MultiPages; // Multi pages object
 
 	//
 	// Page main
@@ -582,8 +589,6 @@ class ct01_nasabah_edit extends ct01_nasabah {
 
 		// Load from form
 		global $objForm;
-		if (!$this->id->FldIsDetailKey)
-			$this->id->setFormValue($objForm->GetValue("x_id"));
 		if (!$this->NoKontrak->FldIsDetailKey) {
 			$this->NoKontrak->setFormValue($objForm->GetValue("x_NoKontrak"));
 		}
@@ -601,7 +606,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		}
 		if (!$this->TglKontrak->FldIsDetailKey) {
 			$this->TglKontrak->setFormValue($objForm->GetValue("x_TglKontrak"));
-			$this->TglKontrak->CurrentValue = ew_UnFormatDateTime($this->TglKontrak->CurrentValue, 0);
+			$this->TglKontrak->CurrentValue = ew_UnFormatDateTime($this->TglKontrak->CurrentValue, 7);
 		}
 		if (!$this->MerkType->FldIsDetailKey) {
 			$this->MerkType->setFormValue($objForm->GetValue("x_MerkType"));
@@ -639,6 +644,8 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		if (!$this->JumlahAngsuran->FldIsDetailKey) {
 			$this->JumlahAngsuran->setFormValue($objForm->GetValue("x_JumlahAngsuran"));
 		}
+		if (!$this->id->FldIsDetailKey)
+			$this->id->setFormValue($objForm->GetValue("x_id"));
 	}
 
 	// Restore form values
@@ -651,7 +658,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		$this->Alamat->CurrentValue = $this->Alamat->FormValue;
 		$this->NoTelpHp->CurrentValue = $this->NoTelpHp->FormValue;
 		$this->TglKontrak->CurrentValue = $this->TglKontrak->FormValue;
-		$this->TglKontrak->CurrentValue = ew_UnFormatDateTime($this->TglKontrak->CurrentValue, 0);
+		$this->TglKontrak->CurrentValue = ew_UnFormatDateTime($this->TglKontrak->CurrentValue, 7);
 		$this->MerkType->CurrentValue = $this->MerkType->FormValue;
 		$this->NoRangka->CurrentValue = $this->NoRangka->FormValue;
 		$this->NoMesin->CurrentValue = $this->NoMesin->FormValue;
@@ -863,7 +870,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 
 		// TglKontrak
 		$this->TglKontrak->ViewValue = $this->TglKontrak->CurrentValue;
-		$this->TglKontrak->ViewValue = ew_FormatDateTime($this->TglKontrak->ViewValue, 0);
+		$this->TglKontrak->ViewValue = ew_FormatDateTime($this->TglKontrak->ViewValue, 7);
 		$this->TglKontrak->ViewCustomAttributes = "";
 
 		// MerkType
@@ -896,28 +903,31 @@ class ct01_nasabah_edit extends ct01_nasabah {
 
 		// Pinjaman
 		$this->Pinjaman->ViewValue = $this->Pinjaman->CurrentValue;
+		$this->Pinjaman->ViewValue = ew_FormatNumber($this->Pinjaman->ViewValue, 2, -2, -2, -2);
+		$this->Pinjaman->CellCssStyle .= "text-align: right;";
 		$this->Pinjaman->ViewCustomAttributes = "";
 
 		// Denda
 		$this->Denda->ViewValue = $this->Denda->CurrentValue;
+		$this->Denda->ViewValue = ew_FormatNumber($this->Denda->ViewValue, 2, -2, -2, -2);
+		$this->Denda->CellCssStyle .= "text-align: right;";
 		$this->Denda->ViewCustomAttributes = "";
 
 		// DispensasiDenda
 		$this->DispensasiDenda->ViewValue = $this->DispensasiDenda->CurrentValue;
+		$this->DispensasiDenda->CellCssStyle .= "text-align: right;";
 		$this->DispensasiDenda->ViewCustomAttributes = "";
 
 		// LamaAngsuran
 		$this->LamaAngsuran->ViewValue = $this->LamaAngsuran->CurrentValue;
+		$this->LamaAngsuran->CellCssStyle .= "text-align: right;";
 		$this->LamaAngsuran->ViewCustomAttributes = "";
 
 		// JumlahAngsuran
 		$this->JumlahAngsuran->ViewValue = $this->JumlahAngsuran->CurrentValue;
+		$this->JumlahAngsuran->ViewValue = ew_FormatNumber($this->JumlahAngsuran->ViewValue, 2, -2, -2, -2);
+		$this->JumlahAngsuran->CellCssStyle .= "text-align: right;";
 		$this->JumlahAngsuran->ViewCustomAttributes = "";
-
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
 
 			// NoKontrak
 			$this->NoKontrak->LinkCustomAttributes = "";
@@ -1010,12 +1020,6 @@ class ct01_nasabah_edit extends ct01_nasabah {
 			$this->JumlahAngsuran->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
 
-			// id
-			$this->id->EditAttrs["class"] = "form-control";
-			$this->id->EditCustomAttributes = "";
-			$this->id->EditValue = $this->id->CurrentValue;
-			$this->id->ViewCustomAttributes = "";
-
 			// NoKontrak
 			$this->NoKontrak->EditAttrs["class"] = "form-control";
 			$this->NoKontrak->EditCustomAttributes = "";
@@ -1049,7 +1053,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 			// TglKontrak
 			$this->TglKontrak->EditAttrs["class"] = "form-control";
 			$this->TglKontrak->EditCustomAttributes = "";
-			$this->TglKontrak->EditValue = ew_HtmlEncode(ew_FormatDateTime($this->TglKontrak->CurrentValue, 8));
+			$this->TglKontrak->EditValue = ew_HtmlEncode(ew_FormatDateTime($this->TglKontrak->CurrentValue, 7));
 			$this->TglKontrak->PlaceHolder = ew_RemoveHtml($this->TglKontrak->FldCaption());
 
 			// MerkType
@@ -1099,14 +1103,14 @@ class ct01_nasabah_edit extends ct01_nasabah {
 			$this->Pinjaman->EditCustomAttributes = "";
 			$this->Pinjaman->EditValue = ew_HtmlEncode($this->Pinjaman->CurrentValue);
 			$this->Pinjaman->PlaceHolder = ew_RemoveHtml($this->Pinjaman->FldCaption());
-			if (strval($this->Pinjaman->EditValue) <> "" && is_numeric($this->Pinjaman->EditValue)) $this->Pinjaman->EditValue = ew_FormatNumber($this->Pinjaman->EditValue, -2, -1, -2, 0);
+			if (strval($this->Pinjaman->EditValue) <> "" && is_numeric($this->Pinjaman->EditValue)) $this->Pinjaman->EditValue = ew_FormatNumber($this->Pinjaman->EditValue, -2, -2, -2, -2);
 
 			// Denda
 			$this->Denda->EditAttrs["class"] = "form-control";
 			$this->Denda->EditCustomAttributes = "";
 			$this->Denda->EditValue = ew_HtmlEncode($this->Denda->CurrentValue);
 			$this->Denda->PlaceHolder = ew_RemoveHtml($this->Denda->FldCaption());
-			if (strval($this->Denda->EditValue) <> "" && is_numeric($this->Denda->EditValue)) $this->Denda->EditValue = ew_FormatNumber($this->Denda->EditValue, -2, -1, -2, 0);
+			if (strval($this->Denda->EditValue) <> "" && is_numeric($this->Denda->EditValue)) $this->Denda->EditValue = ew_FormatNumber($this->Denda->EditValue, -2, -2, -2, -2);
 
 			// DispensasiDenda
 			$this->DispensasiDenda->EditAttrs["class"] = "form-control";
@@ -1125,15 +1129,11 @@ class ct01_nasabah_edit extends ct01_nasabah {
 			$this->JumlahAngsuran->EditCustomAttributes = "";
 			$this->JumlahAngsuran->EditValue = ew_HtmlEncode($this->JumlahAngsuran->CurrentValue);
 			$this->JumlahAngsuran->PlaceHolder = ew_RemoveHtml($this->JumlahAngsuran->FldCaption());
-			if (strval($this->JumlahAngsuran->EditValue) <> "" && is_numeric($this->JumlahAngsuran->EditValue)) $this->JumlahAngsuran->EditValue = ew_FormatNumber($this->JumlahAngsuran->EditValue, -2, -1, -2, 0);
+			if (strval($this->JumlahAngsuran->EditValue) <> "" && is_numeric($this->JumlahAngsuran->EditValue)) $this->JumlahAngsuran->EditValue = ew_FormatNumber($this->JumlahAngsuran->EditValue, -2, -2, -2, -2);
 
 			// Edit refer script
-			// id
-
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-
 			// NoKontrak
+
 			$this->NoKontrak->LinkCustomAttributes = "";
 			$this->NoKontrak->HrefValue = "";
 
@@ -1232,7 +1232,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		if (!$this->TglKontrak->FldIsDetailKey && !is_null($this->TglKontrak->FormValue) && $this->TglKontrak->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->TglKontrak->FldCaption(), $this->TglKontrak->ReqErrMsg));
 		}
-		if (!ew_CheckDateDef($this->TglKontrak->FormValue)) {
+		if (!ew_CheckEuroDate($this->TglKontrak->FormValue)) {
 			ew_AddMessage($gsFormError, $this->TglKontrak->FldErrMsg());
 		}
 		if (!$this->MerkType->FldIsDetailKey && !is_null($this->MerkType->FormValue) && $this->MerkType->FormValue == "") {
@@ -1320,7 +1320,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 			$this->NoTelpHp->SetDbValueDef($rsnew, $this->NoTelpHp->CurrentValue, NULL, $this->NoTelpHp->ReadOnly);
 
 			// TglKontrak
-			$this->TglKontrak->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TglKontrak->CurrentValue, 0), ew_CurrentDate(), $this->TglKontrak->ReadOnly);
+			$this->TglKontrak->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TglKontrak->CurrentValue, 7), ew_CurrentDate(), $this->TglKontrak->ReadOnly);
 
 			// MerkType
 			$this->MerkType->SetDbValueDef($rsnew, $this->MerkType->CurrentValue, "", $this->MerkType->ReadOnly);
@@ -1398,6 +1398,17 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t01_nasabahlist.php"), "", $this->TableVar, TRUE);
 		$PageId = "edit";
 		$Breadcrumb->Add("edit", $PageId, $url);
+	}
+
+	// Set up multi pages
+	function SetupMultiPages() {
+		$pages = new cSubPages();
+		$pages->Style = "tabs";
+		$pages->Add(0);
+		$pages->Add(1);
+		$pages->Add(2);
+		$pages->Add(3);
+		$this->MultiPages = $pages;
 	}
 
 	// Setup lookup filters of a field
@@ -1534,7 +1545,7 @@ ft01_nasabahedit.Validate = function() {
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t01_nasabah->TglKontrak->FldCaption(), $t01_nasabah->TglKontrak->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_TglKontrak");
-			if (elm && !ew_CheckDateDef(elm.value))
+			if (elm && !ew_CheckEuroDate(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t01_nasabah->TglKontrak->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_MerkType");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
@@ -1597,6 +1608,9 @@ ft01_nasabahedit.Form_CustomValidate =
 // Use JavaScript validation or not
 ft01_nasabahedit.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
 
+// Multi-Page
+ft01_nasabahedit.MultiPage = new ew_MultiPage("ft01_nasabahedit");
+
 // Dynamic selection lists
 // Form object for search
 
@@ -1616,25 +1630,22 @@ $t01_nasabah_edit->ShowMessage();
 <input type="hidden" name="t" value="t01_nasabah">
 <input type="hidden" name="a_edit" id="a_edit" value="U">
 <input type="hidden" name="modal" value="<?php echo intval($t01_nasabah_edit->IsModal) ?>">
+<div class="ewMultiPage"><!-- multi-page -->
+<div class="nav-tabs-custom" id="t01_nasabah_edit"><!-- multi-page .nav-tabs-custom -->
+	<ul class="nav<?php echo $t01_nasabah_edit->MultiPages->NavStyle() ?>">
+		<li<?php echo $t01_nasabah_edit->MultiPages->TabStyle("1") ?>><a href="#tab_t01_nasabah1" data-toggle="tab"><?php echo $t01_nasabah->PageCaption(1) ?></a></li>
+		<li<?php echo $t01_nasabah_edit->MultiPages->TabStyle("2") ?>><a href="#tab_t01_nasabah2" data-toggle="tab"><?php echo $t01_nasabah->PageCaption(2) ?></a></li>
+		<li<?php echo $t01_nasabah_edit->MultiPages->TabStyle("3") ?>><a href="#tab_t01_nasabah3" data-toggle="tab"><?php echo $t01_nasabah->PageCaption(3) ?></a></li>
+	</ul>
+	<div class="tab-content"><!-- multi-page .nav-tabs-custom .tab-content -->
+		<div class="tab-pane<?php echo $t01_nasabah_edit->MultiPages->PageStyle("1") ?>" id="tab_t01_nasabah1"><!-- multi-page .tab-pane -->
 <div class="ewEditDiv"><!-- page* -->
-<?php if ($t01_nasabah->id->Visible) { // id ?>
-	<div id="r_id" class="form-group">
-		<label id="elh_t01_nasabah_id" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->id->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->id->CellAttributes() ?>>
-<span id="el_t01_nasabah_id">
-<span<?php echo $t01_nasabah->id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t01_nasabah->id->EditValue ?></p></span>
-</span>
-<input type="hidden" data-table="t01_nasabah" data-field="x_id" name="x_id" id="x_id" value="<?php echo ew_HtmlEncode($t01_nasabah->id->CurrentValue) ?>">
-<?php echo $t01_nasabah->id->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
 <?php if ($t01_nasabah->NoKontrak->Visible) { // NoKontrak ?>
 	<div id="r_NoKontrak" class="form-group">
 		<label id="elh_t01_nasabah_NoKontrak" for="x_NoKontrak" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->NoKontrak->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->NoKontrak->CellAttributes() ?>>
 <span id="el_t01_nasabah_NoKontrak">
-<input type="text" data-table="t01_nasabah" data-field="x_NoKontrak" name="x_NoKontrak" id="x_NoKontrak" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->NoKontrak->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->NoKontrak->EditValue ?>"<?php echo $t01_nasabah->NoKontrak->EditAttributes() ?>>
+<input type="text" data-table="t01_nasabah" data-field="x_NoKontrak" data-page="1" name="x_NoKontrak" id="x_NoKontrak" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->NoKontrak->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->NoKontrak->EditValue ?>"<?php echo $t01_nasabah->NoKontrak->EditAttributes() ?>>
 </span>
 <?php echo $t01_nasabah->NoKontrak->CustomMsg ?></div></div>
 	</div>
@@ -1644,39 +1655,9 @@ $t01_nasabah_edit->ShowMessage();
 		<label id="elh_t01_nasabah_Customer" for="x_Customer" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Customer->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Customer->CellAttributes() ?>>
 <span id="el_t01_nasabah_Customer">
-<input type="text" data-table="t01_nasabah" data-field="x_Customer" name="x_Customer" id="x_Customer" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Customer->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->Customer->EditValue ?>"<?php echo $t01_nasabah->Customer->EditAttributes() ?>>
+<input type="text" data-table="t01_nasabah" data-field="x_Customer" data-page="1" name="x_Customer" id="x_Customer" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Customer->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->Customer->EditValue ?>"<?php echo $t01_nasabah->Customer->EditAttributes() ?>>
 </span>
 <?php echo $t01_nasabah->Customer->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t01_nasabah->Pekerjaan->Visible) { // Pekerjaan ?>
-	<div id="r_Pekerjaan" class="form-group">
-		<label id="elh_t01_nasabah_Pekerjaan" for="x_Pekerjaan" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Pekerjaan->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Pekerjaan->CellAttributes() ?>>
-<span id="el_t01_nasabah_Pekerjaan">
-<input type="text" data-table="t01_nasabah" data-field="x_Pekerjaan" name="x_Pekerjaan" id="x_Pekerjaan" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Pekerjaan->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->Pekerjaan->EditValue ?>"<?php echo $t01_nasabah->Pekerjaan->EditAttributes() ?>>
-</span>
-<?php echo $t01_nasabah->Pekerjaan->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t01_nasabah->Alamat->Visible) { // Alamat ?>
-	<div id="r_Alamat" class="form-group">
-		<label id="elh_t01_nasabah_Alamat" for="x_Alamat" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Alamat->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Alamat->CellAttributes() ?>>
-<span id="el_t01_nasabah_Alamat">
-<textarea data-table="t01_nasabah" data-field="x_Alamat" name="x_Alamat" id="x_Alamat" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Alamat->getPlaceHolder()) ?>"<?php echo $t01_nasabah->Alamat->EditAttributes() ?>><?php echo $t01_nasabah->Alamat->EditValue ?></textarea>
-</span>
-<?php echo $t01_nasabah->Alamat->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t01_nasabah->NoTelpHp->Visible) { // NoTelpHp ?>
-	<div id="r_NoTelpHp" class="form-group">
-		<label id="elh_t01_nasabah_NoTelpHp" for="x_NoTelpHp" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->NoTelpHp->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->NoTelpHp->CellAttributes() ?>>
-<span id="el_t01_nasabah_NoTelpHp">
-<input type="text" data-table="t01_nasabah" data-field="x_NoTelpHp" name="x_NoTelpHp" id="x_NoTelpHp" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->NoTelpHp->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->NoTelpHp->EditValue ?>"<?php echo $t01_nasabah->NoTelpHp->EditAttributes() ?>>
-</span>
-<?php echo $t01_nasabah->NoTelpHp->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
 <?php if ($t01_nasabah->TglKontrak->Visible) { // TglKontrak ?>
@@ -1684,7 +1665,12 @@ $t01_nasabah_edit->ShowMessage();
 		<label id="elh_t01_nasabah_TglKontrak" for="x_TglKontrak" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->TglKontrak->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->TglKontrak->CellAttributes() ?>>
 <span id="el_t01_nasabah_TglKontrak">
-<input type="text" data-table="t01_nasabah" data-field="x_TglKontrak" name="x_TglKontrak" id="x_TglKontrak" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->TglKontrak->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->TglKontrak->EditValue ?>"<?php echo $t01_nasabah->TglKontrak->EditAttributes() ?>>
+<input type="text" data-table="t01_nasabah" data-field="x_TglKontrak" data-page="1" data-format="7" name="x_TglKontrak" id="x_TglKontrak" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->TglKontrak->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->TglKontrak->EditValue ?>"<?php echo $t01_nasabah->TglKontrak->EditAttributes() ?>>
+<?php if (!$t01_nasabah->TglKontrak->ReadOnly && !$t01_nasabah->TglKontrak->Disabled && !isset($t01_nasabah->TglKontrak->EditAttrs["readonly"]) && !isset($t01_nasabah->TglKontrak->EditAttrs["disabled"])) { ?>
+<script type="text/javascript">
+ew_CreateDateTimePicker("ft01_nasabahedit", "x_TglKontrak", {"ignoreReadonly":true,"useCurrent":false,"format":7});
+</script>
+<?php } ?>
 </span>
 <?php echo $t01_nasabah->TglKontrak->CustomMsg ?></div></div>
 	</div>
@@ -1694,69 +1680,9 @@ $t01_nasabah_edit->ShowMessage();
 		<label id="elh_t01_nasabah_MerkType" for="x_MerkType" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->MerkType->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->MerkType->CellAttributes() ?>>
 <span id="el_t01_nasabah_MerkType">
-<input type="text" data-table="t01_nasabah" data-field="x_MerkType" name="x_MerkType" id="x_MerkType" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->MerkType->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->MerkType->EditValue ?>"<?php echo $t01_nasabah->MerkType->EditAttributes() ?>>
+<input type="text" data-table="t01_nasabah" data-field="x_MerkType" data-page="1" name="x_MerkType" id="x_MerkType" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->MerkType->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->MerkType->EditValue ?>"<?php echo $t01_nasabah->MerkType->EditAttributes() ?>>
 </span>
 <?php echo $t01_nasabah->MerkType->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t01_nasabah->NoRangka->Visible) { // NoRangka ?>
-	<div id="r_NoRangka" class="form-group">
-		<label id="elh_t01_nasabah_NoRangka" for="x_NoRangka" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->NoRangka->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->NoRangka->CellAttributes() ?>>
-<span id="el_t01_nasabah_NoRangka">
-<input type="text" data-table="t01_nasabah" data-field="x_NoRangka" name="x_NoRangka" id="x_NoRangka" size="30" maxlength="50" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->NoRangka->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->NoRangka->EditValue ?>"<?php echo $t01_nasabah->NoRangka->EditAttributes() ?>>
-</span>
-<?php echo $t01_nasabah->NoRangka->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t01_nasabah->NoMesin->Visible) { // NoMesin ?>
-	<div id="r_NoMesin" class="form-group">
-		<label id="elh_t01_nasabah_NoMesin" for="x_NoMesin" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->NoMesin->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->NoMesin->CellAttributes() ?>>
-<span id="el_t01_nasabah_NoMesin">
-<input type="text" data-table="t01_nasabah" data-field="x_NoMesin" name="x_NoMesin" id="x_NoMesin" size="30" maxlength="50" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->NoMesin->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->NoMesin->EditValue ?>"<?php echo $t01_nasabah->NoMesin->EditAttributes() ?>>
-</span>
-<?php echo $t01_nasabah->NoMesin->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t01_nasabah->Warna->Visible) { // Warna ?>
-	<div id="r_Warna" class="form-group">
-		<label id="elh_t01_nasabah_Warna" for="x_Warna" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Warna->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Warna->CellAttributes() ?>>
-<span id="el_t01_nasabah_Warna">
-<input type="text" data-table="t01_nasabah" data-field="x_Warna" name="x_Warna" id="x_Warna" size="30" maxlength="15" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Warna->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->Warna->EditValue ?>"<?php echo $t01_nasabah->Warna->EditAttributes() ?>>
-</span>
-<?php echo $t01_nasabah->Warna->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t01_nasabah->NoPol->Visible) { // NoPol ?>
-	<div id="r_NoPol" class="form-group">
-		<label id="elh_t01_nasabah_NoPol" for="x_NoPol" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->NoPol->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->NoPol->CellAttributes() ?>>
-<span id="el_t01_nasabah_NoPol">
-<input type="text" data-table="t01_nasabah" data-field="x_NoPol" name="x_NoPol" id="x_NoPol" size="30" maxlength="15" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->NoPol->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->NoPol->EditValue ?>"<?php echo $t01_nasabah->NoPol->EditAttributes() ?>>
-</span>
-<?php echo $t01_nasabah->NoPol->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t01_nasabah->Keterangan->Visible) { // Keterangan ?>
-	<div id="r_Keterangan" class="form-group">
-		<label id="elh_t01_nasabah_Keterangan" for="x_Keterangan" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Keterangan->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Keterangan->CellAttributes() ?>>
-<span id="el_t01_nasabah_Keterangan">
-<textarea data-table="t01_nasabah" data-field="x_Keterangan" name="x_Keterangan" id="x_Keterangan" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Keterangan->getPlaceHolder()) ?>"<?php echo $t01_nasabah->Keterangan->EditAttributes() ?>><?php echo $t01_nasabah->Keterangan->EditValue ?></textarea>
-</span>
-<?php echo $t01_nasabah->Keterangan->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t01_nasabah->AtasNama->Visible) { // AtasNama ?>
-	<div id="r_AtasNama" class="form-group">
-		<label id="elh_t01_nasabah_AtasNama" for="x_AtasNama" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->AtasNama->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->AtasNama->CellAttributes() ?>>
-<span id="el_t01_nasabah_AtasNama">
-<input type="text" data-table="t01_nasabah" data-field="x_AtasNama" name="x_AtasNama" id="x_AtasNama" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->AtasNama->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->AtasNama->EditValue ?>"<?php echo $t01_nasabah->AtasNama->EditAttributes() ?>>
-</span>
-<?php echo $t01_nasabah->AtasNama->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
 <?php if ($t01_nasabah->Pinjaman->Visible) { // Pinjaman ?>
@@ -1764,7 +1690,7 @@ $t01_nasabah_edit->ShowMessage();
 		<label id="elh_t01_nasabah_Pinjaman" for="x_Pinjaman" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Pinjaman->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Pinjaman->CellAttributes() ?>>
 <span id="el_t01_nasabah_Pinjaman">
-<input type="text" data-table="t01_nasabah" data-field="x_Pinjaman" name="x_Pinjaman" id="x_Pinjaman" size="30" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Pinjaman->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->Pinjaman->EditValue ?>"<?php echo $t01_nasabah->Pinjaman->EditAttributes() ?>>
+<input type="text" data-table="t01_nasabah" data-field="x_Pinjaman" data-page="1" name="x_Pinjaman" id="x_Pinjaman" size="30" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Pinjaman->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->Pinjaman->EditValue ?>"<?php echo $t01_nasabah->Pinjaman->EditAttributes() ?>>
 </span>
 <?php echo $t01_nasabah->Pinjaman->CustomMsg ?></div></div>
 	</div>
@@ -1774,7 +1700,7 @@ $t01_nasabah_edit->ShowMessage();
 		<label id="elh_t01_nasabah_Denda" for="x_Denda" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Denda->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Denda->CellAttributes() ?>>
 <span id="el_t01_nasabah_Denda">
-<input type="text" data-table="t01_nasabah" data-field="x_Denda" name="x_Denda" id="x_Denda" size="30" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Denda->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->Denda->EditValue ?>"<?php echo $t01_nasabah->Denda->EditAttributes() ?>>
+<input type="text" data-table="t01_nasabah" data-field="x_Denda" data-page="1" name="x_Denda" id="x_Denda" size="30" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Denda->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->Denda->EditValue ?>"<?php echo $t01_nasabah->Denda->EditAttributes() ?>>
 </span>
 <?php echo $t01_nasabah->Denda->CustomMsg ?></div></div>
 	</div>
@@ -1784,7 +1710,7 @@ $t01_nasabah_edit->ShowMessage();
 		<label id="elh_t01_nasabah_DispensasiDenda" for="x_DispensasiDenda" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->DispensasiDenda->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->DispensasiDenda->CellAttributes() ?>>
 <span id="el_t01_nasabah_DispensasiDenda">
-<input type="text" data-table="t01_nasabah" data-field="x_DispensasiDenda" name="x_DispensasiDenda" id="x_DispensasiDenda" size="30" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->DispensasiDenda->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->DispensasiDenda->EditValue ?>"<?php echo $t01_nasabah->DispensasiDenda->EditAttributes() ?>>
+<input type="text" data-table="t01_nasabah" data-field="x_DispensasiDenda" data-page="1" name="x_DispensasiDenda" id="x_DispensasiDenda" size="30" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->DispensasiDenda->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->DispensasiDenda->EditValue ?>"<?php echo $t01_nasabah->DispensasiDenda->EditAttributes() ?>>
 </span>
 <?php echo $t01_nasabah->DispensasiDenda->CustomMsg ?></div></div>
 	</div>
@@ -1794,7 +1720,7 @@ $t01_nasabah_edit->ShowMessage();
 		<label id="elh_t01_nasabah_LamaAngsuran" for="x_LamaAngsuran" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->LamaAngsuran->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->LamaAngsuran->CellAttributes() ?>>
 <span id="el_t01_nasabah_LamaAngsuran">
-<input type="text" data-table="t01_nasabah" data-field="x_LamaAngsuran" name="x_LamaAngsuran" id="x_LamaAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->LamaAngsuran->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->LamaAngsuran->EditValue ?>"<?php echo $t01_nasabah->LamaAngsuran->EditAttributes() ?>>
+<input type="text" data-table="t01_nasabah" data-field="x_LamaAngsuran" data-page="1" name="x_LamaAngsuran" id="x_LamaAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->LamaAngsuran->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->LamaAngsuran->EditValue ?>"<?php echo $t01_nasabah->LamaAngsuran->EditAttributes() ?>>
 </span>
 <?php echo $t01_nasabah->LamaAngsuran->CustomMsg ?></div></div>
 	</div>
@@ -1804,12 +1730,115 @@ $t01_nasabah_edit->ShowMessage();
 		<label id="elh_t01_nasabah_JumlahAngsuran" for="x_JumlahAngsuran" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->JumlahAngsuran->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->JumlahAngsuran->CellAttributes() ?>>
 <span id="el_t01_nasabah_JumlahAngsuran">
-<input type="text" data-table="t01_nasabah" data-field="x_JumlahAngsuran" name="x_JumlahAngsuran" id="x_JumlahAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->JumlahAngsuran->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->JumlahAngsuran->EditValue ?>"<?php echo $t01_nasabah->JumlahAngsuran->EditAttributes() ?>>
+<input type="text" data-table="t01_nasabah" data-field="x_JumlahAngsuran" data-page="1" name="x_JumlahAngsuran" id="x_JumlahAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->JumlahAngsuran->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->JumlahAngsuran->EditValue ?>"<?php echo $t01_nasabah->JumlahAngsuran->EditAttributes() ?>>
 </span>
 <?php echo $t01_nasabah->JumlahAngsuran->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
 </div><!-- /page* -->
+		</div><!-- /multi-page .tab-pane -->
+		<div class="tab-pane<?php echo $t01_nasabah_edit->MultiPages->PageStyle("2") ?>" id="tab_t01_nasabah2"><!-- multi-page .tab-pane -->
+<div class="ewEditDiv"><!-- page* -->
+<?php if ($t01_nasabah->NoRangka->Visible) { // NoRangka ?>
+	<div id="r_NoRangka" class="form-group">
+		<label id="elh_t01_nasabah_NoRangka" for="x_NoRangka" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->NoRangka->FldCaption() ?></label>
+		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->NoRangka->CellAttributes() ?>>
+<span id="el_t01_nasabah_NoRangka">
+<input type="text" data-table="t01_nasabah" data-field="x_NoRangka" data-page="2" name="x_NoRangka" id="x_NoRangka" size="30" maxlength="50" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->NoRangka->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->NoRangka->EditValue ?>"<?php echo $t01_nasabah->NoRangka->EditAttributes() ?>>
+</span>
+<?php echo $t01_nasabah->NoRangka->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+<?php if ($t01_nasabah->NoMesin->Visible) { // NoMesin ?>
+	<div id="r_NoMesin" class="form-group">
+		<label id="elh_t01_nasabah_NoMesin" for="x_NoMesin" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->NoMesin->FldCaption() ?></label>
+		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->NoMesin->CellAttributes() ?>>
+<span id="el_t01_nasabah_NoMesin">
+<input type="text" data-table="t01_nasabah" data-field="x_NoMesin" data-page="2" name="x_NoMesin" id="x_NoMesin" size="30" maxlength="50" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->NoMesin->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->NoMesin->EditValue ?>"<?php echo $t01_nasabah->NoMesin->EditAttributes() ?>>
+</span>
+<?php echo $t01_nasabah->NoMesin->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+<?php if ($t01_nasabah->Warna->Visible) { // Warna ?>
+	<div id="r_Warna" class="form-group">
+		<label id="elh_t01_nasabah_Warna" for="x_Warna" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Warna->FldCaption() ?></label>
+		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Warna->CellAttributes() ?>>
+<span id="el_t01_nasabah_Warna">
+<input type="text" data-table="t01_nasabah" data-field="x_Warna" data-page="2" name="x_Warna" id="x_Warna" size="30" maxlength="15" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Warna->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->Warna->EditValue ?>"<?php echo $t01_nasabah->Warna->EditAttributes() ?>>
+</span>
+<?php echo $t01_nasabah->Warna->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+<?php if ($t01_nasabah->NoPol->Visible) { // NoPol ?>
+	<div id="r_NoPol" class="form-group">
+		<label id="elh_t01_nasabah_NoPol" for="x_NoPol" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->NoPol->FldCaption() ?></label>
+		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->NoPol->CellAttributes() ?>>
+<span id="el_t01_nasabah_NoPol">
+<input type="text" data-table="t01_nasabah" data-field="x_NoPol" data-page="2" name="x_NoPol" id="x_NoPol" size="30" maxlength="15" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->NoPol->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->NoPol->EditValue ?>"<?php echo $t01_nasabah->NoPol->EditAttributes() ?>>
+</span>
+<?php echo $t01_nasabah->NoPol->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+<?php if ($t01_nasabah->Keterangan->Visible) { // Keterangan ?>
+	<div id="r_Keterangan" class="form-group">
+		<label id="elh_t01_nasabah_Keterangan" for="x_Keterangan" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Keterangan->FldCaption() ?></label>
+		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Keterangan->CellAttributes() ?>>
+<span id="el_t01_nasabah_Keterangan">
+<textarea data-table="t01_nasabah" data-field="x_Keterangan" data-page="2" name="x_Keterangan" id="x_Keterangan" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Keterangan->getPlaceHolder()) ?>"<?php echo $t01_nasabah->Keterangan->EditAttributes() ?>><?php echo $t01_nasabah->Keterangan->EditValue ?></textarea>
+</span>
+<?php echo $t01_nasabah->Keterangan->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+<?php if ($t01_nasabah->AtasNama->Visible) { // AtasNama ?>
+	<div id="r_AtasNama" class="form-group">
+		<label id="elh_t01_nasabah_AtasNama" for="x_AtasNama" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->AtasNama->FldCaption() ?></label>
+		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->AtasNama->CellAttributes() ?>>
+<span id="el_t01_nasabah_AtasNama">
+<input type="text" data-table="t01_nasabah" data-field="x_AtasNama" data-page="2" name="x_AtasNama" id="x_AtasNama" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->AtasNama->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->AtasNama->EditValue ?>"<?php echo $t01_nasabah->AtasNama->EditAttributes() ?>>
+</span>
+<?php echo $t01_nasabah->AtasNama->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+</div><!-- /page* -->
+		</div><!-- /multi-page .tab-pane -->
+		<div class="tab-pane<?php echo $t01_nasabah_edit->MultiPages->PageStyle("3") ?>" id="tab_t01_nasabah3"><!-- multi-page .tab-pane -->
+<div class="ewEditDiv"><!-- page* -->
+<?php if ($t01_nasabah->Pekerjaan->Visible) { // Pekerjaan ?>
+	<div id="r_Pekerjaan" class="form-group">
+		<label id="elh_t01_nasabah_Pekerjaan" for="x_Pekerjaan" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Pekerjaan->FldCaption() ?></label>
+		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Pekerjaan->CellAttributes() ?>>
+<span id="el_t01_nasabah_Pekerjaan">
+<input type="text" data-table="t01_nasabah" data-field="x_Pekerjaan" data-page="3" name="x_Pekerjaan" id="x_Pekerjaan" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Pekerjaan->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->Pekerjaan->EditValue ?>"<?php echo $t01_nasabah->Pekerjaan->EditAttributes() ?>>
+</span>
+<?php echo $t01_nasabah->Pekerjaan->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+<?php if ($t01_nasabah->Alamat->Visible) { // Alamat ?>
+	<div id="r_Alamat" class="form-group">
+		<label id="elh_t01_nasabah_Alamat" for="x_Alamat" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Alamat->FldCaption() ?></label>
+		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Alamat->CellAttributes() ?>>
+<span id="el_t01_nasabah_Alamat">
+<textarea data-table="t01_nasabah" data-field="x_Alamat" data-page="3" name="x_Alamat" id="x_Alamat" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Alamat->getPlaceHolder()) ?>"<?php echo $t01_nasabah->Alamat->EditAttributes() ?>><?php echo $t01_nasabah->Alamat->EditValue ?></textarea>
+</span>
+<?php echo $t01_nasabah->Alamat->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+<?php if ($t01_nasabah->NoTelpHp->Visible) { // NoTelpHp ?>
+	<div id="r_NoTelpHp" class="form-group">
+		<label id="elh_t01_nasabah_NoTelpHp" for="x_NoTelpHp" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->NoTelpHp->FldCaption() ?></label>
+		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->NoTelpHp->CellAttributes() ?>>
+<span id="el_t01_nasabah_NoTelpHp">
+<input type="text" data-table="t01_nasabah" data-field="x_NoTelpHp" data-page="3" name="x_NoTelpHp" id="x_NoTelpHp" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->NoTelpHp->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->NoTelpHp->EditValue ?>"<?php echo $t01_nasabah->NoTelpHp->EditAttributes() ?>>
+</span>
+<?php echo $t01_nasabah->NoTelpHp->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+</div><!-- /page* -->
+		</div><!-- /multi-page .tab-pane -->
+	</div><!-- /multi-page .nav-tabs-custom .tab-content -->
+</div><!-- /multi-page .nav-tabs-custom -->
+</div><!-- /multi-page -->
+<input type="hidden" data-table="t01_nasabah" data-field="x_id" name="x_id" id="x_id" value="<?php echo ew_HtmlEncode($t01_nasabah->id->CurrentValue) ?>">
 <?php if (!$t01_nasabah_edit->IsModal) { ?>
 <div class="form-group"><!-- buttons .form-group -->
 	<div class="<?php echo $t01_nasabah_edit->OffsetColumnClass ?>"><!-- buttons offset -->

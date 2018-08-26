@@ -105,6 +105,12 @@ class ct98_userlevelpermissions_list extends ct98_userlevelpermissions {
 	var $GridEditUrl;
 	var $MultiDeleteUrl;
 	var $MultiUpdateUrl;
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -1036,37 +1042,37 @@ class ct98_userlevelpermissions_list extends ct98_userlevelpermissions {
 		// Add group option item
 		$item = &$this->ListOptions->Add($this->ListOptions->GroupOptionName);
 		$item->Body = "";
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 		$item->Visible = FALSE;
 
 		// "view"
 		$item = &$this->ListOptions->Add("view");
 		$item->CssClass = "text-nowrap";
 		$item->Visible = $Security->CanView();
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 
 		// "edit"
 		$item = &$this->ListOptions->Add("edit");
 		$item->CssClass = "text-nowrap";
 		$item->Visible = $Security->CanEdit();
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 
 		// "copy"
 		$item = &$this->ListOptions->Add("copy");
 		$item->CssClass = "text-nowrap";
 		$item->Visible = $Security->CanAdd();
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 
 		// "delete"
 		$item = &$this->ListOptions->Add("delete");
 		$item->CssClass = "text-nowrap";
 		$item->Visible = $Security->CanDelete();
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 
 		// List actions
 		$item = &$this->ListOptions->Add("listactions");
 		$item->CssClass = "text-nowrap";
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 		$item->Visible = FALSE;
 		$item->ShowInButtonGroup = FALSE;
 		$item->ShowInDropDown = FALSE;
@@ -1074,8 +1080,9 @@ class ct98_userlevelpermissions_list extends ct98_userlevelpermissions {
 		// "checkbox"
 		$item = &$this->ListOptions->Add("checkbox");
 		$item->Visible = FALSE;
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 		$item->Header = "<input type=\"checkbox\" name=\"key\" id=\"key\" onclick=\"ew_SelectAllKey(this);\">";
+		$item->MoveTo(0);
 		$item->ShowInDropDown = FALSE;
 		$item->ShowInButtonGroup = FALSE;
 
@@ -1816,6 +1823,13 @@ var CurrentSearchForm = ft98_userlevelpermissionslistsrch = new ew_Form("ft98_us
 			$t98_userlevelpermissions_list->setWarningMessage($Language->Phrase("EnterSearchCriteria"));
 		else
 			$t98_userlevelpermissions_list->setWarningMessage($Language->Phrase("NoRecord"));
+	}
+
+	// Audit trail on search
+	if ($t98_userlevelpermissions_list->AuditTrailOnSearch && $t98_userlevelpermissions_list->Command == "search" && !$t98_userlevelpermissions_list->RestoreSearch) {
+		$searchparm = ew_ServerVar("QUERY_STRING");
+		$searchsql = $t98_userlevelpermissions_list->getSessionWhere();
+		$t98_userlevelpermissions_list->WriteAuditTrailOnSearch($searchparm, $searchsql);
 	}
 $t98_userlevelpermissions_list->RenderOtherOptions();
 ?>

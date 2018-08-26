@@ -97,6 +97,12 @@ class ct01_nasabah_view extends ct01_nasabah {
 	var $GridEditUrl;
 	var $MultiDeleteUrl;
 	var $MultiUpdateUrl;
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -380,9 +386,6 @@ class ct01_nasabah_view extends ct01_nasabah {
 		// 
 
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
 		$this->NoKontrak->SetVisibility();
 		$this->Customer->SetVisibility();
 		$this->Pekerjaan->SetVisibility();
@@ -401,6 +404,9 @@ class ct01_nasabah_view extends ct01_nasabah {
 		$this->DispensasiDenda->SetVisibility();
 		$this->LamaAngsuran->SetVisibility();
 		$this->JumlahAngsuran->SetVisibility();
+
+		// Set up multi page object
+		$this->SetupMultiPages();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -492,6 +498,7 @@ class ct01_nasabah_view extends ct01_nasabah {
 	var $RecKey = array();
 	var $IsModal = FALSE;
 	var $Recordset;
+	var $MultiPages; // Multi pages object
 
 	//
 	// Page main
@@ -662,6 +669,7 @@ class ct01_nasabah_view extends ct01_nasabah {
 		$this->Row_Selected($row);
 		if (!$rs || $rs->EOF)
 			return;
+		if ($this->AuditTrailOnView) $this->WriteAuditTrailOnView($row);
 		$this->id->setDbValue($row['id']);
 		$this->NoKontrak->setDbValue($row['NoKontrak']);
 		$this->Customer->setDbValue($row['Customer']);
@@ -810,7 +818,7 @@ class ct01_nasabah_view extends ct01_nasabah {
 
 		// TglKontrak
 		$this->TglKontrak->ViewValue = $this->TglKontrak->CurrentValue;
-		$this->TglKontrak->ViewValue = ew_FormatDateTime($this->TglKontrak->ViewValue, 0);
+		$this->TglKontrak->ViewValue = ew_FormatDateTime($this->TglKontrak->ViewValue, 7);
 		$this->TglKontrak->ViewCustomAttributes = "";
 
 		// MerkType
@@ -843,28 +851,31 @@ class ct01_nasabah_view extends ct01_nasabah {
 
 		// Pinjaman
 		$this->Pinjaman->ViewValue = $this->Pinjaman->CurrentValue;
+		$this->Pinjaman->ViewValue = ew_FormatNumber($this->Pinjaman->ViewValue, 2, -2, -2, -2);
+		$this->Pinjaman->CellCssStyle .= "text-align: right;";
 		$this->Pinjaman->ViewCustomAttributes = "";
 
 		// Denda
 		$this->Denda->ViewValue = $this->Denda->CurrentValue;
+		$this->Denda->ViewValue = ew_FormatNumber($this->Denda->ViewValue, 2, -2, -2, -2);
+		$this->Denda->CellCssStyle .= "text-align: right;";
 		$this->Denda->ViewCustomAttributes = "";
 
 		// DispensasiDenda
 		$this->DispensasiDenda->ViewValue = $this->DispensasiDenda->CurrentValue;
+		$this->DispensasiDenda->CellCssStyle .= "text-align: right;";
 		$this->DispensasiDenda->ViewCustomAttributes = "";
 
 		// LamaAngsuran
 		$this->LamaAngsuran->ViewValue = $this->LamaAngsuran->CurrentValue;
+		$this->LamaAngsuran->CellCssStyle .= "text-align: right;";
 		$this->LamaAngsuran->ViewCustomAttributes = "";
 
 		// JumlahAngsuran
 		$this->JumlahAngsuran->ViewValue = $this->JumlahAngsuran->CurrentValue;
+		$this->JumlahAngsuran->ViewValue = ew_FormatNumber($this->JumlahAngsuran->ViewValue, 2, -2, -2, -2);
+		$this->JumlahAngsuran->CellCssStyle .= "text-align: right;";
 		$this->JumlahAngsuran->ViewCustomAttributes = "";
-
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
 
 			// NoKontrak
 			$this->NoKontrak->LinkCustomAttributes = "";
@@ -970,6 +981,17 @@ class ct01_nasabah_view extends ct01_nasabah {
 		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t01_nasabahlist.php"), "", $this->TableVar, TRUE);
 		$PageId = "view";
 		$Breadcrumb->Add("view", $PageId, $url);
+	}
+
+	// Set up multi pages
+	function SetupMultiPages() {
+		$pages = new cSubPages();
+		$pages->Style = "tabs";
+		$pages->Add(0);
+		$pages->Add(1);
+		$pages->Add(2);
+		$pages->Add(3);
+		$this->MultiPages = $pages;
 	}
 
 	// Setup lookup filters of a field
@@ -1111,6 +1133,9 @@ ft01_nasabahview.Form_CustomValidate =
 // Use JavaScript validation or not
 ft01_nasabahview.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
 
+// Multi-Page
+ft01_nasabahview.MultiPage = new ew_MultiPage("ft01_nasabahview");
+
 // Dynamic selection lists
 // Form object for search
 
@@ -1137,23 +1162,25 @@ $t01_nasabah_view->ShowMessage();
 <?php } ?>
 <input type="hidden" name="t" value="t01_nasabah">
 <input type="hidden" name="modal" value="<?php echo intval($t01_nasabah_view->IsModal) ?>">
-<table class="table table-striped table-bordered table-hover table-condensed ewViewTable">
-<?php if ($t01_nasabah->id->Visible) { // id ?>
-	<tr id="r_id">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_id"><?php echo $t01_nasabah->id->FldCaption() ?></span></td>
-		<td data-name="id"<?php echo $t01_nasabah->id->CellAttributes() ?>>
-<span id="el_t01_nasabah_id">
-<span<?php echo $t01_nasabah->id->ViewAttributes() ?>>
-<?php echo $t01_nasabah->id->ViewValue ?></span>
-</span>
-</td>
-	</tr>
+<?php if ($t01_nasabah->Export == "") { ?>
+<div class="ewMultiPage">
+<div class="nav-tabs-custom" id="t01_nasabah_view">
+	<ul class="nav<?php echo $t01_nasabah_view->MultiPages->NavStyle() ?>">
+		<li<?php echo $t01_nasabah_view->MultiPages->TabStyle("1") ?>><a href="#tab_t01_nasabah1" data-toggle="tab"><?php echo $t01_nasabah->PageCaption(1) ?></a></li>
+		<li<?php echo $t01_nasabah_view->MultiPages->TabStyle("2") ?>><a href="#tab_t01_nasabah2" data-toggle="tab"><?php echo $t01_nasabah->PageCaption(2) ?></a></li>
+		<li<?php echo $t01_nasabah_view->MultiPages->TabStyle("3") ?>><a href="#tab_t01_nasabah3" data-toggle="tab"><?php echo $t01_nasabah->PageCaption(3) ?></a></li>
+	</ul>
+	<div class="tab-content">
 <?php } ?>
+<?php if ($t01_nasabah->Export == "") { ?>
+		<div class="tab-pane<?php echo $t01_nasabah_view->MultiPages->PageStyle("1") ?>" id="tab_t01_nasabah1">
+<?php } ?>
+<table class="table table-striped table-bordered table-hover table-condensed ewViewTable">
 <?php if ($t01_nasabah->NoKontrak->Visible) { // NoKontrak ?>
 	<tr id="r_NoKontrak">
 		<td class="col-sm-2"><span id="elh_t01_nasabah_NoKontrak"><?php echo $t01_nasabah->NoKontrak->FldCaption() ?></span></td>
 		<td data-name="NoKontrak"<?php echo $t01_nasabah->NoKontrak->CellAttributes() ?>>
-<span id="el_t01_nasabah_NoKontrak">
+<span id="el_t01_nasabah_NoKontrak" data-page="1">
 <span<?php echo $t01_nasabah->NoKontrak->ViewAttributes() ?>>
 <?php echo $t01_nasabah->NoKontrak->ViewValue ?></span>
 </span>
@@ -1164,42 +1191,9 @@ $t01_nasabah_view->ShowMessage();
 	<tr id="r_Customer">
 		<td class="col-sm-2"><span id="elh_t01_nasabah_Customer"><?php echo $t01_nasabah->Customer->FldCaption() ?></span></td>
 		<td data-name="Customer"<?php echo $t01_nasabah->Customer->CellAttributes() ?>>
-<span id="el_t01_nasabah_Customer">
+<span id="el_t01_nasabah_Customer" data-page="1">
 <span<?php echo $t01_nasabah->Customer->ViewAttributes() ?>>
 <?php echo $t01_nasabah->Customer->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t01_nasabah->Pekerjaan->Visible) { // Pekerjaan ?>
-	<tr id="r_Pekerjaan">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_Pekerjaan"><?php echo $t01_nasabah->Pekerjaan->FldCaption() ?></span></td>
-		<td data-name="Pekerjaan"<?php echo $t01_nasabah->Pekerjaan->CellAttributes() ?>>
-<span id="el_t01_nasabah_Pekerjaan">
-<span<?php echo $t01_nasabah->Pekerjaan->ViewAttributes() ?>>
-<?php echo $t01_nasabah->Pekerjaan->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t01_nasabah->Alamat->Visible) { // Alamat ?>
-	<tr id="r_Alamat">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_Alamat"><?php echo $t01_nasabah->Alamat->FldCaption() ?></span></td>
-		<td data-name="Alamat"<?php echo $t01_nasabah->Alamat->CellAttributes() ?>>
-<span id="el_t01_nasabah_Alamat">
-<span<?php echo $t01_nasabah->Alamat->ViewAttributes() ?>>
-<?php echo $t01_nasabah->Alamat->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t01_nasabah->NoTelpHp->Visible) { // NoTelpHp ?>
-	<tr id="r_NoTelpHp">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_NoTelpHp"><?php echo $t01_nasabah->NoTelpHp->FldCaption() ?></span></td>
-		<td data-name="NoTelpHp"<?php echo $t01_nasabah->NoTelpHp->CellAttributes() ?>>
-<span id="el_t01_nasabah_NoTelpHp">
-<span<?php echo $t01_nasabah->NoTelpHp->ViewAttributes() ?>>
-<?php echo $t01_nasabah->NoTelpHp->ViewValue ?></span>
 </span>
 </td>
 	</tr>
@@ -1208,7 +1202,7 @@ $t01_nasabah_view->ShowMessage();
 	<tr id="r_TglKontrak">
 		<td class="col-sm-2"><span id="elh_t01_nasabah_TglKontrak"><?php echo $t01_nasabah->TglKontrak->FldCaption() ?></span></td>
 		<td data-name="TglKontrak"<?php echo $t01_nasabah->TglKontrak->CellAttributes() ?>>
-<span id="el_t01_nasabah_TglKontrak">
+<span id="el_t01_nasabah_TglKontrak" data-page="1">
 <span<?php echo $t01_nasabah->TglKontrak->ViewAttributes() ?>>
 <?php echo $t01_nasabah->TglKontrak->ViewValue ?></span>
 </span>
@@ -1219,75 +1213,9 @@ $t01_nasabah_view->ShowMessage();
 	<tr id="r_MerkType">
 		<td class="col-sm-2"><span id="elh_t01_nasabah_MerkType"><?php echo $t01_nasabah->MerkType->FldCaption() ?></span></td>
 		<td data-name="MerkType"<?php echo $t01_nasabah->MerkType->CellAttributes() ?>>
-<span id="el_t01_nasabah_MerkType">
+<span id="el_t01_nasabah_MerkType" data-page="1">
 <span<?php echo $t01_nasabah->MerkType->ViewAttributes() ?>>
 <?php echo $t01_nasabah->MerkType->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t01_nasabah->NoRangka->Visible) { // NoRangka ?>
-	<tr id="r_NoRangka">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_NoRangka"><?php echo $t01_nasabah->NoRangka->FldCaption() ?></span></td>
-		<td data-name="NoRangka"<?php echo $t01_nasabah->NoRangka->CellAttributes() ?>>
-<span id="el_t01_nasabah_NoRangka">
-<span<?php echo $t01_nasabah->NoRangka->ViewAttributes() ?>>
-<?php echo $t01_nasabah->NoRangka->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t01_nasabah->NoMesin->Visible) { // NoMesin ?>
-	<tr id="r_NoMesin">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_NoMesin"><?php echo $t01_nasabah->NoMesin->FldCaption() ?></span></td>
-		<td data-name="NoMesin"<?php echo $t01_nasabah->NoMesin->CellAttributes() ?>>
-<span id="el_t01_nasabah_NoMesin">
-<span<?php echo $t01_nasabah->NoMesin->ViewAttributes() ?>>
-<?php echo $t01_nasabah->NoMesin->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t01_nasabah->Warna->Visible) { // Warna ?>
-	<tr id="r_Warna">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_Warna"><?php echo $t01_nasabah->Warna->FldCaption() ?></span></td>
-		<td data-name="Warna"<?php echo $t01_nasabah->Warna->CellAttributes() ?>>
-<span id="el_t01_nasabah_Warna">
-<span<?php echo $t01_nasabah->Warna->ViewAttributes() ?>>
-<?php echo $t01_nasabah->Warna->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t01_nasabah->NoPol->Visible) { // NoPol ?>
-	<tr id="r_NoPol">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_NoPol"><?php echo $t01_nasabah->NoPol->FldCaption() ?></span></td>
-		<td data-name="NoPol"<?php echo $t01_nasabah->NoPol->CellAttributes() ?>>
-<span id="el_t01_nasabah_NoPol">
-<span<?php echo $t01_nasabah->NoPol->ViewAttributes() ?>>
-<?php echo $t01_nasabah->NoPol->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t01_nasabah->Keterangan->Visible) { // Keterangan ?>
-	<tr id="r_Keterangan">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_Keterangan"><?php echo $t01_nasabah->Keterangan->FldCaption() ?></span></td>
-		<td data-name="Keterangan"<?php echo $t01_nasabah->Keterangan->CellAttributes() ?>>
-<span id="el_t01_nasabah_Keterangan">
-<span<?php echo $t01_nasabah->Keterangan->ViewAttributes() ?>>
-<?php echo $t01_nasabah->Keterangan->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t01_nasabah->AtasNama->Visible) { // AtasNama ?>
-	<tr id="r_AtasNama">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_AtasNama"><?php echo $t01_nasabah->AtasNama->FldCaption() ?></span></td>
-		<td data-name="AtasNama"<?php echo $t01_nasabah->AtasNama->CellAttributes() ?>>
-<span id="el_t01_nasabah_AtasNama">
-<span<?php echo $t01_nasabah->AtasNama->ViewAttributes() ?>>
-<?php echo $t01_nasabah->AtasNama->ViewValue ?></span>
 </span>
 </td>
 	</tr>
@@ -1296,7 +1224,7 @@ $t01_nasabah_view->ShowMessage();
 	<tr id="r_Pinjaman">
 		<td class="col-sm-2"><span id="elh_t01_nasabah_Pinjaman"><?php echo $t01_nasabah->Pinjaman->FldCaption() ?></span></td>
 		<td data-name="Pinjaman"<?php echo $t01_nasabah->Pinjaman->CellAttributes() ?>>
-<span id="el_t01_nasabah_Pinjaman">
+<span id="el_t01_nasabah_Pinjaman" data-page="1">
 <span<?php echo $t01_nasabah->Pinjaman->ViewAttributes() ?>>
 <?php echo $t01_nasabah->Pinjaman->ViewValue ?></span>
 </span>
@@ -1307,7 +1235,7 @@ $t01_nasabah_view->ShowMessage();
 	<tr id="r_Denda">
 		<td class="col-sm-2"><span id="elh_t01_nasabah_Denda"><?php echo $t01_nasabah->Denda->FldCaption() ?></span></td>
 		<td data-name="Denda"<?php echo $t01_nasabah->Denda->CellAttributes() ?>>
-<span id="el_t01_nasabah_Denda">
+<span id="el_t01_nasabah_Denda" data-page="1">
 <span<?php echo $t01_nasabah->Denda->ViewAttributes() ?>>
 <?php echo $t01_nasabah->Denda->ViewValue ?></span>
 </span>
@@ -1318,7 +1246,7 @@ $t01_nasabah_view->ShowMessage();
 	<tr id="r_DispensasiDenda">
 		<td class="col-sm-2"><span id="elh_t01_nasabah_DispensasiDenda"><?php echo $t01_nasabah->DispensasiDenda->FldCaption() ?></span></td>
 		<td data-name="DispensasiDenda"<?php echo $t01_nasabah->DispensasiDenda->CellAttributes() ?>>
-<span id="el_t01_nasabah_DispensasiDenda">
+<span id="el_t01_nasabah_DispensasiDenda" data-page="1">
 <span<?php echo $t01_nasabah->DispensasiDenda->ViewAttributes() ?>>
 <?php echo $t01_nasabah->DispensasiDenda->ViewValue ?></span>
 </span>
@@ -1329,7 +1257,7 @@ $t01_nasabah_view->ShowMessage();
 	<tr id="r_LamaAngsuran">
 		<td class="col-sm-2"><span id="elh_t01_nasabah_LamaAngsuran"><?php echo $t01_nasabah->LamaAngsuran->FldCaption() ?></span></td>
 		<td data-name="LamaAngsuran"<?php echo $t01_nasabah->LamaAngsuran->CellAttributes() ?>>
-<span id="el_t01_nasabah_LamaAngsuran">
+<span id="el_t01_nasabah_LamaAngsuran" data-page="1">
 <span<?php echo $t01_nasabah->LamaAngsuran->ViewAttributes() ?>>
 <?php echo $t01_nasabah->LamaAngsuran->ViewValue ?></span>
 </span>
@@ -1340,7 +1268,7 @@ $t01_nasabah_view->ShowMessage();
 	<tr id="r_JumlahAngsuran">
 		<td class="col-sm-2"><span id="elh_t01_nasabah_JumlahAngsuran"><?php echo $t01_nasabah->JumlahAngsuran->FldCaption() ?></span></td>
 		<td data-name="JumlahAngsuran"<?php echo $t01_nasabah->JumlahAngsuran->CellAttributes() ?>>
-<span id="el_t01_nasabah_JumlahAngsuran">
+<span id="el_t01_nasabah_JumlahAngsuran" data-page="1">
 <span<?php echo $t01_nasabah->JumlahAngsuran->ViewAttributes() ?>>
 <?php echo $t01_nasabah->JumlahAngsuran->ViewValue ?></span>
 </span>
@@ -1348,6 +1276,129 @@ $t01_nasabah_view->ShowMessage();
 	</tr>
 <?php } ?>
 </table>
+<?php if ($t01_nasabah->Export == "") { ?>
+		</div>
+<?php } ?>
+<?php if ($t01_nasabah->Export == "") { ?>
+		<div class="tab-pane<?php echo $t01_nasabah_view->MultiPages->PageStyle("2") ?>" id="tab_t01_nasabah2">
+<?php } ?>
+<table class="table table-striped table-bordered table-hover table-condensed ewViewTable">
+<?php if ($t01_nasabah->NoRangka->Visible) { // NoRangka ?>
+	<tr id="r_NoRangka">
+		<td class="col-sm-2"><span id="elh_t01_nasabah_NoRangka"><?php echo $t01_nasabah->NoRangka->FldCaption() ?></span></td>
+		<td data-name="NoRangka"<?php echo $t01_nasabah->NoRangka->CellAttributes() ?>>
+<span id="el_t01_nasabah_NoRangka" data-page="2">
+<span<?php echo $t01_nasabah->NoRangka->ViewAttributes() ?>>
+<?php echo $t01_nasabah->NoRangka->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t01_nasabah->NoMesin->Visible) { // NoMesin ?>
+	<tr id="r_NoMesin">
+		<td class="col-sm-2"><span id="elh_t01_nasabah_NoMesin"><?php echo $t01_nasabah->NoMesin->FldCaption() ?></span></td>
+		<td data-name="NoMesin"<?php echo $t01_nasabah->NoMesin->CellAttributes() ?>>
+<span id="el_t01_nasabah_NoMesin" data-page="2">
+<span<?php echo $t01_nasabah->NoMesin->ViewAttributes() ?>>
+<?php echo $t01_nasabah->NoMesin->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t01_nasabah->Warna->Visible) { // Warna ?>
+	<tr id="r_Warna">
+		<td class="col-sm-2"><span id="elh_t01_nasabah_Warna"><?php echo $t01_nasabah->Warna->FldCaption() ?></span></td>
+		<td data-name="Warna"<?php echo $t01_nasabah->Warna->CellAttributes() ?>>
+<span id="el_t01_nasabah_Warna" data-page="2">
+<span<?php echo $t01_nasabah->Warna->ViewAttributes() ?>>
+<?php echo $t01_nasabah->Warna->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t01_nasabah->NoPol->Visible) { // NoPol ?>
+	<tr id="r_NoPol">
+		<td class="col-sm-2"><span id="elh_t01_nasabah_NoPol"><?php echo $t01_nasabah->NoPol->FldCaption() ?></span></td>
+		<td data-name="NoPol"<?php echo $t01_nasabah->NoPol->CellAttributes() ?>>
+<span id="el_t01_nasabah_NoPol" data-page="2">
+<span<?php echo $t01_nasabah->NoPol->ViewAttributes() ?>>
+<?php echo $t01_nasabah->NoPol->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t01_nasabah->Keterangan->Visible) { // Keterangan ?>
+	<tr id="r_Keterangan">
+		<td class="col-sm-2"><span id="elh_t01_nasabah_Keterangan"><?php echo $t01_nasabah->Keterangan->FldCaption() ?></span></td>
+		<td data-name="Keterangan"<?php echo $t01_nasabah->Keterangan->CellAttributes() ?>>
+<span id="el_t01_nasabah_Keterangan" data-page="2">
+<span<?php echo $t01_nasabah->Keterangan->ViewAttributes() ?>>
+<?php echo $t01_nasabah->Keterangan->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t01_nasabah->AtasNama->Visible) { // AtasNama ?>
+	<tr id="r_AtasNama">
+		<td class="col-sm-2"><span id="elh_t01_nasabah_AtasNama"><?php echo $t01_nasabah->AtasNama->FldCaption() ?></span></td>
+		<td data-name="AtasNama"<?php echo $t01_nasabah->AtasNama->CellAttributes() ?>>
+<span id="el_t01_nasabah_AtasNama" data-page="2">
+<span<?php echo $t01_nasabah->AtasNama->ViewAttributes() ?>>
+<?php echo $t01_nasabah->AtasNama->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+</table>
+<?php if ($t01_nasabah->Export == "") { ?>
+		</div>
+<?php } ?>
+<?php if ($t01_nasabah->Export == "") { ?>
+		<div class="tab-pane<?php echo $t01_nasabah_view->MultiPages->PageStyle("3") ?>" id="tab_t01_nasabah3">
+<?php } ?>
+<table class="table table-striped table-bordered table-hover table-condensed ewViewTable">
+<?php if ($t01_nasabah->Pekerjaan->Visible) { // Pekerjaan ?>
+	<tr id="r_Pekerjaan">
+		<td class="col-sm-2"><span id="elh_t01_nasabah_Pekerjaan"><?php echo $t01_nasabah->Pekerjaan->FldCaption() ?></span></td>
+		<td data-name="Pekerjaan"<?php echo $t01_nasabah->Pekerjaan->CellAttributes() ?>>
+<span id="el_t01_nasabah_Pekerjaan" data-page="3">
+<span<?php echo $t01_nasabah->Pekerjaan->ViewAttributes() ?>>
+<?php echo $t01_nasabah->Pekerjaan->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t01_nasabah->Alamat->Visible) { // Alamat ?>
+	<tr id="r_Alamat">
+		<td class="col-sm-2"><span id="elh_t01_nasabah_Alamat"><?php echo $t01_nasabah->Alamat->FldCaption() ?></span></td>
+		<td data-name="Alamat"<?php echo $t01_nasabah->Alamat->CellAttributes() ?>>
+<span id="el_t01_nasabah_Alamat" data-page="3">
+<span<?php echo $t01_nasabah->Alamat->ViewAttributes() ?>>
+<?php echo $t01_nasabah->Alamat->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t01_nasabah->NoTelpHp->Visible) { // NoTelpHp ?>
+	<tr id="r_NoTelpHp">
+		<td class="col-sm-2"><span id="elh_t01_nasabah_NoTelpHp"><?php echo $t01_nasabah->NoTelpHp->FldCaption() ?></span></td>
+		<td data-name="NoTelpHp"<?php echo $t01_nasabah->NoTelpHp->CellAttributes() ?>>
+<span id="el_t01_nasabah_NoTelpHp" data-page="3">
+<span<?php echo $t01_nasabah->NoTelpHp->ViewAttributes() ?>>
+<?php echo $t01_nasabah->NoTelpHp->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+</table>
+<?php if ($t01_nasabah->Export == "") { ?>
+		</div>
+<?php } ?>
+<?php if ($t01_nasabah->Export == "") { ?>
+	</div>
+</div>
+</div>
+<?php } ?>
 </form>
 <script type="text/javascript">
 ft01_nasabahview.Init();

@@ -97,6 +97,12 @@ class ct99_audittrail_view extends ct99_audittrail {
 	var $GridEditUrl;
 	var $MultiDeleteUrl;
 	var $MultiUpdateUrl;
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -653,6 +659,7 @@ class ct99_audittrail_view extends ct99_audittrail {
 		$this->Row_Selected($row);
 		if (!$rs || $rs->EOF)
 			return;
+		if ($this->AuditTrailOnView) $this->WriteAuditTrailOnView($row);
 		$this->id->setDbValue($row['id']);
 		$this->datetime->setDbValue($row['datetime']);
 		$this->script->setDbValue($row['script']);

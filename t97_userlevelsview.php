@@ -97,6 +97,12 @@ class ct97_userlevels_view extends ct97_userlevels {
 	var $GridEditUrl;
 	var $MultiDeleteUrl;
 	var $MultiUpdateUrl;
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -639,6 +645,7 @@ class ct97_userlevels_view extends ct97_userlevels {
 		$this->Row_Selected($row);
 		if (!$rs || $rs->EOF)
 			return;
+		if ($this->AuditTrailOnView) $this->WriteAuditTrailOnView($row);
 		$this->userlevelid->setDbValue($row['userlevelid']);
 		$this->userlevelid->CurrentValue = intval($this->userlevelid->CurrentValue);
 		$this->userlevelname->setDbValue($row['userlevelname']);

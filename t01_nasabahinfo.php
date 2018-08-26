@@ -7,6 +7,12 @@ $t01_nasabah = NULL;
 // Table class for t01_nasabah
 //
 class ct01_nasabah extends cTable {
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 	var $id;
 	var $NoKontrak;
 	var $Customer;
@@ -91,9 +97,9 @@ class ct01_nasabah extends cTable {
 		$this->fields['NoTelpHp'] = &$this->NoTelpHp;
 
 		// TglKontrak
-		$this->TglKontrak = new cField('t01_nasabah', 't01_nasabah', 'x_TglKontrak', 'TglKontrak', '`TglKontrak`', ew_CastDateFieldForLike('`TglKontrak`', 0, "DB"), 133, 0, FALSE, '`TglKontrak`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->TglKontrak = new cField('t01_nasabah', 't01_nasabah', 'x_TglKontrak', 'TglKontrak', '`TglKontrak`', ew_CastDateFieldForLike('`TglKontrak`', 7, "DB"), 133, 7, FALSE, '`TglKontrak`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
 		$this->TglKontrak->Sortable = TRUE; // Allow sort
-		$this->TglKontrak->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_FORMAT"], $Language->Phrase("IncorrectDate"));
+		$this->TglKontrak->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_SEPARATOR"], $Language->Phrase("IncorrectDateDMY"));
 		$this->fields['TglKontrak'] = &$this->TglKontrak;
 
 		// MerkType
@@ -444,6 +450,8 @@ class ct01_nasabah extends cTable {
 			// Get insert id if necessary
 			$this->id->setDbValue($conn->Insert_ID());
 			$rs['id'] = $this->id->DbValue;
+			if ($this->AuditTrailOnAdd)
+				$this->WriteAuditTrailOnAdd($rs);
 		}
 		return $bInsert;
 	}
@@ -470,6 +478,12 @@ class ct01_nasabah extends cTable {
 	function Update(&$rs, $where = "", $rsold = NULL, $curfilter = TRUE) {
 		$conn = &$this->Connection();
 		$bUpdate = $conn->Execute($this->UpdateSQL($rs, $where, $curfilter));
+		if ($bUpdate && $this->AuditTrailOnEdit) {
+			$rsaudit = $rs;
+			$fldname = 'id';
+			if (!array_key_exists($fldname, $rsaudit)) $rsaudit[$fldname] = $rsold[$fldname];
+			$this->WriteAuditTrailOnEdit($rsold, $rsaudit);
+		}
 		return $bUpdate;
 	}
 
@@ -497,6 +511,8 @@ class ct01_nasabah extends cTable {
 		$conn = &$this->Connection();
 		if ($bDelete)
 			$bDelete = $conn->Execute($this->DeleteSQL($rs, $where, $curfilter));
+		if ($bDelete && $this->AuditTrailOnDelete)
+			$this->WriteAuditTrailOnDelete($rs);
 		return $bDelete;
 	}
 
@@ -773,7 +789,7 @@ class ct01_nasabah extends cTable {
 
 		// TglKontrak
 		$this->TglKontrak->ViewValue = $this->TglKontrak->CurrentValue;
-		$this->TglKontrak->ViewValue = ew_FormatDateTime($this->TglKontrak->ViewValue, 0);
+		$this->TglKontrak->ViewValue = ew_FormatDateTime($this->TglKontrak->ViewValue, 7);
 		$this->TglKontrak->ViewCustomAttributes = "";
 
 		// MerkType
@@ -806,22 +822,30 @@ class ct01_nasabah extends cTable {
 
 		// Pinjaman
 		$this->Pinjaman->ViewValue = $this->Pinjaman->CurrentValue;
+		$this->Pinjaman->ViewValue = ew_FormatNumber($this->Pinjaman->ViewValue, 2, -2, -2, -2);
+		$this->Pinjaman->CellCssStyle .= "text-align: right;";
 		$this->Pinjaman->ViewCustomAttributes = "";
 
 		// Denda
 		$this->Denda->ViewValue = $this->Denda->CurrentValue;
+		$this->Denda->ViewValue = ew_FormatNumber($this->Denda->ViewValue, 2, -2, -2, -2);
+		$this->Denda->CellCssStyle .= "text-align: right;";
 		$this->Denda->ViewCustomAttributes = "";
 
 		// DispensasiDenda
 		$this->DispensasiDenda->ViewValue = $this->DispensasiDenda->CurrentValue;
+		$this->DispensasiDenda->CellCssStyle .= "text-align: right;";
 		$this->DispensasiDenda->ViewCustomAttributes = "";
 
 		// LamaAngsuran
 		$this->LamaAngsuran->ViewValue = $this->LamaAngsuran->CurrentValue;
+		$this->LamaAngsuran->CellCssStyle .= "text-align: right;";
 		$this->LamaAngsuran->ViewCustomAttributes = "";
 
 		// JumlahAngsuran
 		$this->JumlahAngsuran->ViewValue = $this->JumlahAngsuran->CurrentValue;
+		$this->JumlahAngsuran->ViewValue = ew_FormatNumber($this->JumlahAngsuran->ViewValue, 2, -2, -2, -2);
+		$this->JumlahAngsuran->CellCssStyle .= "text-align: right;";
 		$this->JumlahAngsuran->ViewCustomAttributes = "";
 
 		// id
@@ -972,7 +996,7 @@ class ct01_nasabah extends cTable {
 		// TglKontrak
 		$this->TglKontrak->EditAttrs["class"] = "form-control";
 		$this->TglKontrak->EditCustomAttributes = "";
-		$this->TglKontrak->EditValue = ew_FormatDateTime($this->TglKontrak->CurrentValue, 8);
+		$this->TglKontrak->EditValue = ew_FormatDateTime($this->TglKontrak->CurrentValue, 7);
 		$this->TglKontrak->PlaceHolder = ew_RemoveHtml($this->TglKontrak->FldCaption());
 
 		// MerkType
@@ -1022,14 +1046,14 @@ class ct01_nasabah extends cTable {
 		$this->Pinjaman->EditCustomAttributes = "";
 		$this->Pinjaman->EditValue = $this->Pinjaman->CurrentValue;
 		$this->Pinjaman->PlaceHolder = ew_RemoveHtml($this->Pinjaman->FldCaption());
-		if (strval($this->Pinjaman->EditValue) <> "" && is_numeric($this->Pinjaman->EditValue)) $this->Pinjaman->EditValue = ew_FormatNumber($this->Pinjaman->EditValue, -2, -1, -2, 0);
+		if (strval($this->Pinjaman->EditValue) <> "" && is_numeric($this->Pinjaman->EditValue)) $this->Pinjaman->EditValue = ew_FormatNumber($this->Pinjaman->EditValue, -2, -2, -2, -2);
 
 		// Denda
 		$this->Denda->EditAttrs["class"] = "form-control";
 		$this->Denda->EditCustomAttributes = "";
 		$this->Denda->EditValue = $this->Denda->CurrentValue;
 		$this->Denda->PlaceHolder = ew_RemoveHtml($this->Denda->FldCaption());
-		if (strval($this->Denda->EditValue) <> "" && is_numeric($this->Denda->EditValue)) $this->Denda->EditValue = ew_FormatNumber($this->Denda->EditValue, -2, -1, -2, 0);
+		if (strval($this->Denda->EditValue) <> "" && is_numeric($this->Denda->EditValue)) $this->Denda->EditValue = ew_FormatNumber($this->Denda->EditValue, -2, -2, -2, -2);
 
 		// DispensasiDenda
 		$this->DispensasiDenda->EditAttrs["class"] = "form-control";
@@ -1048,7 +1072,7 @@ class ct01_nasabah extends cTable {
 		$this->JumlahAngsuran->EditCustomAttributes = "";
 		$this->JumlahAngsuran->EditValue = $this->JumlahAngsuran->CurrentValue;
 		$this->JumlahAngsuran->PlaceHolder = ew_RemoveHtml($this->JumlahAngsuran->FldCaption());
-		if (strval($this->JumlahAngsuran->EditValue) <> "" && is_numeric($this->JumlahAngsuran->EditValue)) $this->JumlahAngsuran->EditValue = ew_FormatNumber($this->JumlahAngsuran->EditValue, -2, -1, -2, 0);
+		if (strval($this->JumlahAngsuran->EditValue) <> "" && is_numeric($this->JumlahAngsuran->EditValue)) $this->JumlahAngsuran->EditValue = ew_FormatNumber($this->JumlahAngsuran->EditValue, -2, -2, -2, -2);
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -1077,7 +1101,6 @@ class ct01_nasabah extends cTable {
 			if ($Doc->Horizontal) { // Horizontal format, write header
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
-					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
 					if ($this->NoKontrak->Exportable) $Doc->ExportCaption($this->NoKontrak);
 					if ($this->Customer->Exportable) $Doc->ExportCaption($this->Customer);
 					if ($this->Pekerjaan->Exportable) $Doc->ExportCaption($this->Pekerjaan);
@@ -1145,7 +1168,6 @@ class ct01_nasabah extends cTable {
 				if (!$Doc->ExportCustom) {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
-						if ($this->id->Exportable) $Doc->ExportField($this->id);
 						if ($this->NoKontrak->Exportable) $Doc->ExportField($this->NoKontrak);
 						if ($this->Customer->Exportable) $Doc->ExportField($this->Customer);
 						if ($this->Pekerjaan->Exportable) $Doc->ExportField($this->Pekerjaan);
@@ -1220,6 +1242,129 @@ class ct01_nasabah extends cTable {
 			return ew_ArrayToJson($rsarr);
 		} else {
 			return FALSE;
+		}
+	}
+
+	// Write Audit Trail start/end for grid update
+	function WriteAuditTrailDummy($typ) {
+		$table = 't01_nasabah';
+		$usr = CurrentUserID();
+		ew_WriteAuditTrail("log", ew_StdCurrentDateTime(), ew_ScriptName(), $usr, $typ, $table, "", "", "", "");
+	}
+
+	// Write Audit Trail (add page)
+	function WriteAuditTrailOnAdd(&$rs) {
+		global $Language;
+		if (!$this->AuditTrailOnAdd) return;
+		$table = 't01_nasabah';
+
+		// Get key value
+		$key = "";
+		if ($key <> "") $key .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
+		$key .= $rs['id'];
+
+		// Write Audit Trail
+		$dt = ew_StdCurrentDateTime();
+		$id = ew_ScriptName();
+		$usr = CurrentUserID();
+		foreach (array_keys($rs) as $fldname) {
+			if (array_key_exists($fldname, $this->fields) && $this->fields[$fldname]->FldDataType <> EW_DATATYPE_BLOB) { // Ignore BLOB fields
+				if ($this->fields[$fldname]->FldHtmlTag == "PASSWORD") {
+					$newvalue = $Language->Phrase("PasswordMask"); // Password Field
+				} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_MEMO) {
+					if (EW_AUDIT_TRAIL_TO_DATABASE)
+						$newvalue = $rs[$fldname];
+					else
+						$newvalue = "[MEMO]"; // Memo Field
+				} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_XML) {
+					$newvalue = "[XML]"; // XML Field
+				} else {
+					$newvalue = $rs[$fldname];
+				}
+				ew_WriteAuditTrail("log", $dt, $id, $usr, "A", $table, $fldname, $key, "", $newvalue);
+			}
+		}
+	}
+
+	// Write Audit Trail (edit page)
+	function WriteAuditTrailOnEdit(&$rsold, &$rsnew) {
+		global $Language;
+		if (!$this->AuditTrailOnEdit) return;
+		$table = 't01_nasabah';
+
+		// Get key value
+		$key = "";
+		if ($key <> "") $key .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
+		$key .= $rsold['id'];
+
+		// Write Audit Trail
+		$dt = ew_StdCurrentDateTime();
+		$id = ew_ScriptName();
+		$usr = CurrentUserID();
+		foreach (array_keys($rsnew) as $fldname) {
+			if (array_key_exists($fldname, $this->fields) && array_key_exists($fldname, $rsold) && $this->fields[$fldname]->FldDataType <> EW_DATATYPE_BLOB) { // Ignore BLOB fields
+				if ($this->fields[$fldname]->FldDataType == EW_DATATYPE_DATE) { // DateTime field
+					$modified = (ew_FormatDateTime($rsold[$fldname], 0) <> ew_FormatDateTime($rsnew[$fldname], 0));
+				} else {
+					$modified = !ew_CompareValue($rsold[$fldname], $rsnew[$fldname]);
+				}
+				if ($modified) {
+					if ($this->fields[$fldname]->FldHtmlTag == "PASSWORD") { // Password Field
+						$oldvalue = $Language->Phrase("PasswordMask");
+						$newvalue = $Language->Phrase("PasswordMask");
+					} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_MEMO) { // Memo field
+						if (EW_AUDIT_TRAIL_TO_DATABASE) {
+							$oldvalue = $rsold[$fldname];
+							$newvalue = $rsnew[$fldname];
+						} else {
+							$oldvalue = "[MEMO]";
+							$newvalue = "[MEMO]";
+						}
+					} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_XML) { // XML field
+						$oldvalue = "[XML]";
+						$newvalue = "[XML]";
+					} else {
+						$oldvalue = $rsold[$fldname];
+						$newvalue = $rsnew[$fldname];
+					}
+					ew_WriteAuditTrail("log", $dt, $id, $usr, "U", $table, $fldname, $key, $oldvalue, $newvalue);
+				}
+			}
+		}
+	}
+
+	// Write Audit Trail (delete page)
+	function WriteAuditTrailOnDelete(&$rs) {
+		global $Language;
+		if (!$this->AuditTrailOnDelete) return;
+		$table = 't01_nasabah';
+
+		// Get key value
+		$key = "";
+		if ($key <> "")
+			$key .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
+		$key .= $rs['id'];
+
+		// Write Audit Trail
+		$dt = ew_StdCurrentDateTime();
+		$id = ew_ScriptName();
+		$curUser = CurrentUserID();
+		foreach (array_keys($rs) as $fldname) {
+			if (array_key_exists($fldname, $this->fields) && $this->fields[$fldname]->FldDataType <> EW_DATATYPE_BLOB) { // Ignore BLOB fields
+				if ($this->fields[$fldname]->FldHtmlTag == "PASSWORD") {
+					$oldvalue = $Language->Phrase("PasswordMask"); // Password Field
+				} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_MEMO) {
+					if (EW_AUDIT_TRAIL_TO_DATABASE)
+						$oldvalue = $rs[$fldname];
+					else
+						$oldvalue = "[MEMO]"; // Memo field
+				} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_XML) {
+					$oldvalue = "[XML]"; // XML field
+				} else {
+					$oldvalue = $rs[$fldname];
+				}
+				ew_WriteAuditTrail("log", $dt, $id, $curUser, "D", $table, $fldname, $key, $oldvalue, "");
+			}
 		}
 	}
 

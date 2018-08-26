@@ -105,6 +105,12 @@ class ct01_nasabah_list extends ct01_nasabah {
 	var $GridEditUrl;
 	var $MultiDeleteUrl;
 	var $MultiUpdateUrl;
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -408,20 +414,11 @@ class ct01_nasabah_list extends ct01_nasabah {
 
 		// Set up list options
 		$this->SetupListOptions();
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
 		$this->NoKontrak->SetVisibility();
 		$this->Customer->SetVisibility();
-		$this->Pekerjaan->SetVisibility();
 		$this->NoTelpHp->SetVisibility();
 		$this->TglKontrak->SetVisibility();
 		$this->MerkType->SetVisibility();
-		$this->NoRangka->SetVisibility();
-		$this->NoMesin->SetVisibility();
-		$this->Warna->SetVisibility();
-		$this->NoPol->SetVisibility();
-		$this->AtasNama->SetVisibility();
 		$this->Pinjaman->SetVisibility();
 		$this->Denda->SetVisibility();
 		$this->DispensasiDenda->SetVisibility();
@@ -1154,18 +1151,11 @@ class ct01_nasabah_list extends ct01_nasabah {
 		if (@$_GET["order"] <> "") {
 			$this->CurrentOrder = @$_GET["order"];
 			$this->CurrentOrderType = @$_GET["ordertype"];
-			$this->UpdateSort($this->id, $bCtrl); // id
 			$this->UpdateSort($this->NoKontrak, $bCtrl); // NoKontrak
 			$this->UpdateSort($this->Customer, $bCtrl); // Customer
-			$this->UpdateSort($this->Pekerjaan, $bCtrl); // Pekerjaan
 			$this->UpdateSort($this->NoTelpHp, $bCtrl); // NoTelpHp
 			$this->UpdateSort($this->TglKontrak, $bCtrl); // TglKontrak
 			$this->UpdateSort($this->MerkType, $bCtrl); // MerkType
-			$this->UpdateSort($this->NoRangka, $bCtrl); // NoRangka
-			$this->UpdateSort($this->NoMesin, $bCtrl); // NoMesin
-			$this->UpdateSort($this->Warna, $bCtrl); // Warna
-			$this->UpdateSort($this->NoPol, $bCtrl); // NoPol
-			$this->UpdateSort($this->AtasNama, $bCtrl); // AtasNama
 			$this->UpdateSort($this->Pinjaman, $bCtrl); // Pinjaman
 			$this->UpdateSort($this->Denda, $bCtrl); // Denda
 			$this->UpdateSort($this->DispensasiDenda, $bCtrl); // DispensasiDenda
@@ -1203,18 +1193,11 @@ class ct01_nasabah_list extends ct01_nasabah {
 			if ($this->Command == "resetsort") {
 				$sOrderBy = "";
 				$this->setSessionOrderBy($sOrderBy);
-				$this->id->setSort("");
 				$this->NoKontrak->setSort("");
 				$this->Customer->setSort("");
-				$this->Pekerjaan->setSort("");
 				$this->NoTelpHp->setSort("");
 				$this->TglKontrak->setSort("");
 				$this->MerkType->setSort("");
-				$this->NoRangka->setSort("");
-				$this->NoMesin->setSort("");
-				$this->Warna->setSort("");
-				$this->NoPol->setSort("");
-				$this->AtasNama->setSort("");
 				$this->Pinjaman->setSort("");
 				$this->Denda->setSort("");
 				$this->DispensasiDenda->setSort("");
@@ -1235,37 +1218,37 @@ class ct01_nasabah_list extends ct01_nasabah {
 		// Add group option item
 		$item = &$this->ListOptions->Add($this->ListOptions->GroupOptionName);
 		$item->Body = "";
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 		$item->Visible = FALSE;
 
 		// "view"
 		$item = &$this->ListOptions->Add("view");
 		$item->CssClass = "text-nowrap";
 		$item->Visible = $Security->CanView();
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 
 		// "edit"
 		$item = &$this->ListOptions->Add("edit");
 		$item->CssClass = "text-nowrap";
 		$item->Visible = $Security->CanEdit();
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 
 		// "copy"
 		$item = &$this->ListOptions->Add("copy");
 		$item->CssClass = "text-nowrap";
 		$item->Visible = $Security->CanAdd();
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 
 		// "delete"
 		$item = &$this->ListOptions->Add("delete");
 		$item->CssClass = "text-nowrap";
 		$item->Visible = $Security->CanDelete();
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 
 		// List actions
 		$item = &$this->ListOptions->Add("listactions");
 		$item->CssClass = "text-nowrap";
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 		$item->Visible = FALSE;
 		$item->ShowInButtonGroup = FALSE;
 		$item->ShowInDropDown = FALSE;
@@ -1273,8 +1256,17 @@ class ct01_nasabah_list extends ct01_nasabah {
 		// "checkbox"
 		$item = &$this->ListOptions->Add("checkbox");
 		$item->Visible = FALSE;
-		$item->OnLeft = FALSE;
+		$item->OnLeft = TRUE;
 		$item->Header = "<input type=\"checkbox\" name=\"key\" id=\"key\" onclick=\"ew_SelectAllKey(this);\">";
+		$item->MoveTo(0);
+		$item->ShowInDropDown = FALSE;
+		$item->ShowInButtonGroup = FALSE;
+
+		// "sequence"
+		$item = &$this->ListOptions->Add("sequence");
+		$item->CssClass = "text-nowrap";
+		$item->Visible = TRUE;
+		$item->OnLeft = TRUE; // Always on left
 		$item->ShowInDropDown = FALSE;
 		$item->ShowInButtonGroup = FALSE;
 
@@ -1301,6 +1293,10 @@ class ct01_nasabah_list extends ct01_nasabah {
 
 		// Call ListOptions_Rendering event
 		$this->ListOptions_Rendering();
+
+		// "sequence"
+		$oListOpt = &$this->ListOptions->Items["sequence"];
+		$oListOpt->Body = ew_FormatSeqNo($this->RecCnt);
 
 		// "view"
 		$oListOpt = &$this->ListOptions->Items["view"];
@@ -1839,7 +1835,7 @@ class ct01_nasabah_list extends ct01_nasabah {
 
 		// TglKontrak
 		$this->TglKontrak->ViewValue = $this->TglKontrak->CurrentValue;
-		$this->TglKontrak->ViewValue = ew_FormatDateTime($this->TglKontrak->ViewValue, 0);
+		$this->TglKontrak->ViewValue = ew_FormatDateTime($this->TglKontrak->ViewValue, 7);
 		$this->TglKontrak->ViewCustomAttributes = "";
 
 		// MerkType
@@ -1868,28 +1864,31 @@ class ct01_nasabah_list extends ct01_nasabah {
 
 		// Pinjaman
 		$this->Pinjaman->ViewValue = $this->Pinjaman->CurrentValue;
+		$this->Pinjaman->ViewValue = ew_FormatNumber($this->Pinjaman->ViewValue, 2, -2, -2, -2);
+		$this->Pinjaman->CellCssStyle .= "text-align: right;";
 		$this->Pinjaman->ViewCustomAttributes = "";
 
 		// Denda
 		$this->Denda->ViewValue = $this->Denda->CurrentValue;
+		$this->Denda->ViewValue = ew_FormatNumber($this->Denda->ViewValue, 2, -2, -2, -2);
+		$this->Denda->CellCssStyle .= "text-align: right;";
 		$this->Denda->ViewCustomAttributes = "";
 
 		// DispensasiDenda
 		$this->DispensasiDenda->ViewValue = $this->DispensasiDenda->CurrentValue;
+		$this->DispensasiDenda->CellCssStyle .= "text-align: right;";
 		$this->DispensasiDenda->ViewCustomAttributes = "";
 
 		// LamaAngsuran
 		$this->LamaAngsuran->ViewValue = $this->LamaAngsuran->CurrentValue;
+		$this->LamaAngsuran->CellCssStyle .= "text-align: right;";
 		$this->LamaAngsuran->ViewCustomAttributes = "";
 
 		// JumlahAngsuran
 		$this->JumlahAngsuran->ViewValue = $this->JumlahAngsuran->CurrentValue;
+		$this->JumlahAngsuran->ViewValue = ew_FormatNumber($this->JumlahAngsuran->ViewValue, 2, -2, -2, -2);
+		$this->JumlahAngsuran->CellCssStyle .= "text-align: right;";
 		$this->JumlahAngsuran->ViewCustomAttributes = "";
-
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
 
 			// NoKontrak
 			$this->NoKontrak->LinkCustomAttributes = "";
@@ -1900,11 +1899,6 @@ class ct01_nasabah_list extends ct01_nasabah {
 			$this->Customer->LinkCustomAttributes = "";
 			$this->Customer->HrefValue = "";
 			$this->Customer->TooltipValue = "";
-
-			// Pekerjaan
-			$this->Pekerjaan->LinkCustomAttributes = "";
-			$this->Pekerjaan->HrefValue = "";
-			$this->Pekerjaan->TooltipValue = "";
 
 			// NoTelpHp
 			$this->NoTelpHp->LinkCustomAttributes = "";
@@ -1920,31 +1914,6 @@ class ct01_nasabah_list extends ct01_nasabah {
 			$this->MerkType->LinkCustomAttributes = "";
 			$this->MerkType->HrefValue = "";
 			$this->MerkType->TooltipValue = "";
-
-			// NoRangka
-			$this->NoRangka->LinkCustomAttributes = "";
-			$this->NoRangka->HrefValue = "";
-			$this->NoRangka->TooltipValue = "";
-
-			// NoMesin
-			$this->NoMesin->LinkCustomAttributes = "";
-			$this->NoMesin->HrefValue = "";
-			$this->NoMesin->TooltipValue = "";
-
-			// Warna
-			$this->Warna->LinkCustomAttributes = "";
-			$this->Warna->HrefValue = "";
-			$this->Warna->TooltipValue = "";
-
-			// NoPol
-			$this->NoPol->LinkCustomAttributes = "";
-			$this->NoPol->HrefValue = "";
-			$this->NoPol->TooltipValue = "";
-
-			// AtasNama
-			$this->AtasNama->LinkCustomAttributes = "";
-			$this->AtasNama->HrefValue = "";
-			$this->AtasNama->TooltipValue = "";
 
 			// Pinjaman
 			$this->Pinjaman->LinkCustomAttributes = "";
@@ -2215,6 +2184,13 @@ var CurrentSearchForm = ft01_nasabahlistsrch = new ew_Form("ft01_nasabahlistsrch
 		else
 			$t01_nasabah_list->setWarningMessage($Language->Phrase("NoRecord"));
 	}
+
+	// Audit trail on search
+	if ($t01_nasabah_list->AuditTrailOnSearch && $t01_nasabah_list->Command == "search" && !$t01_nasabah_list->RestoreSearch) {
+		$searchparm = ew_ServerVar("QUERY_STRING");
+		$searchsql = $t01_nasabah_list->getSessionWhere();
+		$t01_nasabah_list->WriteAuditTrailOnSearch($searchparm, $searchsql);
+	}
 $t01_nasabah_list->RenderOtherOptions();
 ?>
 <?php if ($Security->CanSearch()) { ?>
@@ -2273,15 +2249,6 @@ $t01_nasabah_list->RenderListOptions();
 // Render list options (header, left)
 $t01_nasabah_list->ListOptions->Render("header", "left");
 ?>
-<?php if ($t01_nasabah->id->Visible) { // id ?>
-	<?php if ($t01_nasabah->SortUrl($t01_nasabah->id) == "") { ?>
-		<th data-name="id" class="<?php echo $t01_nasabah->id->HeaderCellClass() ?>"><div id="elh_t01_nasabah_id" class="t01_nasabah_id"><div class="ewTableHeaderCaption"><?php echo $t01_nasabah->id->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="id" class="<?php echo $t01_nasabah->id->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_nasabah->SortUrl($t01_nasabah->id) ?>',2);"><div id="elh_t01_nasabah_id" class="t01_nasabah_id">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_nasabah->id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t01_nasabah->id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_nasabah->id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
 <?php if ($t01_nasabah->NoKontrak->Visible) { // NoKontrak ?>
 	<?php if ($t01_nasabah->SortUrl($t01_nasabah->NoKontrak) == "") { ?>
 		<th data-name="NoKontrak" class="<?php echo $t01_nasabah->NoKontrak->HeaderCellClass() ?>"><div id="elh_t01_nasabah_NoKontrak" class="t01_nasabah_NoKontrak"><div class="ewTableHeaderCaption"><?php echo $t01_nasabah->NoKontrak->FldCaption() ?></div></div></th>
@@ -2297,15 +2264,6 @@ $t01_nasabah_list->ListOptions->Render("header", "left");
 	<?php } else { ?>
 		<th data-name="Customer" class="<?php echo $t01_nasabah->Customer->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_nasabah->SortUrl($t01_nasabah->Customer) ?>',2);"><div id="elh_t01_nasabah_Customer" class="t01_nasabah_Customer">
 			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_nasabah->Customer->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t01_nasabah->Customer->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_nasabah->Customer->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
-<?php if ($t01_nasabah->Pekerjaan->Visible) { // Pekerjaan ?>
-	<?php if ($t01_nasabah->SortUrl($t01_nasabah->Pekerjaan) == "") { ?>
-		<th data-name="Pekerjaan" class="<?php echo $t01_nasabah->Pekerjaan->HeaderCellClass() ?>"><div id="elh_t01_nasabah_Pekerjaan" class="t01_nasabah_Pekerjaan"><div class="ewTableHeaderCaption"><?php echo $t01_nasabah->Pekerjaan->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="Pekerjaan" class="<?php echo $t01_nasabah->Pekerjaan->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_nasabah->SortUrl($t01_nasabah->Pekerjaan) ?>',2);"><div id="elh_t01_nasabah_Pekerjaan" class="t01_nasabah_Pekerjaan">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_nasabah->Pekerjaan->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t01_nasabah->Pekerjaan->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_nasabah->Pekerjaan->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
 		</div></div></th>
 	<?php } ?>
 <?php } ?>
@@ -2333,51 +2291,6 @@ $t01_nasabah_list->ListOptions->Render("header", "left");
 	<?php } else { ?>
 		<th data-name="MerkType" class="<?php echo $t01_nasabah->MerkType->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_nasabah->SortUrl($t01_nasabah->MerkType) ?>',2);"><div id="elh_t01_nasabah_MerkType" class="t01_nasabah_MerkType">
 			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_nasabah->MerkType->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t01_nasabah->MerkType->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_nasabah->MerkType->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
-<?php if ($t01_nasabah->NoRangka->Visible) { // NoRangka ?>
-	<?php if ($t01_nasabah->SortUrl($t01_nasabah->NoRangka) == "") { ?>
-		<th data-name="NoRangka" class="<?php echo $t01_nasabah->NoRangka->HeaderCellClass() ?>"><div id="elh_t01_nasabah_NoRangka" class="t01_nasabah_NoRangka"><div class="ewTableHeaderCaption"><?php echo $t01_nasabah->NoRangka->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="NoRangka" class="<?php echo $t01_nasabah->NoRangka->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_nasabah->SortUrl($t01_nasabah->NoRangka) ?>',2);"><div id="elh_t01_nasabah_NoRangka" class="t01_nasabah_NoRangka">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_nasabah->NoRangka->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t01_nasabah->NoRangka->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_nasabah->NoRangka->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
-<?php if ($t01_nasabah->NoMesin->Visible) { // NoMesin ?>
-	<?php if ($t01_nasabah->SortUrl($t01_nasabah->NoMesin) == "") { ?>
-		<th data-name="NoMesin" class="<?php echo $t01_nasabah->NoMesin->HeaderCellClass() ?>"><div id="elh_t01_nasabah_NoMesin" class="t01_nasabah_NoMesin"><div class="ewTableHeaderCaption"><?php echo $t01_nasabah->NoMesin->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="NoMesin" class="<?php echo $t01_nasabah->NoMesin->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_nasabah->SortUrl($t01_nasabah->NoMesin) ?>',2);"><div id="elh_t01_nasabah_NoMesin" class="t01_nasabah_NoMesin">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_nasabah->NoMesin->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t01_nasabah->NoMesin->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_nasabah->NoMesin->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
-<?php if ($t01_nasabah->Warna->Visible) { // Warna ?>
-	<?php if ($t01_nasabah->SortUrl($t01_nasabah->Warna) == "") { ?>
-		<th data-name="Warna" class="<?php echo $t01_nasabah->Warna->HeaderCellClass() ?>"><div id="elh_t01_nasabah_Warna" class="t01_nasabah_Warna"><div class="ewTableHeaderCaption"><?php echo $t01_nasabah->Warna->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="Warna" class="<?php echo $t01_nasabah->Warna->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_nasabah->SortUrl($t01_nasabah->Warna) ?>',2);"><div id="elh_t01_nasabah_Warna" class="t01_nasabah_Warna">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_nasabah->Warna->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t01_nasabah->Warna->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_nasabah->Warna->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
-<?php if ($t01_nasabah->NoPol->Visible) { // NoPol ?>
-	<?php if ($t01_nasabah->SortUrl($t01_nasabah->NoPol) == "") { ?>
-		<th data-name="NoPol" class="<?php echo $t01_nasabah->NoPol->HeaderCellClass() ?>"><div id="elh_t01_nasabah_NoPol" class="t01_nasabah_NoPol"><div class="ewTableHeaderCaption"><?php echo $t01_nasabah->NoPol->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="NoPol" class="<?php echo $t01_nasabah->NoPol->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_nasabah->SortUrl($t01_nasabah->NoPol) ?>',2);"><div id="elh_t01_nasabah_NoPol" class="t01_nasabah_NoPol">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_nasabah->NoPol->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t01_nasabah->NoPol->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_nasabah->NoPol->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
-<?php if ($t01_nasabah->AtasNama->Visible) { // AtasNama ?>
-	<?php if ($t01_nasabah->SortUrl($t01_nasabah->AtasNama) == "") { ?>
-		<th data-name="AtasNama" class="<?php echo $t01_nasabah->AtasNama->HeaderCellClass() ?>"><div id="elh_t01_nasabah_AtasNama" class="t01_nasabah_AtasNama"><div class="ewTableHeaderCaption"><?php echo $t01_nasabah->AtasNama->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="AtasNama" class="<?php echo $t01_nasabah->AtasNama->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_nasabah->SortUrl($t01_nasabah->AtasNama) ?>',2);"><div id="elh_t01_nasabah_AtasNama" class="t01_nasabah_AtasNama">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_nasabah->AtasNama->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t01_nasabah->AtasNama->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_nasabah->AtasNama->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
 		</div></div></th>
 	<?php } ?>
 <?php } ?>
@@ -2491,14 +2404,6 @@ while ($t01_nasabah_list->RecCnt < $t01_nasabah_list->StopRec) {
 // Render list options (body, left)
 $t01_nasabah_list->ListOptions->Render("body", "left", $t01_nasabah_list->RowCnt);
 ?>
-	<?php if ($t01_nasabah->id->Visible) { // id ?>
-		<td data-name="id"<?php echo $t01_nasabah->id->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_id" class="t01_nasabah_id">
-<span<?php echo $t01_nasabah->id->ViewAttributes() ?>>
-<?php echo $t01_nasabah->id->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
 	<?php if ($t01_nasabah->NoKontrak->Visible) { // NoKontrak ?>
 		<td data-name="NoKontrak"<?php echo $t01_nasabah->NoKontrak->CellAttributes() ?>>
 <span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_NoKontrak" class="t01_nasabah_NoKontrak">
@@ -2512,14 +2417,6 @@ $t01_nasabah_list->ListOptions->Render("body", "left", $t01_nasabah_list->RowCnt
 <span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_Customer" class="t01_nasabah_Customer">
 <span<?php echo $t01_nasabah->Customer->ViewAttributes() ?>>
 <?php echo $t01_nasabah->Customer->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
-	<?php if ($t01_nasabah->Pekerjaan->Visible) { // Pekerjaan ?>
-		<td data-name="Pekerjaan"<?php echo $t01_nasabah->Pekerjaan->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_Pekerjaan" class="t01_nasabah_Pekerjaan">
-<span<?php echo $t01_nasabah->Pekerjaan->ViewAttributes() ?>>
-<?php echo $t01_nasabah->Pekerjaan->ListViewValue() ?></span>
 </span>
 </td>
 	<?php } ?>
@@ -2544,46 +2441,6 @@ $t01_nasabah_list->ListOptions->Render("body", "left", $t01_nasabah_list->RowCnt
 <span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_MerkType" class="t01_nasabah_MerkType">
 <span<?php echo $t01_nasabah->MerkType->ViewAttributes() ?>>
 <?php echo $t01_nasabah->MerkType->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
-	<?php if ($t01_nasabah->NoRangka->Visible) { // NoRangka ?>
-		<td data-name="NoRangka"<?php echo $t01_nasabah->NoRangka->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_NoRangka" class="t01_nasabah_NoRangka">
-<span<?php echo $t01_nasabah->NoRangka->ViewAttributes() ?>>
-<?php echo $t01_nasabah->NoRangka->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
-	<?php if ($t01_nasabah->NoMesin->Visible) { // NoMesin ?>
-		<td data-name="NoMesin"<?php echo $t01_nasabah->NoMesin->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_NoMesin" class="t01_nasabah_NoMesin">
-<span<?php echo $t01_nasabah->NoMesin->ViewAttributes() ?>>
-<?php echo $t01_nasabah->NoMesin->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
-	<?php if ($t01_nasabah->Warna->Visible) { // Warna ?>
-		<td data-name="Warna"<?php echo $t01_nasabah->Warna->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_Warna" class="t01_nasabah_Warna">
-<span<?php echo $t01_nasabah->Warna->ViewAttributes() ?>>
-<?php echo $t01_nasabah->Warna->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
-	<?php if ($t01_nasabah->NoPol->Visible) { // NoPol ?>
-		<td data-name="NoPol"<?php echo $t01_nasabah->NoPol->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_NoPol" class="t01_nasabah_NoPol">
-<span<?php echo $t01_nasabah->NoPol->ViewAttributes() ?>>
-<?php echo $t01_nasabah->NoPol->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
-	<?php if ($t01_nasabah->AtasNama->Visible) { // AtasNama ?>
-		<td data-name="AtasNama"<?php echo $t01_nasabah->AtasNama->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_AtasNama" class="t01_nasabah_AtasNama">
-<span<?php echo $t01_nasabah->AtasNama->ViewAttributes() ?>>
-<?php echo $t01_nasabah->AtasNama->ListViewValue() ?></span>
 </span>
 </td>
 	<?php } ?>

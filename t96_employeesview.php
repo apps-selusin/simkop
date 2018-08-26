@@ -96,6 +96,12 @@ class ct96_employees_view extends ct96_employees {
 	var $GridEditUrl;
 	var $MultiDeleteUrl;
 	var $MultiUpdateUrl;
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -666,6 +672,7 @@ class ct96_employees_view extends ct96_employees {
 		$this->Row_Selected($row);
 		if (!$rs || $rs->EOF)
 			return;
+		if ($this->AuditTrailOnView) $this->WriteAuditTrailOnView($row);
 		$this->EmployeeID->setDbValue($row['EmployeeID']);
 		$this->LastName->setDbValue($row['LastName']);
 		$this->FirstName->setDbValue($row['FirstName']);
