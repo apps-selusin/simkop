@@ -986,7 +986,7 @@ class ct01_nasabah_view extends ct01_nasabah {
 	// Set up multi pages
 	function SetupMultiPages() {
 		$pages = new cSubPages();
-		$pages->Style = "tabs";
+		$pages->Style = "pills";
 		$pages->Add(0);
 		$pages->Add(1);
 		$pages->Add(2);
