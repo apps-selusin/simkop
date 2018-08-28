@@ -5,6 +5,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "ewcfg14.php" ?>
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql14.php") ?>
 <?php include_once "phpfn14.php" ?>
+<?php include_once "t02_angsuraninfo.php" ?>
 <?php include_once "t01_nasabahinfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
 <?php include_once "userfn14.php" ?>
@@ -14,9 +15,9 @@ ob_start(); // Turn on output buffering
 // Page class
 //
 
-$t01_nasabah_delete = NULL; // Initialize page object first
+$t02_angsuran_delete = NULL; // Initialize page object first
 
-class ct01_nasabah_delete extends ct01_nasabah {
+class ct02_angsuran_delete extends ct02_angsuran {
 
 	// Page ID
 	var $PageID = 'delete';
@@ -25,10 +26,10 @@ class ct01_nasabah_delete extends ct01_nasabah {
 	var $ProjectID = '{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}';
 
 	// Table name
-	var $TableName = 't01_nasabah';
+	var $TableName = 't02_angsuran';
 
 	// Page object name
-	var $PageObjName = 't01_nasabah_delete';
+	var $PageObjName = 't02_angsuran_delete';
 
 	// Page headings
 	var $Heading = '';
@@ -256,11 +257,14 @@ class ct01_nasabah_delete extends ct01_nasabah {
 		// Parent constuctor
 		parent::__construct();
 
-		// Table object (t01_nasabah)
-		if (!isset($GLOBALS["t01_nasabah"]) || get_class($GLOBALS["t01_nasabah"]) == "ct01_nasabah") {
-			$GLOBALS["t01_nasabah"] = &$this;
-			$GLOBALS["Table"] = &$GLOBALS["t01_nasabah"];
+		// Table object (t02_angsuran)
+		if (!isset($GLOBALS["t02_angsuran"]) || get_class($GLOBALS["t02_angsuran"]) == "ct02_angsuran") {
+			$GLOBALS["t02_angsuran"] = &$this;
+			$GLOBALS["Table"] = &$GLOBALS["t02_angsuran"];
 		}
+
+		// Table object (t01_nasabah)
+		if (!isset($GLOBALS['t01_nasabah'])) $GLOBALS['t01_nasabah'] = new ct01_nasabah();
 
 		// Table object (t96_employees)
 		if (!isset($GLOBALS['t96_employees'])) $GLOBALS['t96_employees'] = new ct96_employees();
@@ -271,7 +275,7 @@ class ct01_nasabah_delete extends ct01_nasabah {
 
 		// Table name (for backward compatibility)
 		if (!defined("EW_TABLE_NAME"))
-			define("EW_TABLE_NAME", 't01_nasabah', TRUE);
+			define("EW_TABLE_NAME", 't02_angsuran', TRUE);
 
 		// Start timer
 		if (!isset($GLOBALS["gTimer"]))
@@ -310,7 +314,7 @@ class ct01_nasabah_delete extends ct01_nasabah {
 			$Security->SaveLastUrl();
 			$this->setFailureMessage(ew_DeniedMsg()); // Set no permission
 			if ($Security->CanList())
-				$this->Page_Terminate(ew_GetUrl("t01_nasabahlist.php"));
+				$this->Page_Terminate(ew_GetUrl("t02_angsuranlist.php"));
 			else
 				$this->Page_Terminate(ew_GetUrl("login.php"));
 		}
@@ -326,14 +330,18 @@ class ct01_nasabah_delete extends ct01_nasabah {
 		// 
 
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->NoKontrak->SetVisibility();
-		$this->Customer->SetVisibility();
-		$this->TglKontrak->SetVisibility();
-		$this->Pinjaman->SetVisibility();
-		$this->Denda->SetVisibility();
-		$this->DispensasiDenda->SetVisibility();
-		$this->LamaAngsuran->SetVisibility();
-		$this->JumlahAngsuran->SetVisibility();
+		$this->id->SetVisibility();
+		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
+			$this->id->Visible = FALSE;
+		$this->nasabah_id->SetVisibility();
+		$this->Tanggal->SetVisibility();
+		$this->AngsuranPokok->SetVisibility();
+		$this->AngsuranBunga->SetVisibility();
+		$this->AngsuranTotal->SetVisibility();
+		$this->SisaHutang->SetVisibility();
+		$this->TanggalBayar->SetVisibility();
+		$this->TotalDenda->SetVisibility();
+		$this->Terlambat->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -365,13 +373,13 @@ class ct01_nasabah_delete extends ct01_nasabah {
 		Page_Unloaded();
 
 		// Export
-		global $EW_EXPORT, $t01_nasabah;
+		global $EW_EXPORT, $t02_angsuran;
 		if ($this->CustomExport <> "" && $this->CustomExport == $this->Export && array_key_exists($this->CustomExport, $EW_EXPORT)) {
 				$sContent = ob_get_contents();
 			if ($gsExportFile == "") $gsExportFile = $this->TableVar;
 			$class = $EW_EXPORT[$this->CustomExport];
 			if (class_exists($class)) {
-				$doc = new $class($t01_nasabah);
+				$doc = new $class($t02_angsuran);
 				$doc->Text = $sContent;
 				if ($this->Export == "email")
 					echo $this->ExportEmail($doc->Text);
@@ -411,6 +419,9 @@ class ct01_nasabah_delete extends ct01_nasabah {
 	function Page_Main() {
 		global $Language;
 
+		// Set up master/detail parameters
+		$this->SetupMasterParms();
+
 		// Set up Breadcrumb
 		$this->SetupBreadcrumb();
 
@@ -418,10 +429,10 @@ class ct01_nasabah_delete extends ct01_nasabah {
 		$this->RecKeys = $this->GetRecordKeys(); // Load record keys
 		$sFilter = $this->GetKeyFilter();
 		if ($sFilter == "")
-			$this->Page_Terminate("t01_nasabahlist.php"); // Prevent SQL injection, return to list
+			$this->Page_Terminate("t02_angsuranlist.php"); // Prevent SQL injection, return to list
 
 		// Set up filter (SQL WHHERE clause) and get return SQL
-		// SQL constructor in t01_nasabah class, t01_nasabahinfo.php
+		// SQL constructor in t02_angsuran class, t02_angsuraninfo.php
 
 		$this->CurrentFilter = $sFilter;
 
@@ -449,7 +460,7 @@ class ct01_nasabah_delete extends ct01_nasabah {
 			if ($this->TotalRecs <= 0) { // No record found, exit
 				if ($this->Recordset)
 					$this->Recordset->Close();
-				$this->Page_Terminate("t01_nasabahlist.php"); // Return to list
+				$this->Page_Terminate("t02_angsuranlist.php"); // Return to list
 			}
 		}
 	}
@@ -514,48 +525,32 @@ class ct01_nasabah_delete extends ct01_nasabah {
 		if (!$rs || $rs->EOF)
 			return;
 		$this->id->setDbValue($row['id']);
-		$this->NoKontrak->setDbValue($row['NoKontrak']);
-		$this->Customer->setDbValue($row['Customer']);
-		$this->Pekerjaan->setDbValue($row['Pekerjaan']);
-		$this->Alamat->setDbValue($row['Alamat']);
-		$this->NoTelpHp->setDbValue($row['NoTelpHp']);
-		$this->TglKontrak->setDbValue($row['TglKontrak']);
-		$this->MerkType->setDbValue($row['MerkType']);
-		$this->NoRangka->setDbValue($row['NoRangka']);
-		$this->NoMesin->setDbValue($row['NoMesin']);
-		$this->Warna->setDbValue($row['Warna']);
-		$this->NoPol->setDbValue($row['NoPol']);
+		$this->nasabah_id->setDbValue($row['nasabah_id']);
+		$this->Tanggal->setDbValue($row['Tanggal']);
+		$this->AngsuranPokok->setDbValue($row['AngsuranPokok']);
+		$this->AngsuranBunga->setDbValue($row['AngsuranBunga']);
+		$this->AngsuranTotal->setDbValue($row['AngsuranTotal']);
+		$this->SisaHutang->setDbValue($row['SisaHutang']);
+		$this->TanggalBayar->setDbValue($row['TanggalBayar']);
+		$this->TotalDenda->setDbValue($row['TotalDenda']);
+		$this->Terlambat->setDbValue($row['Terlambat']);
 		$this->Keterangan->setDbValue($row['Keterangan']);
-		$this->AtasNama->setDbValue($row['AtasNama']);
-		$this->Pinjaman->setDbValue($row['Pinjaman']);
-		$this->Denda->setDbValue($row['Denda']);
-		$this->DispensasiDenda->setDbValue($row['DispensasiDenda']);
-		$this->LamaAngsuran->setDbValue($row['LamaAngsuran']);
-		$this->JumlahAngsuran->setDbValue($row['JumlahAngsuran']);
 	}
 
 	// Return a row with default values
 	function NewRow() {
 		$row = array();
 		$row['id'] = NULL;
-		$row['NoKontrak'] = NULL;
-		$row['Customer'] = NULL;
-		$row['Pekerjaan'] = NULL;
-		$row['Alamat'] = NULL;
-		$row['NoTelpHp'] = NULL;
-		$row['TglKontrak'] = NULL;
-		$row['MerkType'] = NULL;
-		$row['NoRangka'] = NULL;
-		$row['NoMesin'] = NULL;
-		$row['Warna'] = NULL;
-		$row['NoPol'] = NULL;
+		$row['nasabah_id'] = NULL;
+		$row['Tanggal'] = NULL;
+		$row['AngsuranPokok'] = NULL;
+		$row['AngsuranBunga'] = NULL;
+		$row['AngsuranTotal'] = NULL;
+		$row['SisaHutang'] = NULL;
+		$row['TanggalBayar'] = NULL;
+		$row['TotalDenda'] = NULL;
+		$row['Terlambat'] = NULL;
 		$row['Keterangan'] = NULL;
-		$row['AtasNama'] = NULL;
-		$row['Pinjaman'] = NULL;
-		$row['Denda'] = NULL;
-		$row['DispensasiDenda'] = NULL;
-		$row['LamaAngsuran'] = NULL;
-		$row['JumlahAngsuran'] = NULL;
 		return $row;
 	}
 
@@ -565,24 +560,16 @@ class ct01_nasabah_delete extends ct01_nasabah {
 			return;
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
-		$this->NoKontrak->DbValue = $row['NoKontrak'];
-		$this->Customer->DbValue = $row['Customer'];
-		$this->Pekerjaan->DbValue = $row['Pekerjaan'];
-		$this->Alamat->DbValue = $row['Alamat'];
-		$this->NoTelpHp->DbValue = $row['NoTelpHp'];
-		$this->TglKontrak->DbValue = $row['TglKontrak'];
-		$this->MerkType->DbValue = $row['MerkType'];
-		$this->NoRangka->DbValue = $row['NoRangka'];
-		$this->NoMesin->DbValue = $row['NoMesin'];
-		$this->Warna->DbValue = $row['Warna'];
-		$this->NoPol->DbValue = $row['NoPol'];
+		$this->nasabah_id->DbValue = $row['nasabah_id'];
+		$this->Tanggal->DbValue = $row['Tanggal'];
+		$this->AngsuranPokok->DbValue = $row['AngsuranPokok'];
+		$this->AngsuranBunga->DbValue = $row['AngsuranBunga'];
+		$this->AngsuranTotal->DbValue = $row['AngsuranTotal'];
+		$this->SisaHutang->DbValue = $row['SisaHutang'];
+		$this->TanggalBayar->DbValue = $row['TanggalBayar'];
+		$this->TotalDenda->DbValue = $row['TotalDenda'];
+		$this->Terlambat->DbValue = $row['Terlambat'];
 		$this->Keterangan->DbValue = $row['Keterangan'];
-		$this->AtasNama->DbValue = $row['AtasNama'];
-		$this->Pinjaman->DbValue = $row['Pinjaman'];
-		$this->Denda->DbValue = $row['Denda'];
-		$this->DispensasiDenda->DbValue = $row['DispensasiDenda'];
-		$this->LamaAngsuran->DbValue = $row['LamaAngsuran'];
-		$this->JumlahAngsuran->DbValue = $row['JumlahAngsuran'];
 	}
 
 	// Render row values based on field settings
@@ -592,40 +579,40 @@ class ct01_nasabah_delete extends ct01_nasabah {
 		// Initialize URLs
 		// Convert decimal values if posted back
 
-		if ($this->Pinjaman->FormValue == $this->Pinjaman->CurrentValue && is_numeric(ew_StrToFloat($this->Pinjaman->CurrentValue)))
-			$this->Pinjaman->CurrentValue = ew_StrToFloat($this->Pinjaman->CurrentValue);
+		if ($this->AngsuranPokok->FormValue == $this->AngsuranPokok->CurrentValue && is_numeric(ew_StrToFloat($this->AngsuranPokok->CurrentValue)))
+			$this->AngsuranPokok->CurrentValue = ew_StrToFloat($this->AngsuranPokok->CurrentValue);
 
 		// Convert decimal values if posted back
-		if ($this->Denda->FormValue == $this->Denda->CurrentValue && is_numeric(ew_StrToFloat($this->Denda->CurrentValue)))
-			$this->Denda->CurrentValue = ew_StrToFloat($this->Denda->CurrentValue);
+		if ($this->AngsuranBunga->FormValue == $this->AngsuranBunga->CurrentValue && is_numeric(ew_StrToFloat($this->AngsuranBunga->CurrentValue)))
+			$this->AngsuranBunga->CurrentValue = ew_StrToFloat($this->AngsuranBunga->CurrentValue);
 
 		// Convert decimal values if posted back
-		if ($this->JumlahAngsuran->FormValue == $this->JumlahAngsuran->CurrentValue && is_numeric(ew_StrToFloat($this->JumlahAngsuran->CurrentValue)))
-			$this->JumlahAngsuran->CurrentValue = ew_StrToFloat($this->JumlahAngsuran->CurrentValue);
+		if ($this->AngsuranTotal->FormValue == $this->AngsuranTotal->CurrentValue && is_numeric(ew_StrToFloat($this->AngsuranTotal->CurrentValue)))
+			$this->AngsuranTotal->CurrentValue = ew_StrToFloat($this->AngsuranTotal->CurrentValue);
+
+		// Convert decimal values if posted back
+		if ($this->SisaHutang->FormValue == $this->SisaHutang->CurrentValue && is_numeric(ew_StrToFloat($this->SisaHutang->CurrentValue)))
+			$this->SisaHutang->CurrentValue = ew_StrToFloat($this->SisaHutang->CurrentValue);
+
+		// Convert decimal values if posted back
+		if ($this->TotalDenda->FormValue == $this->TotalDenda->CurrentValue && is_numeric(ew_StrToFloat($this->TotalDenda->CurrentValue)))
+			$this->TotalDenda->CurrentValue = ew_StrToFloat($this->TotalDenda->CurrentValue);
 
 		// Call Row_Rendering event
 		$this->Row_Rendering();
 
 		// Common render codes for all row types
 		// id
-		// NoKontrak
-		// Customer
-		// Pekerjaan
-		// Alamat
-		// NoTelpHp
-		// TglKontrak
-		// MerkType
-		// NoRangka
-		// NoMesin
-		// Warna
-		// NoPol
+		// nasabah_id
+		// Tanggal
+		// AngsuranPokok
+		// AngsuranBunga
+		// AngsuranTotal
+		// SisaHutang
+		// TanggalBayar
+		// TotalDenda
+		// Terlambat
 		// Keterangan
-		// AtasNama
-		// Pinjaman
-		// Denda
-		// DispensasiDenda
-		// LamaAngsuran
-		// JumlahAngsuran
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -633,118 +620,93 @@ class ct01_nasabah_delete extends ct01_nasabah {
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// NoKontrak
-		$this->NoKontrak->ViewValue = $this->NoKontrak->CurrentValue;
-		$this->NoKontrak->ViewCustomAttributes = "";
+		// nasabah_id
+		$this->nasabah_id->ViewValue = $this->nasabah_id->CurrentValue;
+		$this->nasabah_id->ViewCustomAttributes = "";
 
-		// Customer
-		$this->Customer->ViewValue = $this->Customer->CurrentValue;
-		$this->Customer->ViewCustomAttributes = "";
+		// Tanggal
+		$this->Tanggal->ViewValue = $this->Tanggal->CurrentValue;
+		$this->Tanggal->ViewValue = ew_FormatDateTime($this->Tanggal->ViewValue, 0);
+		$this->Tanggal->ViewCustomAttributes = "";
 
-		// Pekerjaan
-		$this->Pekerjaan->ViewValue = $this->Pekerjaan->CurrentValue;
-		$this->Pekerjaan->ViewCustomAttributes = "";
+		// AngsuranPokok
+		$this->AngsuranPokok->ViewValue = $this->AngsuranPokok->CurrentValue;
+		$this->AngsuranPokok->ViewCustomAttributes = "";
 
-		// NoTelpHp
-		$this->NoTelpHp->ViewValue = $this->NoTelpHp->CurrentValue;
-		$this->NoTelpHp->ViewCustomAttributes = "";
+		// AngsuranBunga
+		$this->AngsuranBunga->ViewValue = $this->AngsuranBunga->CurrentValue;
+		$this->AngsuranBunga->ViewCustomAttributes = "";
 
-		// TglKontrak
-		$this->TglKontrak->ViewValue = $this->TglKontrak->CurrentValue;
-		$this->TglKontrak->ViewValue = ew_FormatDateTime($this->TglKontrak->ViewValue, 7);
-		$this->TglKontrak->ViewCustomAttributes = "";
+		// AngsuranTotal
+		$this->AngsuranTotal->ViewValue = $this->AngsuranTotal->CurrentValue;
+		$this->AngsuranTotal->ViewCustomAttributes = "";
 
-		// MerkType
-		$this->MerkType->ViewValue = $this->MerkType->CurrentValue;
-		$this->MerkType->ViewCustomAttributes = "";
+		// SisaHutang
+		$this->SisaHutang->ViewValue = $this->SisaHutang->CurrentValue;
+		$this->SisaHutang->ViewCustomAttributes = "";
 
-		// NoRangka
-		$this->NoRangka->ViewValue = $this->NoRangka->CurrentValue;
-		$this->NoRangka->ViewCustomAttributes = "";
+		// TanggalBayar
+		$this->TanggalBayar->ViewValue = $this->TanggalBayar->CurrentValue;
+		$this->TanggalBayar->ViewValue = ew_FormatDateTime($this->TanggalBayar->ViewValue, 0);
+		$this->TanggalBayar->ViewCustomAttributes = "";
 
-		// NoMesin
-		$this->NoMesin->ViewValue = $this->NoMesin->CurrentValue;
-		$this->NoMesin->ViewCustomAttributes = "";
+		// TotalDenda
+		$this->TotalDenda->ViewValue = $this->TotalDenda->CurrentValue;
+		$this->TotalDenda->ViewCustomAttributes = "";
 
-		// Warna
-		$this->Warna->ViewValue = $this->Warna->CurrentValue;
-		$this->Warna->ViewCustomAttributes = "";
+		// Terlambat
+		$this->Terlambat->ViewValue = $this->Terlambat->CurrentValue;
+		$this->Terlambat->ViewCustomAttributes = "";
 
-		// NoPol
-		$this->NoPol->ViewValue = $this->NoPol->CurrentValue;
-		$this->NoPol->ViewCustomAttributes = "";
+			// id
+			$this->id->LinkCustomAttributes = "";
+			$this->id->HrefValue = "";
+			$this->id->TooltipValue = "";
 
-		// AtasNama
-		$this->AtasNama->ViewValue = $this->AtasNama->CurrentValue;
-		$this->AtasNama->ViewCustomAttributes = "";
+			// nasabah_id
+			$this->nasabah_id->LinkCustomAttributes = "";
+			$this->nasabah_id->HrefValue = "";
+			$this->nasabah_id->TooltipValue = "";
 
-		// Pinjaman
-		$this->Pinjaman->ViewValue = $this->Pinjaman->CurrentValue;
-		$this->Pinjaman->ViewValue = ew_FormatNumber($this->Pinjaman->ViewValue, 2, -2, -2, -2);
-		$this->Pinjaman->CellCssStyle .= "text-align: right;";
-		$this->Pinjaman->ViewCustomAttributes = "";
+			// Tanggal
+			$this->Tanggal->LinkCustomAttributes = "";
+			$this->Tanggal->HrefValue = "";
+			$this->Tanggal->TooltipValue = "";
 
-		// Denda
-		$this->Denda->ViewValue = $this->Denda->CurrentValue;
-		$this->Denda->ViewValue = ew_FormatNumber($this->Denda->ViewValue, 2, -2, -2, -2);
-		$this->Denda->CellCssStyle .= "text-align: right;";
-		$this->Denda->ViewCustomAttributes = "";
+			// AngsuranPokok
+			$this->AngsuranPokok->LinkCustomAttributes = "";
+			$this->AngsuranPokok->HrefValue = "";
+			$this->AngsuranPokok->TooltipValue = "";
 
-		// DispensasiDenda
-		$this->DispensasiDenda->ViewValue = $this->DispensasiDenda->CurrentValue;
-		$this->DispensasiDenda->CellCssStyle .= "text-align: right;";
-		$this->DispensasiDenda->ViewCustomAttributes = "";
+			// AngsuranBunga
+			$this->AngsuranBunga->LinkCustomAttributes = "";
+			$this->AngsuranBunga->HrefValue = "";
+			$this->AngsuranBunga->TooltipValue = "";
 
-		// LamaAngsuran
-		$this->LamaAngsuran->ViewValue = $this->LamaAngsuran->CurrentValue;
-		$this->LamaAngsuran->CellCssStyle .= "text-align: right;";
-		$this->LamaAngsuran->ViewCustomAttributes = "";
+			// AngsuranTotal
+			$this->AngsuranTotal->LinkCustomAttributes = "";
+			$this->AngsuranTotal->HrefValue = "";
+			$this->AngsuranTotal->TooltipValue = "";
 
-		// JumlahAngsuran
-		$this->JumlahAngsuran->ViewValue = $this->JumlahAngsuran->CurrentValue;
-		$this->JumlahAngsuran->ViewValue = ew_FormatNumber($this->JumlahAngsuran->ViewValue, 2, -2, -2, -2);
-		$this->JumlahAngsuran->CellCssStyle .= "text-align: right;";
-		$this->JumlahAngsuran->ViewCustomAttributes = "";
+			// SisaHutang
+			$this->SisaHutang->LinkCustomAttributes = "";
+			$this->SisaHutang->HrefValue = "";
+			$this->SisaHutang->TooltipValue = "";
 
-			// NoKontrak
-			$this->NoKontrak->LinkCustomAttributes = "";
-			$this->NoKontrak->HrefValue = "";
-			$this->NoKontrak->TooltipValue = "";
+			// TanggalBayar
+			$this->TanggalBayar->LinkCustomAttributes = "";
+			$this->TanggalBayar->HrefValue = "";
+			$this->TanggalBayar->TooltipValue = "";
 
-			// Customer
-			$this->Customer->LinkCustomAttributes = "";
-			$this->Customer->HrefValue = "";
-			$this->Customer->TooltipValue = "";
+			// TotalDenda
+			$this->TotalDenda->LinkCustomAttributes = "";
+			$this->TotalDenda->HrefValue = "";
+			$this->TotalDenda->TooltipValue = "";
 
-			// TglKontrak
-			$this->TglKontrak->LinkCustomAttributes = "";
-			$this->TglKontrak->HrefValue = "";
-			$this->TglKontrak->TooltipValue = "";
-
-			// Pinjaman
-			$this->Pinjaman->LinkCustomAttributes = "";
-			$this->Pinjaman->HrefValue = "";
-			$this->Pinjaman->TooltipValue = "";
-
-			// Denda
-			$this->Denda->LinkCustomAttributes = "";
-			$this->Denda->HrefValue = "";
-			$this->Denda->TooltipValue = "";
-
-			// DispensasiDenda
-			$this->DispensasiDenda->LinkCustomAttributes = "";
-			$this->DispensasiDenda->HrefValue = "";
-			$this->DispensasiDenda->TooltipValue = "";
-
-			// LamaAngsuran
-			$this->LamaAngsuran->LinkCustomAttributes = "";
-			$this->LamaAngsuran->HrefValue = "";
-			$this->LamaAngsuran->TooltipValue = "";
-
-			// JumlahAngsuran
-			$this->JumlahAngsuran->LinkCustomAttributes = "";
-			$this->JumlahAngsuran->HrefValue = "";
-			$this->JumlahAngsuran->TooltipValue = "";
+			// Terlambat
+			$this->Terlambat->LinkCustomAttributes = "";
+			$this->Terlambat->HrefValue = "";
+			$this->Terlambat->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -835,12 +797,74 @@ class ct01_nasabah_delete extends ct01_nasabah {
 		return $DeleteRows;
 	}
 
+	// Set up master/detail based on QueryString
+	function SetupMasterParms() {
+		$bValidMaster = FALSE;
+
+		// Get the keys for master table
+		if (isset($_GET[EW_TABLE_SHOW_MASTER])) {
+			$sMasterTblVar = $_GET[EW_TABLE_SHOW_MASTER];
+			if ($sMasterTblVar == "") {
+				$bValidMaster = TRUE;
+				$this->DbMasterFilter = "";
+				$this->DbDetailFilter = "";
+			}
+			if ($sMasterTblVar == "t01_nasabah") {
+				$bValidMaster = TRUE;
+				if (@$_GET["fk_id"] <> "") {
+					$GLOBALS["t01_nasabah"]->id->setQueryStringValue($_GET["fk_id"]);
+					$this->nasabah_id->setQueryStringValue($GLOBALS["t01_nasabah"]->id->QueryStringValue);
+					$this->nasabah_id->setSessionValue($this->nasabah_id->QueryStringValue);
+					if (!is_numeric($GLOBALS["t01_nasabah"]->id->QueryStringValue)) $bValidMaster = FALSE;
+				} else {
+					$bValidMaster = FALSE;
+				}
+			}
+		} elseif (isset($_POST[EW_TABLE_SHOW_MASTER])) {
+			$sMasterTblVar = $_POST[EW_TABLE_SHOW_MASTER];
+			if ($sMasterTblVar == "") {
+				$bValidMaster = TRUE;
+				$this->DbMasterFilter = "";
+				$this->DbDetailFilter = "";
+			}
+			if ($sMasterTblVar == "t01_nasabah") {
+				$bValidMaster = TRUE;
+				if (@$_POST["fk_id"] <> "") {
+					$GLOBALS["t01_nasabah"]->id->setFormValue($_POST["fk_id"]);
+					$this->nasabah_id->setFormValue($GLOBALS["t01_nasabah"]->id->FormValue);
+					$this->nasabah_id->setSessionValue($this->nasabah_id->FormValue);
+					if (!is_numeric($GLOBALS["t01_nasabah"]->id->FormValue)) $bValidMaster = FALSE;
+				} else {
+					$bValidMaster = FALSE;
+				}
+			}
+		}
+		if ($bValidMaster) {
+
+			// Save current master table
+			$this->setCurrentMasterTable($sMasterTblVar);
+
+			// Reset start record counter (new master key)
+			if (!$this->IsAddOrEdit()) {
+				$this->StartRec = 1;
+				$this->setStartRecordNumber($this->StartRec);
+			}
+
+			// Clear previous master key from Session
+			if ($sMasterTblVar <> "t01_nasabah") {
+				if ($this->nasabah_id->CurrentValue == "") $this->nasabah_id->setSessionValue("");
+			}
+		}
+		$this->DbMasterFilter = $this->GetMasterFilter(); // Get master filter
+		$this->DbDetailFilter = $this->GetDetailFilter(); // Get detail filter
+	}
+
 	// Set up Breadcrumb
 	function SetupBreadcrumb() {
 		global $Breadcrumb, $Language;
 		$Breadcrumb = new cBreadcrumb();
 		$url = substr(ew_CurrentUrl(), strrpos(ew_CurrentUrl(), "/")+1);
-		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t01_nasabahlist.php"), "", $this->TableVar, TRUE);
+		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t02_angsuranlist.php"), "", $this->TableVar, TRUE);
 		$PageId = "delete";
 		$Breadcrumb->Add("delete", $PageId, $url);
 	}
@@ -926,29 +950,29 @@ class ct01_nasabah_delete extends ct01_nasabah {
 <?php
 
 // Create page object
-if (!isset($t01_nasabah_delete)) $t01_nasabah_delete = new ct01_nasabah_delete();
+if (!isset($t02_angsuran_delete)) $t02_angsuran_delete = new ct02_angsuran_delete();
 
 // Page init
-$t01_nasabah_delete->Page_Init();
+$t02_angsuran_delete->Page_Init();
 
 // Page main
-$t01_nasabah_delete->Page_Main();
+$t02_angsuran_delete->Page_Main();
 
 // Global Page Rendering event (in userfn*.php)
 Page_Rendering();
 
 // Page Rendering event
-$t01_nasabah_delete->Page_Render();
+$t02_angsuran_delete->Page_Render();
 ?>
 <?php include_once "header.php" ?>
 <script type="text/javascript">
 
 // Form object
 var CurrentPageID = EW_PAGE_ID = "delete";
-var CurrentForm = ft01_nasabahdelete = new ew_Form("ft01_nasabahdelete", "delete");
+var CurrentForm = ft02_angsurandelete = new ew_Form("ft02_angsurandelete", "delete");
 
 // Form_CustomValidate event
-ft01_nasabahdelete.Form_CustomValidate = 
+ft02_angsurandelete.Form_CustomValidate = 
  function(fobj) { // DO NOT CHANGE THIS LINE!
 
  	// Your custom validation code here, return false if invalid.
@@ -956,7 +980,7 @@ ft01_nasabahdelete.Form_CustomValidate =
  }
 
 // Use JavaScript validation or not
-ft01_nasabahdelete.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
+ft02_angsurandelete.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
 
 // Dynamic selection lists
 // Form object for search
@@ -966,17 +990,17 @@ ft01_nasabahdelete.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE)
 
 // Write your client script here, no need to add script tags.
 </script>
-<?php $t01_nasabah_delete->ShowPageHeader(); ?>
+<?php $t02_angsuran_delete->ShowPageHeader(); ?>
 <?php
-$t01_nasabah_delete->ShowMessage();
+$t02_angsuran_delete->ShowMessage();
 ?>
-<form name="ft01_nasabahdelete" id="ft01_nasabahdelete" class="form-inline ewForm ewDeleteForm" action="<?php echo ew_CurrentPage() ?>" method="post">
-<?php if ($t01_nasabah_delete->CheckToken) { ?>
-<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t01_nasabah_delete->Token ?>">
+<form name="ft02_angsurandelete" id="ft02_angsurandelete" class="form-inline ewForm ewDeleteForm" action="<?php echo ew_CurrentPage() ?>" method="post">
+<?php if ($t02_angsuran_delete->CheckToken) { ?>
+<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t02_angsuran_delete->Token ?>">
 <?php } ?>
-<input type="hidden" name="t" value="t01_nasabah">
+<input type="hidden" name="t" value="t02_angsuran">
 <input type="hidden" name="a_delete" id="a_delete" value="D">
-<?php foreach ($t01_nasabah_delete->RecKeys as $key) { ?>
+<?php foreach ($t02_angsuran_delete->RecKeys as $key) { ?>
 <?php $keyvalue = is_array($key) ? implode($EW_COMPOSITE_KEY_SEPARATOR, $key) : $key; ?>
 <input type="hidden" name="key_m[]" value="<?php echo ew_HtmlEncode($keyvalue) ?>">
 <?php } ?>
@@ -985,120 +1009,142 @@ $t01_nasabah_delete->ShowMessage();
 <table class="table ewTable">
 	<thead>
 	<tr class="ewTableHeader">
-<?php if ($t01_nasabah->NoKontrak->Visible) { // NoKontrak ?>
-		<th class="<?php echo $t01_nasabah->NoKontrak->HeaderCellClass() ?>"><span id="elh_t01_nasabah_NoKontrak" class="t01_nasabah_NoKontrak"><?php echo $t01_nasabah->NoKontrak->FldCaption() ?></span></th>
+<?php if ($t02_angsuran->id->Visible) { // id ?>
+		<th class="<?php echo $t02_angsuran->id->HeaderCellClass() ?>"><span id="elh_t02_angsuran_id" class="t02_angsuran_id"><?php echo $t02_angsuran->id->FldCaption() ?></span></th>
 <?php } ?>
-<?php if ($t01_nasabah->Customer->Visible) { // Customer ?>
-		<th class="<?php echo $t01_nasabah->Customer->HeaderCellClass() ?>"><span id="elh_t01_nasabah_Customer" class="t01_nasabah_Customer"><?php echo $t01_nasabah->Customer->FldCaption() ?></span></th>
+<?php if ($t02_angsuran->nasabah_id->Visible) { // nasabah_id ?>
+		<th class="<?php echo $t02_angsuran->nasabah_id->HeaderCellClass() ?>"><span id="elh_t02_angsuran_nasabah_id" class="t02_angsuran_nasabah_id"><?php echo $t02_angsuran->nasabah_id->FldCaption() ?></span></th>
 <?php } ?>
-<?php if ($t01_nasabah->TglKontrak->Visible) { // TglKontrak ?>
-		<th class="<?php echo $t01_nasabah->TglKontrak->HeaderCellClass() ?>"><span id="elh_t01_nasabah_TglKontrak" class="t01_nasabah_TglKontrak"><?php echo $t01_nasabah->TglKontrak->FldCaption() ?></span></th>
+<?php if ($t02_angsuran->Tanggal->Visible) { // Tanggal ?>
+		<th class="<?php echo $t02_angsuran->Tanggal->HeaderCellClass() ?>"><span id="elh_t02_angsuran_Tanggal" class="t02_angsuran_Tanggal"><?php echo $t02_angsuran->Tanggal->FldCaption() ?></span></th>
 <?php } ?>
-<?php if ($t01_nasabah->Pinjaman->Visible) { // Pinjaman ?>
-		<th class="<?php echo $t01_nasabah->Pinjaman->HeaderCellClass() ?>"><span id="elh_t01_nasabah_Pinjaman" class="t01_nasabah_Pinjaman"><?php echo $t01_nasabah->Pinjaman->FldCaption() ?></span></th>
+<?php if ($t02_angsuran->AngsuranPokok->Visible) { // AngsuranPokok ?>
+		<th class="<?php echo $t02_angsuran->AngsuranPokok->HeaderCellClass() ?>"><span id="elh_t02_angsuran_AngsuranPokok" class="t02_angsuran_AngsuranPokok"><?php echo $t02_angsuran->AngsuranPokok->FldCaption() ?></span></th>
 <?php } ?>
-<?php if ($t01_nasabah->Denda->Visible) { // Denda ?>
-		<th class="<?php echo $t01_nasabah->Denda->HeaderCellClass() ?>"><span id="elh_t01_nasabah_Denda" class="t01_nasabah_Denda"><?php echo $t01_nasabah->Denda->FldCaption() ?></span></th>
+<?php if ($t02_angsuran->AngsuranBunga->Visible) { // AngsuranBunga ?>
+		<th class="<?php echo $t02_angsuran->AngsuranBunga->HeaderCellClass() ?>"><span id="elh_t02_angsuran_AngsuranBunga" class="t02_angsuran_AngsuranBunga"><?php echo $t02_angsuran->AngsuranBunga->FldCaption() ?></span></th>
 <?php } ?>
-<?php if ($t01_nasabah->DispensasiDenda->Visible) { // DispensasiDenda ?>
-		<th class="<?php echo $t01_nasabah->DispensasiDenda->HeaderCellClass() ?>"><span id="elh_t01_nasabah_DispensasiDenda" class="t01_nasabah_DispensasiDenda"><?php echo $t01_nasabah->DispensasiDenda->FldCaption() ?></span></th>
+<?php if ($t02_angsuran->AngsuranTotal->Visible) { // AngsuranTotal ?>
+		<th class="<?php echo $t02_angsuran->AngsuranTotal->HeaderCellClass() ?>"><span id="elh_t02_angsuran_AngsuranTotal" class="t02_angsuran_AngsuranTotal"><?php echo $t02_angsuran->AngsuranTotal->FldCaption() ?></span></th>
 <?php } ?>
-<?php if ($t01_nasabah->LamaAngsuran->Visible) { // LamaAngsuran ?>
-		<th class="<?php echo $t01_nasabah->LamaAngsuran->HeaderCellClass() ?>"><span id="elh_t01_nasabah_LamaAngsuran" class="t01_nasabah_LamaAngsuran"><?php echo $t01_nasabah->LamaAngsuran->FldCaption() ?></span></th>
+<?php if ($t02_angsuran->SisaHutang->Visible) { // SisaHutang ?>
+		<th class="<?php echo $t02_angsuran->SisaHutang->HeaderCellClass() ?>"><span id="elh_t02_angsuran_SisaHutang" class="t02_angsuran_SisaHutang"><?php echo $t02_angsuran->SisaHutang->FldCaption() ?></span></th>
 <?php } ?>
-<?php if ($t01_nasabah->JumlahAngsuran->Visible) { // JumlahAngsuran ?>
-		<th class="<?php echo $t01_nasabah->JumlahAngsuran->HeaderCellClass() ?>"><span id="elh_t01_nasabah_JumlahAngsuran" class="t01_nasabah_JumlahAngsuran"><?php echo $t01_nasabah->JumlahAngsuran->FldCaption() ?></span></th>
+<?php if ($t02_angsuran->TanggalBayar->Visible) { // TanggalBayar ?>
+		<th class="<?php echo $t02_angsuran->TanggalBayar->HeaderCellClass() ?>"><span id="elh_t02_angsuran_TanggalBayar" class="t02_angsuran_TanggalBayar"><?php echo $t02_angsuran->TanggalBayar->FldCaption() ?></span></th>
+<?php } ?>
+<?php if ($t02_angsuran->TotalDenda->Visible) { // TotalDenda ?>
+		<th class="<?php echo $t02_angsuran->TotalDenda->HeaderCellClass() ?>"><span id="elh_t02_angsuran_TotalDenda" class="t02_angsuran_TotalDenda"><?php echo $t02_angsuran->TotalDenda->FldCaption() ?></span></th>
+<?php } ?>
+<?php if ($t02_angsuran->Terlambat->Visible) { // Terlambat ?>
+		<th class="<?php echo $t02_angsuran->Terlambat->HeaderCellClass() ?>"><span id="elh_t02_angsuran_Terlambat" class="t02_angsuran_Terlambat"><?php echo $t02_angsuran->Terlambat->FldCaption() ?></span></th>
 <?php } ?>
 	</tr>
 	</thead>
 	<tbody>
 <?php
-$t01_nasabah_delete->RecCnt = 0;
+$t02_angsuran_delete->RecCnt = 0;
 $i = 0;
-while (!$t01_nasabah_delete->Recordset->EOF) {
-	$t01_nasabah_delete->RecCnt++;
-	$t01_nasabah_delete->RowCnt++;
+while (!$t02_angsuran_delete->Recordset->EOF) {
+	$t02_angsuran_delete->RecCnt++;
+	$t02_angsuran_delete->RowCnt++;
 
 	// Set row properties
-	$t01_nasabah->ResetAttrs();
-	$t01_nasabah->RowType = EW_ROWTYPE_VIEW; // View
+	$t02_angsuran->ResetAttrs();
+	$t02_angsuran->RowType = EW_ROWTYPE_VIEW; // View
 
 	// Get the field contents
-	$t01_nasabah_delete->LoadRowValues($t01_nasabah_delete->Recordset);
+	$t02_angsuran_delete->LoadRowValues($t02_angsuran_delete->Recordset);
 
 	// Render row
-	$t01_nasabah_delete->RenderRow();
+	$t02_angsuran_delete->RenderRow();
 ?>
-	<tr<?php echo $t01_nasabah->RowAttributes() ?>>
-<?php if ($t01_nasabah->NoKontrak->Visible) { // NoKontrak ?>
-		<td<?php echo $t01_nasabah->NoKontrak->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_delete->RowCnt ?>_t01_nasabah_NoKontrak" class="t01_nasabah_NoKontrak">
-<span<?php echo $t01_nasabah->NoKontrak->ViewAttributes() ?>>
-<?php echo $t01_nasabah->NoKontrak->ListViewValue() ?></span>
+	<tr<?php echo $t02_angsuran->RowAttributes() ?>>
+<?php if ($t02_angsuran->id->Visible) { // id ?>
+		<td<?php echo $t02_angsuran->id->CellAttributes() ?>>
+<span id="el<?php echo $t02_angsuran_delete->RowCnt ?>_t02_angsuran_id" class="t02_angsuran_id">
+<span<?php echo $t02_angsuran->id->ViewAttributes() ?>>
+<?php echo $t02_angsuran->id->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>
-<?php if ($t01_nasabah->Customer->Visible) { // Customer ?>
-		<td<?php echo $t01_nasabah->Customer->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_delete->RowCnt ?>_t01_nasabah_Customer" class="t01_nasabah_Customer">
-<span<?php echo $t01_nasabah->Customer->ViewAttributes() ?>>
-<?php echo $t01_nasabah->Customer->ListViewValue() ?></span>
+<?php if ($t02_angsuran->nasabah_id->Visible) { // nasabah_id ?>
+		<td<?php echo $t02_angsuran->nasabah_id->CellAttributes() ?>>
+<span id="el<?php echo $t02_angsuran_delete->RowCnt ?>_t02_angsuran_nasabah_id" class="t02_angsuran_nasabah_id">
+<span<?php echo $t02_angsuran->nasabah_id->ViewAttributes() ?>>
+<?php echo $t02_angsuran->nasabah_id->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>
-<?php if ($t01_nasabah->TglKontrak->Visible) { // TglKontrak ?>
-		<td<?php echo $t01_nasabah->TglKontrak->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_delete->RowCnt ?>_t01_nasabah_TglKontrak" class="t01_nasabah_TglKontrak">
-<span<?php echo $t01_nasabah->TglKontrak->ViewAttributes() ?>>
-<?php echo $t01_nasabah->TglKontrak->ListViewValue() ?></span>
+<?php if ($t02_angsuran->Tanggal->Visible) { // Tanggal ?>
+		<td<?php echo $t02_angsuran->Tanggal->CellAttributes() ?>>
+<span id="el<?php echo $t02_angsuran_delete->RowCnt ?>_t02_angsuran_Tanggal" class="t02_angsuran_Tanggal">
+<span<?php echo $t02_angsuran->Tanggal->ViewAttributes() ?>>
+<?php echo $t02_angsuran->Tanggal->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>
-<?php if ($t01_nasabah->Pinjaman->Visible) { // Pinjaman ?>
-		<td<?php echo $t01_nasabah->Pinjaman->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_delete->RowCnt ?>_t01_nasabah_Pinjaman" class="t01_nasabah_Pinjaman">
-<span<?php echo $t01_nasabah->Pinjaman->ViewAttributes() ?>>
-<?php echo $t01_nasabah->Pinjaman->ListViewValue() ?></span>
+<?php if ($t02_angsuran->AngsuranPokok->Visible) { // AngsuranPokok ?>
+		<td<?php echo $t02_angsuran->AngsuranPokok->CellAttributes() ?>>
+<span id="el<?php echo $t02_angsuran_delete->RowCnt ?>_t02_angsuran_AngsuranPokok" class="t02_angsuran_AngsuranPokok">
+<span<?php echo $t02_angsuran->AngsuranPokok->ViewAttributes() ?>>
+<?php echo $t02_angsuran->AngsuranPokok->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>
-<?php if ($t01_nasabah->Denda->Visible) { // Denda ?>
-		<td<?php echo $t01_nasabah->Denda->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_delete->RowCnt ?>_t01_nasabah_Denda" class="t01_nasabah_Denda">
-<span<?php echo $t01_nasabah->Denda->ViewAttributes() ?>>
-<?php echo $t01_nasabah->Denda->ListViewValue() ?></span>
+<?php if ($t02_angsuran->AngsuranBunga->Visible) { // AngsuranBunga ?>
+		<td<?php echo $t02_angsuran->AngsuranBunga->CellAttributes() ?>>
+<span id="el<?php echo $t02_angsuran_delete->RowCnt ?>_t02_angsuran_AngsuranBunga" class="t02_angsuran_AngsuranBunga">
+<span<?php echo $t02_angsuran->AngsuranBunga->ViewAttributes() ?>>
+<?php echo $t02_angsuran->AngsuranBunga->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>
-<?php if ($t01_nasabah->DispensasiDenda->Visible) { // DispensasiDenda ?>
-		<td<?php echo $t01_nasabah->DispensasiDenda->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_delete->RowCnt ?>_t01_nasabah_DispensasiDenda" class="t01_nasabah_DispensasiDenda">
-<span<?php echo $t01_nasabah->DispensasiDenda->ViewAttributes() ?>>
-<?php echo $t01_nasabah->DispensasiDenda->ListViewValue() ?></span>
+<?php if ($t02_angsuran->AngsuranTotal->Visible) { // AngsuranTotal ?>
+		<td<?php echo $t02_angsuran->AngsuranTotal->CellAttributes() ?>>
+<span id="el<?php echo $t02_angsuran_delete->RowCnt ?>_t02_angsuran_AngsuranTotal" class="t02_angsuran_AngsuranTotal">
+<span<?php echo $t02_angsuran->AngsuranTotal->ViewAttributes() ?>>
+<?php echo $t02_angsuran->AngsuranTotal->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>
-<?php if ($t01_nasabah->LamaAngsuran->Visible) { // LamaAngsuran ?>
-		<td<?php echo $t01_nasabah->LamaAngsuran->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_delete->RowCnt ?>_t01_nasabah_LamaAngsuran" class="t01_nasabah_LamaAngsuran">
-<span<?php echo $t01_nasabah->LamaAngsuran->ViewAttributes() ?>>
-<?php echo $t01_nasabah->LamaAngsuran->ListViewValue() ?></span>
+<?php if ($t02_angsuran->SisaHutang->Visible) { // SisaHutang ?>
+		<td<?php echo $t02_angsuran->SisaHutang->CellAttributes() ?>>
+<span id="el<?php echo $t02_angsuran_delete->RowCnt ?>_t02_angsuran_SisaHutang" class="t02_angsuran_SisaHutang">
+<span<?php echo $t02_angsuran->SisaHutang->ViewAttributes() ?>>
+<?php echo $t02_angsuran->SisaHutang->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>
-<?php if ($t01_nasabah->JumlahAngsuran->Visible) { // JumlahAngsuran ?>
-		<td<?php echo $t01_nasabah->JumlahAngsuran->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_delete->RowCnt ?>_t01_nasabah_JumlahAngsuran" class="t01_nasabah_JumlahAngsuran">
-<span<?php echo $t01_nasabah->JumlahAngsuran->ViewAttributes() ?>>
-<?php echo $t01_nasabah->JumlahAngsuran->ListViewValue() ?></span>
+<?php if ($t02_angsuran->TanggalBayar->Visible) { // TanggalBayar ?>
+		<td<?php echo $t02_angsuran->TanggalBayar->CellAttributes() ?>>
+<span id="el<?php echo $t02_angsuran_delete->RowCnt ?>_t02_angsuran_TanggalBayar" class="t02_angsuran_TanggalBayar">
+<span<?php echo $t02_angsuran->TanggalBayar->ViewAttributes() ?>>
+<?php echo $t02_angsuran->TanggalBayar->ListViewValue() ?></span>
+</span>
+</td>
+<?php } ?>
+<?php if ($t02_angsuran->TotalDenda->Visible) { // TotalDenda ?>
+		<td<?php echo $t02_angsuran->TotalDenda->CellAttributes() ?>>
+<span id="el<?php echo $t02_angsuran_delete->RowCnt ?>_t02_angsuran_TotalDenda" class="t02_angsuran_TotalDenda">
+<span<?php echo $t02_angsuran->TotalDenda->ViewAttributes() ?>>
+<?php echo $t02_angsuran->TotalDenda->ListViewValue() ?></span>
+</span>
+</td>
+<?php } ?>
+<?php if ($t02_angsuran->Terlambat->Visible) { // Terlambat ?>
+		<td<?php echo $t02_angsuran->Terlambat->CellAttributes() ?>>
+<span id="el<?php echo $t02_angsuran_delete->RowCnt ?>_t02_angsuran_Terlambat" class="t02_angsuran_Terlambat">
+<span<?php echo $t02_angsuran->Terlambat->ViewAttributes() ?>>
+<?php echo $t02_angsuran->Terlambat->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>
 	</tr>
 <?php
-	$t01_nasabah_delete->Recordset->MoveNext();
+	$t02_angsuran_delete->Recordset->MoveNext();
 }
-$t01_nasabah_delete->Recordset->Close();
+$t02_angsuran_delete->Recordset->Close();
 ?>
 </tbody>
 </table>
@@ -1106,14 +1152,14 @@ $t01_nasabah_delete->Recordset->Close();
 </div>
 <div>
 <button class="btn btn-primary ewButton" name="btnAction" id="btnAction" type="submit"><?php echo $Language->Phrase("DeleteBtn") ?></button>
-<button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $t01_nasabah_delete->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
+<button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $t02_angsuran_delete->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
 </div>
 </form>
 <script type="text/javascript">
-ft01_nasabahdelete.Init();
+ft02_angsurandelete.Init();
 </script>
 <?php
-$t01_nasabah_delete->ShowPageFooter();
+$t02_angsuran_delete->ShowPageFooter();
 if (EW_DEBUG_ENABLED)
 	echo ew_DebugMsg();
 ?>
@@ -1125,5 +1171,5 @@ if (EW_DEBUG_ENABLED)
 </script>
 <?php include_once "footer.php" ?>
 <?php
-$t01_nasabah_delete->Page_Terminate();
+$t02_angsuran_delete->Page_Terminate();
 ?>

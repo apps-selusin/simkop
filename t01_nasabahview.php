@@ -7,6 +7,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "phpfn14.php" ?>
 <?php include_once "t01_nasabahinfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
+<?php include_once "t02_angsurangridcls.php" ?>
 <?php include_once "userfn14.php" ?>
 <?php
 
@@ -546,6 +547,9 @@ class ct01_nasabah_view extends ct01_nasabah {
 		$this->RowType = EW_ROWTYPE_VIEW;
 		$this->ResetAttrs();
 		$this->RenderRow();
+
+		// Set up detail parameters
+		$this->SetupDetailParms();
 	}
 
 	// Set up other options
@@ -588,6 +592,81 @@ class ct01_nasabah_view extends ct01_nasabah {
 		else
 			$item->Body = "<a class=\"ewAction ewDelete\" title=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" href=\"" . ew_HtmlEncode($this->DeleteUrl) . "\">" . $Language->Phrase("ViewPageDeleteLink") . "</a>";
 		$item->Visible = ($this->DeleteUrl <> "" && $Security->CanDelete());
+		$option = &$options["detail"];
+		$DetailTableLink = "";
+		$DetailViewTblVar = "";
+		$DetailCopyTblVar = "";
+		$DetailEditTblVar = "";
+
+		// "detail_t02_angsuran"
+		$item = &$option->Add("detail_t02_angsuran");
+		$body = $Language->Phrase("ViewPageDetailLink") . $Language->TablePhrase("t02_angsuran", "TblCaption");
+		$body = "<a class=\"btn btn-default btn-sm ewRowLink ewDetail\" data-action=\"list\" href=\"" . ew_HtmlEncode("t02_angsuranlist.php?" . EW_TABLE_SHOW_MASTER . "=t01_nasabah&fk_id=" . urlencode(strval($this->id->CurrentValue)) . "") . "\">" . $body . "</a>";
+		$links = "";
+		if ($GLOBALS["t02_angsuran_grid"] && $GLOBALS["t02_angsuran_grid"]->DetailView && $Security->CanView() && $Security->AllowView(CurrentProjectID() . 't02_angsuran')) {
+			$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailViewLink")) . "\" href=\"" . ew_HtmlEncode($this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=t02_angsuran")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailViewLink")) . "</a></li>";
+			if ($DetailViewTblVar <> "") $DetailViewTblVar .= ",";
+			$DetailViewTblVar .= "t02_angsuran";
+		}
+		if ($GLOBALS["t02_angsuran_grid"] && $GLOBALS["t02_angsuran_grid"]->DetailEdit && $Security->CanEdit() && $Security->AllowEdit(CurrentProjectID() . 't02_angsuran')) {
+			$links .= "<li><a class=\"ewRowLink ewDetailEdit\" data-action=\"edit\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailEditLink")) . "\" href=\"" . ew_HtmlEncode($this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=t02_angsuran")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailEditLink")) . "</a></li>";
+			if ($DetailEditTblVar <> "") $DetailEditTblVar .= ",";
+			$DetailEditTblVar .= "t02_angsuran";
+		}
+		if ($GLOBALS["t02_angsuran_grid"] && $GLOBALS["t02_angsuran_grid"]->DetailAdd && $Security->CanAdd() && $Security->AllowAdd(CurrentProjectID() . 't02_angsuran')) {
+			$links .= "<li><a class=\"ewRowLink ewDetailCopy\" data-action=\"add\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailCopyLink")) . "\" href=\"" . ew_HtmlEncode($this->GetCopyUrl(EW_TABLE_SHOW_DETAIL . "=t02_angsuran")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailCopyLink")) . "</a></li>";
+			if ($DetailCopyTblVar <> "") $DetailCopyTblVar .= ",";
+			$DetailCopyTblVar .= "t02_angsuran";
+		}
+		if ($links <> "") {
+			$body .= "<button class=\"dropdown-toggle btn btn-default btn-sm ewDetail\" data-toggle=\"dropdown\"><b class=\"caret\"></b></button>";
+			$body .= "<ul class=\"dropdown-menu\">". $links . "</ul>";
+		}
+		$body = "<div class=\"btn-group\">" . $body . "</div>";
+		$item->Body = $body;
+		$item->Visible = $Security->AllowList(CurrentProjectID() . 't02_angsuran');
+		if ($item->Visible) {
+			if ($DetailTableLink <> "") $DetailTableLink .= ",";
+			$DetailTableLink .= "t02_angsuran";
+		}
+		if ($this->ShowMultipleDetails) $item->Visible = FALSE;
+
+		// Multiple details
+		if ($this->ShowMultipleDetails) {
+			$body = $Language->Phrase("MultipleMasterDetails");
+			$body = "<div class=\"btn-group\">";
+			$links = "";
+			if ($DetailViewTblVar <> "") {
+				$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailViewLink")) . "\" href=\"" . ew_HtmlEncode($this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=" . $DetailViewTblVar)) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailViewLink")) . "</a></li>";
+			}
+			if ($DetailEditTblVar <> "") {
+				$links .= "<li><a class=\"ewRowLink ewDetailEdit\" data-action=\"edit\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailEditLink")) . "\" href=\"" . ew_HtmlEncode($this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=" . $DetailEditTblVar)) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailEditLink")) . "</a></li>";
+			}
+			if ($DetailCopyTblVar <> "") {
+				$links .= "<li><a class=\"ewRowLink ewDetailCopy\" data-action=\"add\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailCopyLink")) . "\" href=\"" . ew_HtmlEncode($this->GetCopyUrl(EW_TABLE_SHOW_DETAIL . "=" . $DetailCopyTblVar)) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailCopyLink")) . "</a></li>";
+			}
+			if ($links <> "") {
+				$body .= "<button class=\"dropdown-toggle btn btn-default btn-sm ewMasterDetail\" title=\"" . ew_HtmlTitle($Language->Phrase("MultipleMasterDetails")) . "\" data-toggle=\"dropdown\">" . $Language->Phrase("MultipleMasterDetails") . "<b class=\"caret\"></b></button>";
+				$body .= "<ul class=\"dropdown-menu ewMenu\">". $links . "</ul>";
+			}
+			$body .= "</div>";
+
+			// Multiple details
+			$oListOpt = &$option->Add("details");
+			$oListOpt->Body = $body;
+		}
+
+		// Set up detail default
+		$option = &$options["detail"];
+		$options["detail"]->DropDownButtonPhrase = $Language->Phrase("ButtonDetails");
+		$option->UseImageAndText = TRUE;
+		$ar = explode(",", $DetailTableLink);
+		$cnt = count($ar);
+		$option->UseDropDownButton = ($cnt > 1);
+		$option->UseButtonGroup = TRUE;
+		$item = &$option->Add($option->GroupOptionName);
+		$item->Body = "";
+		$item->Visible = FALSE;
 
 		// Set up action default
 		$option = &$options["action"];
@@ -973,6 +1052,35 @@ class ct01_nasabah_view extends ct01_nasabah {
 			$this->Row_Rendered();
 	}
 
+	// Set up detail parms based on QueryString
+	function SetupDetailParms() {
+
+		// Get the keys for master table
+		if (isset($_GET[EW_TABLE_SHOW_DETAIL])) {
+			$sDetailTblVar = $_GET[EW_TABLE_SHOW_DETAIL];
+			$this->setCurrentDetailTable($sDetailTblVar);
+		} else {
+			$sDetailTblVar = $this->getCurrentDetailTable();
+		}
+		if ($sDetailTblVar <> "") {
+			$DetailTblVar = explode(",", $sDetailTblVar);
+			if (in_array("t02_angsuran", $DetailTblVar)) {
+				if (!isset($GLOBALS["t02_angsuran_grid"]))
+					$GLOBALS["t02_angsuran_grid"] = new ct02_angsuran_grid;
+				if ($GLOBALS["t02_angsuran_grid"]->DetailView) {
+					$GLOBALS["t02_angsuran_grid"]->CurrentMode = "view";
+
+					// Save current master table to detail table
+					$GLOBALS["t02_angsuran_grid"]->setCurrentMasterTable($this->TableVar);
+					$GLOBALS["t02_angsuran_grid"]->setStartRecordNumber(1);
+					$GLOBALS["t02_angsuran_grid"]->nasabah_id->FldIsDetailKey = TRUE;
+					$GLOBALS["t02_angsuran_grid"]->nasabah_id->CurrentValue = $this->id->CurrentValue;
+					$GLOBALS["t02_angsuran_grid"]->nasabah_id->setSessionValue($GLOBALS["t02_angsuran_grid"]->nasabah_id->CurrentValue);
+				}
+			}
+		}
+	}
+
 	// Set up Breadcrumb
 	function SetupBreadcrumb() {
 		global $Breadcrumb, $Language;
@@ -1210,17 +1318,6 @@ $t01_nasabah_view->ShowMessage();
 </td>
 	</tr>
 <?php } ?>
-<?php if ($t01_nasabah->MerkType->Visible) { // MerkType ?>
-	<tr id="r_MerkType">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_MerkType"><?php echo $t01_nasabah->MerkType->FldCaption() ?></span></td>
-		<td data-name="MerkType"<?php echo $t01_nasabah->MerkType->CellAttributes() ?>>
-<span id="el_t01_nasabah_MerkType" data-page="1">
-<span<?php echo $t01_nasabah->MerkType->ViewAttributes() ?>>
-<?php echo $t01_nasabah->MerkType->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
 <?php if ($t01_nasabah->Pinjaman->Visible) { // Pinjaman ?>
 	<tr id="r_Pinjaman">
 		<td class="col-sm-2"><span id="elh_t01_nasabah_Pinjaman"><?php echo $t01_nasabah->Pinjaman->FldCaption() ?></span></td>
@@ -1293,6 +1390,17 @@ $t01_nasabah_view->ShowMessage();
 			<div class="box-body no-padding">
 <?php } ?>
 <table class="table table-striped table-bordered table-hover table-condensed ewViewTable">
+<?php if ($t01_nasabah->MerkType->Visible) { // MerkType ?>
+	<tr id="r_MerkType">
+		<td class="col-sm-2"><span id="elh_t01_nasabah_MerkType"><?php echo $t01_nasabah->MerkType->FldCaption() ?></span></td>
+		<td data-name="MerkType"<?php echo $t01_nasabah->MerkType->CellAttributes() ?>>
+<span id="el_t01_nasabah_MerkType" data-page="2">
+<span<?php echo $t01_nasabah->MerkType->ViewAttributes() ?>>
+<?php echo $t01_nasabah->MerkType->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
 <?php if ($t01_nasabah->NoRangka->Visible) { // NoRangka ?>
 	<tr id="r_NoRangka">
 		<td class="col-sm-2"><span id="elh_t01_nasabah_NoRangka"><?php echo $t01_nasabah->NoRangka->FldCaption() ?></span></td>
@@ -1418,6 +1526,14 @@ $t01_nasabah_view->ShowMessage();
 <?php if ($t01_nasabah->Export == "") { ?>
 </div>
 </div>
+<?php } ?>
+<?php
+	if (in_array("t02_angsuran", explode(",", $t01_nasabah->getCurrentDetailTable())) && $t02_angsuran->DetailView) {
+?>
+<?php if ($t01_nasabah->getCurrentDetailTable() <> "") { ?>
+<h4 class="ewDetailCaption"><?php echo $Language->TablePhrase("t02_angsuran", "TblCaption") ?></h4>
+<?php } ?>
+<?php include_once "t02_angsurangrid.php" ?>
 <?php } ?>
 </form>
 <script type="text/javascript">

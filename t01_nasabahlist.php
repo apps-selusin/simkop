@@ -7,6 +7,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "phpfn14.php" ?>
 <?php include_once "t01_nasabahinfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
+<?php include_once "t02_angsurangridcls.php" ?>
 <?php include_once "userfn14.php" ?>
 <?php
 
@@ -310,7 +311,7 @@ class ct01_nasabah_list extends ct01_nasabah {
 		$this->ExportXmlUrl = $this->PageUrl() . "export=xml";
 		$this->ExportCsvUrl = $this->PageUrl() . "export=csv";
 		$this->ExportPdfUrl = $this->PageUrl() . "export=pdf";
-		$this->AddUrl = "t01_nasabahadd.php";
+		$this->AddUrl = "t01_nasabahadd.php?" . EW_TABLE_SHOW_DETAIL . "=";
 		$this->InlineAddUrl = $this->PageUrl() . "a=add";
 		$this->GridAddUrl = $this->PageUrl() . "a=gridadd";
 		$this->GridEditUrl = $this->PageUrl() . "a=gridedit";
@@ -416,9 +417,7 @@ class ct01_nasabah_list extends ct01_nasabah {
 		$this->SetupListOptions();
 		$this->NoKontrak->SetVisibility();
 		$this->Customer->SetVisibility();
-		$this->NoTelpHp->SetVisibility();
 		$this->TglKontrak->SetVisibility();
-		$this->MerkType->SetVisibility();
 		$this->Pinjaman->SetVisibility();
 		$this->Denda->SetVisibility();
 		$this->DispensasiDenda->SetVisibility();
@@ -440,6 +439,22 @@ class ct01_nasabah_list extends ct01_nasabah {
 
 		// Process auto fill
 		if (@$_POST["ajax"] == "autofill") {
+
+			// Get the keys for master table
+			$sDetailTblVar = $this->getCurrentDetailTable();
+			if ($sDetailTblVar <> "") {
+				$DetailTblVar = explode(",", $sDetailTblVar);
+				if (in_array("t02_angsuran", $DetailTblVar)) {
+
+					// Process auto fill for detail table 't02_angsuran'
+					if (preg_match('/^ft02_angsuran(grid|add|addopt|edit|update|search)$/', @$_POST["form"])) {
+						if (!isset($GLOBALS["t02_angsuran_grid"])) $GLOBALS["t02_angsuran_grid"] = new ct02_angsuran_grid;
+						$GLOBALS["t02_angsuran_grid"]->Page_Init();
+						$this->Page_Terminate();
+						exit();
+					}
+				}
+			}
 			$results = $this->GetAutoFill(@$_POST["name"], @$_POST["q"]);
 			if ($results) {
 
@@ -1153,9 +1168,7 @@ class ct01_nasabah_list extends ct01_nasabah {
 			$this->CurrentOrderType = @$_GET["ordertype"];
 			$this->UpdateSort($this->NoKontrak, $bCtrl); // NoKontrak
 			$this->UpdateSort($this->Customer, $bCtrl); // Customer
-			$this->UpdateSort($this->NoTelpHp, $bCtrl); // NoTelpHp
 			$this->UpdateSort($this->TglKontrak, $bCtrl); // TglKontrak
-			$this->UpdateSort($this->MerkType, $bCtrl); // MerkType
 			$this->UpdateSort($this->Pinjaman, $bCtrl); // Pinjaman
 			$this->UpdateSort($this->Denda, $bCtrl); // Denda
 			$this->UpdateSort($this->DispensasiDenda, $bCtrl); // DispensasiDenda
@@ -1195,9 +1208,7 @@ class ct01_nasabah_list extends ct01_nasabah {
 				$this->setSessionOrderBy($sOrderBy);
 				$this->NoKontrak->setSort("");
 				$this->Customer->setSort("");
-				$this->NoTelpHp->setSort("");
 				$this->TglKontrak->setSort("");
-				$this->MerkType->setSort("");
 				$this->Pinjaman->setSort("");
 				$this->Denda->setSort("");
 				$this->DispensasiDenda->setSort("");
@@ -1244,6 +1255,28 @@ class ct01_nasabah_list extends ct01_nasabah {
 		$item->CssClass = "text-nowrap";
 		$item->Visible = $Security->CanDelete();
 		$item->OnLeft = TRUE;
+
+		// "detail_t02_angsuran"
+		$item = &$this->ListOptions->Add("detail_t02_angsuran");
+		$item->CssClass = "text-nowrap";
+		$item->Visible = $Security->AllowList(CurrentProjectID() . 't02_angsuran') && !$this->ShowMultipleDetails;
+		$item->OnLeft = TRUE;
+		$item->ShowInButtonGroup = FALSE;
+		if (!isset($GLOBALS["t02_angsuran_grid"])) $GLOBALS["t02_angsuran_grid"] = new ct02_angsuran_grid;
+
+		// Multiple details
+		if ($this->ShowMultipleDetails) {
+			$item = &$this->ListOptions->Add("details");
+			$item->CssClass = "text-nowrap";
+			$item->Visible = $this->ShowMultipleDetails;
+			$item->OnLeft = TRUE;
+			$item->ShowInButtonGroup = FALSE;
+		}
+
+		// Set up detail pages
+		$pages = new cSubPages();
+		$pages->Add("t02_angsuran");
+		$this->DetailPages = $pages;
 
 		// List actions
 		$item = &$this->ListOptions->Add("listactions");
@@ -1360,6 +1393,68 @@ class ct01_nasabah_list extends ct01_nasabah {
 				$oListOpt->Visible = TRUE;
 			}
 		}
+		$DetailViewTblVar = "";
+		$DetailCopyTblVar = "";
+		$DetailEditTblVar = "";
+
+		// "detail_t02_angsuran"
+		$oListOpt = &$this->ListOptions->Items["detail_t02_angsuran"];
+		if ($Security->AllowList(CurrentProjectID() . 't02_angsuran')) {
+			$body = $Language->Phrase("DetailLink") . $Language->TablePhrase("t02_angsuran", "TblCaption");
+			$body = "<a class=\"btn btn-default btn-sm ewRowLink ewDetail\" data-action=\"list\" href=\"" . ew_HtmlEncode("t02_angsuranlist.php?" . EW_TABLE_SHOW_MASTER . "=t01_nasabah&fk_id=" . urlencode(strval($this->id->CurrentValue)) . "") . "\">" . $body . "</a>";
+			$links = "";
+			if ($GLOBALS["t02_angsuran_grid"]->DetailView && $Security->CanView() && $Security->AllowView(CurrentProjectID() . 't02_angsuran')) {
+				$caption = $Language->Phrase("MasterDetailViewLink");
+				$url = $this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=t02_angsuran");
+				$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($caption) . "\" href=\"" . ew_HtmlEncode($url) . "\">" . ew_HtmlImageAndText($caption) . "</a></li>";
+				if ($DetailViewTblVar <> "") $DetailViewTblVar .= ",";
+				$DetailViewTblVar .= "t02_angsuran";
+			}
+			if ($GLOBALS["t02_angsuran_grid"]->DetailEdit && $Security->CanEdit() && $Security->AllowEdit(CurrentProjectID() . 't02_angsuran')) {
+				$caption = $Language->Phrase("MasterDetailEditLink");
+				$url = $this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=t02_angsuran");
+				$links .= "<li><a class=\"ewRowLink ewDetailEdit\" data-action=\"edit\" data-caption=\"" . ew_HtmlTitle($caption) . "\" href=\"" . ew_HtmlEncode($url) . "\">" . ew_HtmlImageAndText($caption) . "</a></li>";
+				if ($DetailEditTblVar <> "") $DetailEditTblVar .= ",";
+				$DetailEditTblVar .= "t02_angsuran";
+			}
+			if ($GLOBALS["t02_angsuran_grid"]->DetailAdd && $Security->CanAdd() && $Security->AllowAdd(CurrentProjectID() . 't02_angsuran')) {
+				$caption = $Language->Phrase("MasterDetailCopyLink");
+				$url = $this->GetCopyUrl(EW_TABLE_SHOW_DETAIL . "=t02_angsuran");
+				$links .= "<li><a class=\"ewRowLink ewDetailCopy\" data-action=\"add\" data-caption=\"" . ew_HtmlTitle($caption) . "\" href=\"" . ew_HtmlEncode($url) . "\">" . ew_HtmlImageAndText($caption) . "</a></li>";
+				if ($DetailCopyTblVar <> "") $DetailCopyTblVar .= ",";
+				$DetailCopyTblVar .= "t02_angsuran";
+			}
+			if ($links <> "") {
+				$body .= "<button class=\"dropdown-toggle btn btn-default btn-sm ewDetail\" data-toggle=\"dropdown\"><b class=\"caret\"></b></button>";
+				$body .= "<ul class=\"dropdown-menu\">". $links . "</ul>";
+			}
+			$body = "<div class=\"btn-group\">" . $body . "</div>";
+			$oListOpt->Body = $body;
+			if ($this->ShowMultipleDetails) $oListOpt->Visible = FALSE;
+		}
+		if ($this->ShowMultipleDetails) {
+			$body = $Language->Phrase("MultipleMasterDetails");
+			$body = "<div class=\"btn-group\">";
+			$links = "";
+			if ($DetailViewTblVar <> "") {
+				$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailViewLink")) . "\" href=\"" . ew_HtmlEncode($this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=" . $DetailViewTblVar)) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailViewLink")) . "</a></li>";
+			}
+			if ($DetailEditTblVar <> "") {
+				$links .= "<li><a class=\"ewRowLink ewDetailEdit\" data-action=\"edit\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailEditLink")) . "\" href=\"" . ew_HtmlEncode($this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=" . $DetailEditTblVar)) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailEditLink")) . "</a></li>";
+			}
+			if ($DetailCopyTblVar <> "") {
+				$links .= "<li><a class=\"ewRowLink ewDetailCopy\" data-action=\"add\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailCopyLink")) . "\" href=\"" . ew_HtmlEncode($this->GetCopyUrl(EW_TABLE_SHOW_DETAIL . "=" . $DetailCopyTblVar)) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailCopyLink")) . "</a></li>";
+			}
+			if ($links <> "") {
+				$body .= "<button class=\"dropdown-toggle btn btn-default btn-sm ewMasterDetail\" title=\"" . ew_HtmlTitle($Language->Phrase("MultipleMasterDetails")) . "\" data-toggle=\"dropdown\">" . $Language->Phrase("MultipleMasterDetails") . "<b class=\"caret\"></b></button>";
+				$body .= "<ul class=\"dropdown-menu ewMenu\">". $links . "</ul>";
+			}
+			$body .= "</div>";
+
+			// Multiple details
+			$oListOpt = &$this->ListOptions->Items["details"];
+			$oListOpt->Body = $body;
+		}
 
 		// "checkbox"
 		$oListOpt = &$this->ListOptions->Items["checkbox"];
@@ -1381,6 +1476,34 @@ class ct01_nasabah_list extends ct01_nasabah {
 		$addcaption = ew_HtmlTitle($Language->Phrase("AddLink"));
 		$item->Body = "<a class=\"ewAddEdit ewAdd\" title=\"" . $addcaption . "\" data-caption=\"" . $addcaption . "\" href=\"" . ew_HtmlEncode($this->AddUrl) . "\">" . $Language->Phrase("AddLink") . "</a>";
 		$item->Visible = ($this->AddUrl <> "" && $Security->CanAdd());
+		$option = $options["detail"];
+		$DetailTableLink = "";
+		$item = &$option->Add("detailadd_t02_angsuran");
+		$url = $this->GetAddUrl(EW_TABLE_SHOW_DETAIL . "=t02_angsuran");
+		$caption = $Language->Phrase("Add") . "&nbsp;" . $this->TableCaption() . "/" . $GLOBALS["t02_angsuran"]->TableCaption();
+		$item->Body = "<a class=\"ewDetailAddGroup ewDetailAdd\" title=\"" . ew_HtmlTitle($caption) . "\" data-caption=\"" . ew_HtmlTitle($caption) . "\" href=\"" . ew_HtmlEncode($url) . "\">" . $caption . "</a>";
+		$item->Visible = ($GLOBALS["t02_angsuran"]->DetailAdd && $Security->AllowAdd(CurrentProjectID() . 't02_angsuran') && $Security->CanAdd());
+		if ($item->Visible) {
+			if ($DetailTableLink <> "") $DetailTableLink .= ",";
+			$DetailTableLink .= "t02_angsuran";
+		}
+
+		// Add multiple details
+		if ($this->ShowMultipleDetails) {
+			$item = &$option->Add("detailsadd");
+			$url = $this->GetAddUrl(EW_TABLE_SHOW_DETAIL . "=" . $DetailTableLink);
+			$caption = $Language->Phrase("AddMasterDetailLink");
+			$item->Body = "<a class=\"ewDetailAddGroup ewDetailAdd\" title=\"" . ew_HtmlTitle($caption) . "\" data-caption=\"" . ew_HtmlTitle($caption) . "\" href=\"" . ew_HtmlEncode($url) . "\">" . $caption . "</a>";
+			$item->Visible = ($DetailTableLink <> "" && $Security->CanAdd());
+
+			// Hide single master/detail items
+			$ar = explode(",", $DetailTableLink);
+			$cnt = count($ar);
+			for ($i = 0; $i < $cnt; $i++) {
+				if ($item = &$option->GetItem("detailadd_" . $ar[$i]))
+					$item->Visible = FALSE;
+			}
+		}
 		$option = $options["action"];
 
 		// Set up options default
@@ -1900,20 +2023,10 @@ class ct01_nasabah_list extends ct01_nasabah {
 			$this->Customer->HrefValue = "";
 			$this->Customer->TooltipValue = "";
 
-			// NoTelpHp
-			$this->NoTelpHp->LinkCustomAttributes = "";
-			$this->NoTelpHp->HrefValue = "";
-			$this->NoTelpHp->TooltipValue = "";
-
 			// TglKontrak
 			$this->TglKontrak->LinkCustomAttributes = "";
 			$this->TglKontrak->HrefValue = "";
 			$this->TglKontrak->TooltipValue = "";
-
-			// MerkType
-			$this->MerkType->LinkCustomAttributes = "";
-			$this->MerkType->HrefValue = "";
-			$this->MerkType->TooltipValue = "";
 
 			// Pinjaman
 			$this->Pinjaman->LinkCustomAttributes = "";
@@ -2267,30 +2380,12 @@ $t01_nasabah_list->ListOptions->Render("header", "left");
 		</div></div></th>
 	<?php } ?>
 <?php } ?>
-<?php if ($t01_nasabah->NoTelpHp->Visible) { // NoTelpHp ?>
-	<?php if ($t01_nasabah->SortUrl($t01_nasabah->NoTelpHp) == "") { ?>
-		<th data-name="NoTelpHp" class="<?php echo $t01_nasabah->NoTelpHp->HeaderCellClass() ?>"><div id="elh_t01_nasabah_NoTelpHp" class="t01_nasabah_NoTelpHp"><div class="ewTableHeaderCaption"><?php echo $t01_nasabah->NoTelpHp->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="NoTelpHp" class="<?php echo $t01_nasabah->NoTelpHp->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_nasabah->SortUrl($t01_nasabah->NoTelpHp) ?>',2);"><div id="elh_t01_nasabah_NoTelpHp" class="t01_nasabah_NoTelpHp">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_nasabah->NoTelpHp->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t01_nasabah->NoTelpHp->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_nasabah->NoTelpHp->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
 <?php if ($t01_nasabah->TglKontrak->Visible) { // TglKontrak ?>
 	<?php if ($t01_nasabah->SortUrl($t01_nasabah->TglKontrak) == "") { ?>
 		<th data-name="TglKontrak" class="<?php echo $t01_nasabah->TglKontrak->HeaderCellClass() ?>"><div id="elh_t01_nasabah_TglKontrak" class="t01_nasabah_TglKontrak"><div class="ewTableHeaderCaption"><?php echo $t01_nasabah->TglKontrak->FldCaption() ?></div></div></th>
 	<?php } else { ?>
 		<th data-name="TglKontrak" class="<?php echo $t01_nasabah->TglKontrak->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_nasabah->SortUrl($t01_nasabah->TglKontrak) ?>',2);"><div id="elh_t01_nasabah_TglKontrak" class="t01_nasabah_TglKontrak">
 			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_nasabah->TglKontrak->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t01_nasabah->TglKontrak->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_nasabah->TglKontrak->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
-<?php if ($t01_nasabah->MerkType->Visible) { // MerkType ?>
-	<?php if ($t01_nasabah->SortUrl($t01_nasabah->MerkType) == "") { ?>
-		<th data-name="MerkType" class="<?php echo $t01_nasabah->MerkType->HeaderCellClass() ?>"><div id="elh_t01_nasabah_MerkType" class="t01_nasabah_MerkType"><div class="ewTableHeaderCaption"><?php echo $t01_nasabah->MerkType->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="MerkType" class="<?php echo $t01_nasabah->MerkType->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_nasabah->SortUrl($t01_nasabah->MerkType) ?>',2);"><div id="elh_t01_nasabah_MerkType" class="t01_nasabah_MerkType">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_nasabah->MerkType->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t01_nasabah->MerkType->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_nasabah->MerkType->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
 		</div></div></th>
 	<?php } ?>
 <?php } ?>
@@ -2420,27 +2515,11 @@ $t01_nasabah_list->ListOptions->Render("body", "left", $t01_nasabah_list->RowCnt
 </span>
 </td>
 	<?php } ?>
-	<?php if ($t01_nasabah->NoTelpHp->Visible) { // NoTelpHp ?>
-		<td data-name="NoTelpHp"<?php echo $t01_nasabah->NoTelpHp->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_NoTelpHp" class="t01_nasabah_NoTelpHp">
-<span<?php echo $t01_nasabah->NoTelpHp->ViewAttributes() ?>>
-<?php echo $t01_nasabah->NoTelpHp->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
 	<?php if ($t01_nasabah->TglKontrak->Visible) { // TglKontrak ?>
 		<td data-name="TglKontrak"<?php echo $t01_nasabah->TglKontrak->CellAttributes() ?>>
 <span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_TglKontrak" class="t01_nasabah_TglKontrak">
 <span<?php echo $t01_nasabah->TglKontrak->ViewAttributes() ?>>
 <?php echo $t01_nasabah->TglKontrak->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
-	<?php if ($t01_nasabah->MerkType->Visible) { // MerkType ?>
-		<td data-name="MerkType"<?php echo $t01_nasabah->MerkType->CellAttributes() ?>>
-<span id="el<?php echo $t01_nasabah_list->RowCnt ?>_t01_nasabah_MerkType" class="t01_nasabah_MerkType">
-<span<?php echo $t01_nasabah->MerkType->ViewAttributes() ?>>
-<?php echo $t01_nasabah->MerkType->ListViewValue() ?></span>
 </span>
 </td>
 	<?php } ?>

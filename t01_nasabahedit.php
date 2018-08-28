@@ -7,6 +7,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "phpfn14.php" ?>
 <?php include_once "t01_nasabahinfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
+<?php include_once "t02_angsurangridcls.php" ?>
 <?php include_once "userfn14.php" ?>
 <?php
 
@@ -368,6 +369,22 @@ class ct01_nasabah_edit extends ct01_nasabah {
 
 		// Process auto fill
 		if (@$_POST["ajax"] == "autofill") {
+
+			// Get the keys for master table
+			$sDetailTblVar = $this->getCurrentDetailTable();
+			if ($sDetailTblVar <> "") {
+				$DetailTblVar = explode(",", $sDetailTblVar);
+				if (in_array("t02_angsuran", $DetailTblVar)) {
+
+					// Process auto fill for detail table 't02_angsuran'
+					if (preg_match('/^ft02_angsuran(grid|add|addopt|edit|update|search)$/', @$_POST["form"])) {
+						if (!isset($GLOBALS["t02_angsuran_grid"])) $GLOBALS["t02_angsuran_grid"] = new ct02_angsuran_grid;
+						$GLOBALS["t02_angsuran_grid"]->Page_Init();
+						$this->Page_Terminate();
+						exit();
+					}
+				}
+			}
 			$results = $this->GetAutoFill(@$_POST["name"], @$_POST["q"]);
 			if ($results) {
 
@@ -495,6 +512,9 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		// Process form if post back
 		if ($postBack) {
 			$this->LoadFormValues(); // Get form values
+
+			// Set up detail parameters
+			$this->SetupDetailParms();
 		}
 
 		// Validate form if post back
@@ -514,9 +534,15 @@ class ct01_nasabah_edit extends ct01_nasabah {
 					if ($this->getFailureMessage() == "") $this->setFailureMessage($Language->Phrase("NoRecord")); // No record found
 					$this->Page_Terminate("t01_nasabahlist.php"); // No matching record, return to list
 				}
+
+				// Set up detail parameters
+				$this->SetupDetailParms();
 				break;
 			Case "U": // Update
-				$sReturnUrl = $this->getReturnUrl();
+				if ($this->getCurrentDetailTable() <> "") // Master/detail edit
+					$sReturnUrl = $this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=" . $this->getCurrentDetailTable()); // Master/Detail view page
+				else
+					$sReturnUrl = $this->getReturnUrl();
 				if (ew_GetPageName($sReturnUrl) == "t01_nasabahlist.php")
 					$sReturnUrl = $this->AddMasterUrl($sReturnUrl); // List page, return to List page with correct master key if necessary
 				$this->SendEmail = TRUE; // Send email on update success
@@ -529,6 +555,9 @@ class ct01_nasabah_edit extends ct01_nasabah {
 				} else {
 					$this->EventCancelled = TRUE; // Event cancelled
 					$this->RestoreFormValues(); // Restore form values if update failed
+
+					// Set up detail parameters
+					$this->SetupDetailParms();
 				}
 		}
 
@@ -1269,6 +1298,13 @@ class ct01_nasabah_edit extends ct01_nasabah {
 			ew_AddMessage($gsFormError, $this->JumlahAngsuran->FldErrMsg());
 		}
 
+		// Validate detail grid
+		$DetailTblVar = explode(",", $this->getCurrentDetailTable());
+		if (in_array("t02_angsuran", $DetailTblVar) && $GLOBALS["t02_angsuran"]->DetailEdit) {
+			if (!isset($GLOBALS["t02_angsuran_grid"])) $GLOBALS["t02_angsuran_grid"] = new ct02_angsuran_grid(); // get detail page object
+			$GLOBALS["t02_angsuran_grid"]->ValidateGridForm();
+		}
+
 		// Return validate result
 		$ValidateForm = ($gsFormError == "");
 
@@ -1298,6 +1334,10 @@ class ct01_nasabah_edit extends ct01_nasabah {
 			$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record message
 			$EditRow = FALSE; // Update Failed
 		} else {
+
+			// Begin transaction
+			if ($this->getCurrentDetailTable() <> "")
+				$conn->BeginTrans();
 
 			// Save old values
 			$rsold = &$rs->fields;
@@ -1369,6 +1409,26 @@ class ct01_nasabah_edit extends ct01_nasabah {
 				$conn->raiseErrorFn = '';
 				if ($EditRow) {
 				}
+
+				// Update detail records
+				$DetailTblVar = explode(",", $this->getCurrentDetailTable());
+				if ($EditRow) {
+					if (in_array("t02_angsuran", $DetailTblVar) && $GLOBALS["t02_angsuran"]->DetailEdit) {
+						if (!isset($GLOBALS["t02_angsuran_grid"])) $GLOBALS["t02_angsuran_grid"] = new ct02_angsuran_grid(); // Get detail page object
+						$Security->LoadCurrentUserLevel($this->ProjectID . "t02_angsuran"); // Load user level of detail table
+						$EditRow = $GLOBALS["t02_angsuran_grid"]->GridUpdate();
+						$Security->LoadCurrentUserLevel($this->ProjectID . $this->TableName); // Restore user level of master table
+					}
+				}
+
+				// Commit/Rollback transaction
+				if ($this->getCurrentDetailTable() <> "") {
+					if ($EditRow) {
+						$conn->CommitTrans(); // Commit transaction
+					} else {
+						$conn->RollbackTrans(); // Rollback transaction
+					}
+				}
 			} else {
 				if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
 
@@ -1388,6 +1448,36 @@ class ct01_nasabah_edit extends ct01_nasabah {
 			$this->Row_Updated($rsold, $rsnew);
 		$rs->Close();
 		return $EditRow;
+	}
+
+	// Set up detail parms based on QueryString
+	function SetupDetailParms() {
+
+		// Get the keys for master table
+		if (isset($_GET[EW_TABLE_SHOW_DETAIL])) {
+			$sDetailTblVar = $_GET[EW_TABLE_SHOW_DETAIL];
+			$this->setCurrentDetailTable($sDetailTblVar);
+		} else {
+			$sDetailTblVar = $this->getCurrentDetailTable();
+		}
+		if ($sDetailTblVar <> "") {
+			$DetailTblVar = explode(",", $sDetailTblVar);
+			if (in_array("t02_angsuran", $DetailTblVar)) {
+				if (!isset($GLOBALS["t02_angsuran_grid"]))
+					$GLOBALS["t02_angsuran_grid"] = new ct02_angsuran_grid;
+				if ($GLOBALS["t02_angsuran_grid"]->DetailEdit) {
+					$GLOBALS["t02_angsuran_grid"]->CurrentMode = "edit";
+					$GLOBALS["t02_angsuran_grid"]->CurrentAction = "gridedit";
+
+					// Save current master table to detail table
+					$GLOBALS["t02_angsuran_grid"]->setCurrentMasterTable($this->TableVar);
+					$GLOBALS["t02_angsuran_grid"]->setStartRecordNumber(1);
+					$GLOBALS["t02_angsuran_grid"]->nasabah_id->FldIsDetailKey = TRUE;
+					$GLOBALS["t02_angsuran_grid"]->nasabah_id->CurrentValue = $this->id->CurrentValue;
+					$GLOBALS["t02_angsuran_grid"]->nasabah_id->setSessionValue($GLOBALS["t02_angsuran_grid"]->nasabah_id->CurrentValue);
+				}
+			}
+		}
 	}
 
 	// Set up Breadcrumb
@@ -1676,16 +1766,6 @@ ew_CreateDateTimePicker("ft01_nasabahedit", "x_TglKontrak", {"ignoreReadonly":tr
 <?php echo $t01_nasabah->TglKontrak->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
-<?php if ($t01_nasabah->MerkType->Visible) { // MerkType ?>
-	<div id="r_MerkType" class="form-group">
-		<label id="elh_t01_nasabah_MerkType" for="x_MerkType" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->MerkType->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->MerkType->CellAttributes() ?>>
-<span id="el_t01_nasabah_MerkType">
-<input type="text" data-table="t01_nasabah" data-field="x_MerkType" data-page="1" name="x_MerkType" id="x_MerkType" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->MerkType->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->MerkType->EditValue ?>"<?php echo $t01_nasabah->MerkType->EditAttributes() ?>>
-</span>
-<?php echo $t01_nasabah->MerkType->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
 <?php if ($t01_nasabah->Pinjaman->Visible) { // Pinjaman ?>
 	<div id="r_Pinjaman" class="form-group">
 		<label id="elh_t01_nasabah_Pinjaman" for="x_Pinjaman" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Pinjaman->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
@@ -1749,6 +1829,16 @@ ew_CreateDateTimePicker("ft01_nasabahedit", "x_TglKontrak", {"ignoreReadonly":tr
 		<div class="panel-collapse collapse<?php echo $t01_nasabah_edit->MultiPages->PageStyle("2") ?>" id="tab_t01_nasabah2"><!-- multi-page accordion .panel-collapse -->
 			<div class="box-body"><!-- multi-page accordion .box-body -->
 <div class="ewEditDiv"><!-- page* -->
+<?php if ($t01_nasabah->MerkType->Visible) { // MerkType ?>
+	<div id="r_MerkType" class="form-group">
+		<label id="elh_t01_nasabah_MerkType" for="x_MerkType" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->MerkType->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->MerkType->CellAttributes() ?>>
+<span id="el_t01_nasabah_MerkType">
+<input type="text" data-table="t01_nasabah" data-field="x_MerkType" data-page="2" name="x_MerkType" id="x_MerkType" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->MerkType->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->MerkType->EditValue ?>"<?php echo $t01_nasabah->MerkType->EditAttributes() ?>>
+</span>
+<?php echo $t01_nasabah->MerkType->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
 <?php if ($t01_nasabah->NoRangka->Visible) { // NoRangka ?>
 	<div id="r_NoRangka" class="form-group">
 		<label id="elh_t01_nasabah_NoRangka" for="x_NoRangka" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->NoRangka->FldCaption() ?></label>
@@ -1859,6 +1949,14 @@ ew_CreateDateTimePicker("ft01_nasabahedit", "x_TglKontrak", {"ignoreReadonly":tr
 </div><!-- /multi-page accordion .box-group -->
 </div><!-- /multi-page -->
 <input type="hidden" data-table="t01_nasabah" data-field="x_id" name="x_id" id="x_id" value="<?php echo ew_HtmlEncode($t01_nasabah->id->CurrentValue) ?>">
+<?php
+	if (in_array("t02_angsuran", explode(",", $t01_nasabah->getCurrentDetailTable())) && $t02_angsuran->DetailEdit) {
+?>
+<?php if ($t01_nasabah->getCurrentDetailTable() <> "") { ?>
+<h4 class="ewDetailCaption"><?php echo $Language->TablePhrase("t02_angsuran", "TblCaption") ?></h4>
+<?php } ?>
+<?php include_once "t02_angsurangrid.php" ?>
+<?php } ?>
 <?php if (!$t01_nasabah_edit->IsModal) { ?>
 <div class="form-group"><!-- buttons .form-group -->
 	<div class="<?php echo $t01_nasabah_edit->OffsetColumnClass ?>"><!-- buttons offset -->

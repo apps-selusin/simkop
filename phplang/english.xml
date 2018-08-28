@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ew-language date="2018/8/26" version="14.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
+<ew-language date="2018/8/27" version="14.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
   <!-- 
 	*** Important Notes:
 	1. Language ID should follow: https://developers.google.com/recaptcha/docs/language,
@@ -618,6 +618,9 @@
   <project>
     <phrase id="bodytitle" value="SIM Koperasi" />
     <phrase id="footertext" value="&amp;copy;2018 Selaras Solusindo. All rights reserved." />
+    <menu id="8">
+      <phrase id="menutext" value="Angsuran" />
+    </menu>
     <menu id="5">
       <phrase id="menutext" value="Home" />
     </menu>
@@ -644,7 +647,7 @@
     </table>
     <table id="t01_nasabah">
       <phrase id="tblcaption" value="Nasabah" />
-      <phrase id="tblpagecaption1" value="Page 1" />
+      <phrase id="tblpagecaption1" value="Data Utama" />
       <phrase id="tblpagecaption2" value="Jaminan" />
       <phrase id="tblpagecaption3" value="Identitas" />
       <field id="id">
@@ -699,10 +702,46 @@
         <phrase id="fldcaption" value="Dispensasi Denda" />
       </field>
       <field id="lamaangsuran">
-        <phrase id="fldcaption" value="Lama Angsuran" />
+        <phrase id="fldcaption" value="Lama Angsuran (Bulan)" />
       </field>
       <field id="jumlahangsuran">
         <phrase id="fldcaption" value="Jumlah Angsuran" />
+      </field>
+    </table>
+    <table id="t02_angsuran">
+      <phrase id="tblcaption" value="Angsuran" />
+      <field id="id">
+        <phrase id="fldcaption" value="id" />
+      </field>
+      <field id="nasabah_id">
+        <phrase id="fldcaption" value="nasabah id" />
+      </field>
+      <field id="tanggal">
+        <phrase id="fldcaption" value="Tanggal" />
+      </field>
+      <field id="angsuranpokok">
+        <phrase id="fldcaption" value="Angsuran Pokok" />
+      </field>
+      <field id="angsuranbunga">
+        <phrase id="fldcaption" value="Angsuran Bunga" />
+      </field>
+      <field id="angsurantotal">
+        <phrase id="fldcaption" value="Angsuran Total" />
+      </field>
+      <field id="sisahutang">
+        <phrase id="fldcaption" value="Sisa Hutang" />
+      </field>
+      <field id="tanggalbayar">
+        <phrase id="fldcaption" value="Tanggal Bayar" />
+      </field>
+      <field id="totaldenda">
+        <phrase id="fldcaption" value="Total Denda" />
+      </field>
+      <field id="terlambat">
+        <phrase id="fldcaption" value="Terlambat" />
+      </field>
+      <field id="keterangan">
+        <phrase id="fldcaption" value="Keterangan" />
       </field>
     </table>
     <table id="t96_employees">
