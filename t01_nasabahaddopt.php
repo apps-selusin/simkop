@@ -14,12 +14,12 @@ ob_start(); // Turn on output buffering
 // Page class
 //
 
-$t01_nasabah_edit = NULL; // Initialize page object first
+$t01_nasabah_addopt = NULL; // Initialize page object first
 
-class ct01_nasabah_edit extends ct01_nasabah {
+class ct01_nasabah_addopt extends ct01_nasabah {
 
 	// Page ID
-	var $PageID = 'edit';
+	var $PageID = 'addopt';
 
 	// Project ID
 	var $ProjectID = '{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}';
@@ -28,7 +28,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 	var $TableName = 't01_nasabah';
 
 	// Page object name
-	var $PageObjName = 't01_nasabah_edit';
+	var $PageObjName = 't01_nasabah_addopt';
 
 	// Page headings
 	var $Heading = '';
@@ -267,7 +267,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 
 		// Page ID
 		if (!defined("EW_PAGE_ID"))
-			define("EW_PAGE_ID", 'edit', TRUE);
+			define("EW_PAGE_ID", 'addopt', TRUE);
 
 		// Table name (for backward compatibility)
 		if (!defined("EW_TABLE_NAME"))
@@ -297,9 +297,6 @@ class ct01_nasabah_edit extends ct01_nasabah {
 	function Page_Init() {
 		global $gsExport, $gsCustomExport, $gsExportFile, $UserProfile, $Language, $Security, $objForm;
 
-		// Is modal
-		$this->IsModal = (@$_GET["modal"] == "1" || @$_POST["modal"] == "1");
-
 		// User profile
 		$UserProfile = new cUserProfile();
 
@@ -309,7 +306,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		if ($Security->IsLoggedIn()) $Security->TablePermission_Loading();
 		$Security->LoadCurrentUserLevel($this->ProjectID . $this->TableName);
 		if ($Security->IsLoggedIn()) $Security->TablePermission_Loaded();
-		if (!$Security->CanEdit()) {
+		if (!$Security->CanAdd()) {
 			$Security->SaveLastUrl();
 			$this->setFailureMessage(ew_DeniedMsg()); // Set no permission
 			if ($Security->CanList())
@@ -405,158 +402,66 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		if ($url <> "") {
 			if (!EW_DEBUG_ENABLED && ob_get_length())
 				ob_end_clean();
-
-			// Handle modal response
-			if ($this->IsModal) { // Show as modal
-				$row = array("url" => $url, "modal" => "1");
-				$pageName = ew_GetPageName($url);
-				if ($pageName != $this->GetListUrl()) { // Not List page
-					$row["caption"] = $this->GetModalCaption($pageName);
-					if ($pageName == "t01_nasabahview.php")
-						$row["view"] = "1";
-				} else { // List page should not be shown as modal => error
-					$row["error"] = $this->getFailureMessage();
-					$this->clearFailureMessage();
-				}
-				header("Content-Type: application/json; charset=utf-8");
-				echo ew_ConvertToUtf8(ew_ArrayToJson(array($row)));
-			} else {
-				ew_SaveDebugMsg();
-				header("Location: " . $url);
-			}
+			ew_SaveDebugMsg();
+			header("Location: " . $url);
 		}
 		exit();
 	}
-	var $FormClassName = "form-horizontal ewForm ewEditForm";
-	var $IsModal = FALSE;
-	var $IsMobileOrModal = FALSE;
-	var $DbMasterFilter;
-	var $DbDetailFilter;
 
 	//
 	// Page main
 	//
 	function Page_Main() {
-		global $objForm, $Language, $gsFormError, $gbSkipHeaderFooter;
-
-		// Check modal
-		if ($this->IsModal)
-			$gbSkipHeaderFooter = TRUE;
-		$this->IsMobileOrModal = ew_IsMobile() || $this->IsModal;
-		$this->FormClassName = "ewForm ewEditForm form-horizontal";
-		$sReturnUrl = "";
-		$loaded = FALSE;
-		$postBack = FALSE;
-
-		// Set up current action and primary key
-		if (@$_POST["a_edit"] <> "") {
-			$this->CurrentAction = $_POST["a_edit"]; // Get action code
-			if ($this->CurrentAction <> "I") // Not reload record, handle as postback
-				$postBack = TRUE;
-
-			// Load key from Form
-			if ($objForm->HasValue("x_id")) {
-				$this->id->setFormValue($objForm->GetValue("x_id"));
-			}
-		} else {
-			$this->CurrentAction = "I"; // Default action is display
-
-			// Load key from QueryString
-			$loadByQuery = FALSE;
-			if (isset($_GET["id"])) {
-				$this->id->setQueryStringValue($_GET["id"]);
-				$loadByQuery = TRUE;
-			} else {
-				$this->id->CurrentValue = NULL;
-			}
-		}
-
-		// Load current record
-		$loaded = $this->LoadRow();
-
-		// Process form if post back
-		if ($postBack) {
-			$this->LoadFormValues(); // Get form values
-		}
-
-		// Validate form if post back
-		if ($postBack) {
-			if (!$this->ValidateForm()) {
-				$this->CurrentAction = ""; // Form error, reset action
-				$this->setFailureMessage($gsFormError);
-				$this->EventCancelled = TRUE; // Event cancelled
-				$this->RestoreFormValues();
-			}
-		}
-
-		// Perform current action
-		switch ($this->CurrentAction) {
-			case "I": // Get a record to display
-				if (!$loaded) { // Load record based on key
-					if ($this->getFailureMessage() == "") $this->setFailureMessage($Language->Phrase("NoRecord")); // No record found
-					$this->Page_Terminate("t01_nasabahlist.php"); // No matching record, return to list
-				}
-				break;
-			Case "U": // Update
-				$sReturnUrl = $this->getReturnUrl();
-				if (ew_GetPageName($sReturnUrl) == "t01_nasabahlist.php")
-					$sReturnUrl = $this->AddMasterUrl($sReturnUrl); // List page, return to List page with correct master key if necessary
-				$this->SendEmail = TRUE; // Send email on update success
-				if ($this->EditRow()) { // Update record based on key
-					if ($this->getSuccessMessage() == "")
-						$this->setSuccessMessage($Language->Phrase("UpdateSuccess")); // Update success
-					$this->Page_Terminate($sReturnUrl); // Return to caller
-				} elseif ($this->getFailureMessage() == $Language->Phrase("NoRecord")) {
-					$this->Page_Terminate($sReturnUrl); // Return to caller
-				} else {
-					$this->EventCancelled = TRUE; // Event cancelled
-					$this->RestoreFormValues(); // Restore form values if update failed
-				}
-		}
+		global $objForm, $Language, $gsFormError;
+		set_error_handler("ew_ErrorHandler");
 
 		// Set up Breadcrumb
-		$this->SetupBreadcrumb();
+		//$this->SetupBreadcrumb(); // Not used
 
-		// Render the record
-		$this->RowType = EW_ROWTYPE_EDIT; // Render as Edit
+		$this->LoadRowValues(); // Load default values
+
+		// Process form if post back
+		if ($objForm->GetValue("a_addopt") <> "") {
+			$this->CurrentAction = $objForm->GetValue("a_addopt"); // Get form action
+			$this->LoadFormValues(); // Load form values
+
+			// Validate form
+			if (!$this->ValidateForm()) {
+				$this->CurrentAction = "I"; // Form error, reset action
+				$this->setFailureMessage($gsFormError);
+			}
+		} else { // Not post back
+			$this->CurrentAction = "I"; // Display blank record
+		}
+
+		// Perform action based on action code
+		switch ($this->CurrentAction) {
+			case "I": // Blank record, no action required
+				break;
+			case "A": // Add new record
+				$this->SendEmail = TRUE; // Send email on add success
+				if ($this->AddRow()) { // Add successful
+					$row = array();
+					$row["x_id"] = $this->id->DbValue;
+					$row["x_Customer"] = ew_ConvertToUtf8($this->Customer->DbValue);
+					$row["x_Pekerjaan"] = ew_ConvertToUtf8($this->Pekerjaan->DbValue);
+					$row["x_Alamat"] = ew_ConvertToUtf8($this->Alamat->DbValue);
+					$row["x_NoTelpHp"] = ew_ConvertToUtf8($this->NoTelpHp->DbValue);
+					if (!EW_DEBUG_ENABLED && ob_get_length())
+						ob_end_clean();
+					ew_Header(FALSE, "utf-8", TRUE);
+					echo ew_ArrayToJson(array($row));
+				} else {
+					$this->ShowMessage();
+				}
+				$this->Page_Terminate();
+				exit();
+		}
+
+		// Render row
+		$this->RowType = EW_ROWTYPE_ADD; // Render add type
 		$this->ResetAttrs();
 		$this->RenderRow();
-	}
-
-	// Set up starting record parameters
-	function SetupStartRec() {
-		if ($this->DisplayRecs == 0)
-			return;
-		if ($this->IsPageRequest()) { // Validate request
-			if (@$_GET[EW_TABLE_START_REC] <> "") { // Check for "start" parameter
-				$this->StartRec = $_GET[EW_TABLE_START_REC];
-				$this->setStartRecordNumber($this->StartRec);
-			} elseif (@$_GET[EW_TABLE_PAGE_NO] <> "") {
-				$PageNo = $_GET[EW_TABLE_PAGE_NO];
-				if (is_numeric($PageNo)) {
-					$this->StartRec = ($PageNo-1)*$this->DisplayRecs+1;
-					if ($this->StartRec <= 0) {
-						$this->StartRec = 1;
-					} elseif ($this->StartRec >= intval(($this->TotalRecs-1)/$this->DisplayRecs)*$this->DisplayRecs+1) {
-						$this->StartRec = intval(($this->TotalRecs-1)/$this->DisplayRecs)*$this->DisplayRecs+1;
-					}
-					$this->setStartRecordNumber($this->StartRec);
-				}
-			}
-		}
-		$this->StartRec = $this->getStartRecordNumber();
-
-		// Check if correct start record counter
-		if (!is_numeric($this->StartRec) || $this->StartRec == "") { // Avoid invalid start record counter
-			$this->StartRec = 1; // Reset start record counter
-			$this->setStartRecordNumber($this->StartRec);
-		} elseif (intval($this->StartRec) > intval($this->TotalRecs)) { // Avoid starting record > total records
-			$this->StartRec = intval(($this->TotalRecs-1)/$this->DisplayRecs)*$this->DisplayRecs+1; // Point to last page first record
-			$this->setStartRecordNumber($this->StartRec);
-		} elseif (($this->StartRec-1) % $this->DisplayRecs <> 0) {
-			$this->StartRec = intval(($this->StartRec-1)/$this->DisplayRecs)*$this->DisplayRecs+1; // Point to page boundary
-			$this->setStartRecordNumber($this->StartRec);
-		}
 	}
 
 	// Get upload files
@@ -566,35 +471,46 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		// Get upload data
 	}
 
+	// Load default values
+	function LoadDefaultValues() {
+		$this->id->CurrentValue = NULL;
+		$this->id->OldValue = $this->id->CurrentValue;
+		$this->Customer->CurrentValue = NULL;
+		$this->Customer->OldValue = $this->Customer->CurrentValue;
+		$this->Pekerjaan->CurrentValue = NULL;
+		$this->Pekerjaan->OldValue = $this->Pekerjaan->CurrentValue;
+		$this->Alamat->CurrentValue = NULL;
+		$this->Alamat->OldValue = $this->Alamat->CurrentValue;
+		$this->NoTelpHp->CurrentValue = NULL;
+		$this->NoTelpHp->OldValue = $this->NoTelpHp->CurrentValue;
+	}
+
 	// Load form values
 	function LoadFormValues() {
 
 		// Load from form
 		global $objForm;
 		if (!$this->Customer->FldIsDetailKey) {
-			$this->Customer->setFormValue($objForm->GetValue("x_Customer"));
+			$this->Customer->setFormValue(ew_ConvertFromUtf8($objForm->GetValue("x_Customer")));
 		}
 		if (!$this->Pekerjaan->FldIsDetailKey) {
-			$this->Pekerjaan->setFormValue($objForm->GetValue("x_Pekerjaan"));
+			$this->Pekerjaan->setFormValue(ew_ConvertFromUtf8($objForm->GetValue("x_Pekerjaan")));
 		}
 		if (!$this->Alamat->FldIsDetailKey) {
-			$this->Alamat->setFormValue($objForm->GetValue("x_Alamat"));
+			$this->Alamat->setFormValue(ew_ConvertFromUtf8($objForm->GetValue("x_Alamat")));
 		}
 		if (!$this->NoTelpHp->FldIsDetailKey) {
-			$this->NoTelpHp->setFormValue($objForm->GetValue("x_NoTelpHp"));
+			$this->NoTelpHp->setFormValue(ew_ConvertFromUtf8($objForm->GetValue("x_NoTelpHp")));
 		}
-		if (!$this->id->FldIsDetailKey)
-			$this->id->setFormValue($objForm->GetValue("x_id"));
 	}
 
 	// Restore form values
 	function RestoreFormValues() {
 		global $objForm;
-		$this->id->CurrentValue = $this->id->FormValue;
-		$this->Customer->CurrentValue = $this->Customer->FormValue;
-		$this->Pekerjaan->CurrentValue = $this->Pekerjaan->FormValue;
-		$this->Alamat->CurrentValue = $this->Alamat->FormValue;
-		$this->NoTelpHp->CurrentValue = $this->NoTelpHp->FormValue;
+		$this->Customer->CurrentValue = ew_ConvertToUtf8($this->Customer->FormValue);
+		$this->Pekerjaan->CurrentValue = ew_ConvertToUtf8($this->Pekerjaan->FormValue);
+		$this->Alamat->CurrentValue = ew_ConvertToUtf8($this->Alamat->FormValue);
+		$this->NoTelpHp->CurrentValue = ew_ConvertToUtf8($this->NoTelpHp->FormValue);
 	}
 
 	// Load row based on key values
@@ -639,12 +555,13 @@ class ct01_nasabah_edit extends ct01_nasabah {
 
 	// Return a row with default values
 	function NewRow() {
+		$this->LoadDefaultValues();
 		$row = array();
-		$row['id'] = NULL;
-		$row['Customer'] = NULL;
-		$row['Pekerjaan'] = NULL;
-		$row['Alamat'] = NULL;
-		$row['NoTelpHp'] = NULL;
+		$row['id'] = $this->id->CurrentValue;
+		$row['Customer'] = $this->Customer->CurrentValue;
+		$row['Pekerjaan'] = $this->Pekerjaan->CurrentValue;
+		$row['Alamat'] = $this->Alamat->CurrentValue;
+		$row['NoTelpHp'] = $this->NoTelpHp->CurrentValue;
 		return $row;
 	}
 
@@ -658,28 +575,6 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		$this->Pekerjaan->DbValue = $row['Pekerjaan'];
 		$this->Alamat->DbValue = $row['Alamat'];
 		$this->NoTelpHp->DbValue = $row['NoTelpHp'];
-	}
-
-	// Load old record
-	function LoadOldRecord() {
-
-		// Load key values from Session
-		$bValidKey = TRUE;
-		if (strval($this->getKey("id")) <> "")
-			$this->id->CurrentValue = $this->getKey("id"); // id
-		else
-			$bValidKey = FALSE;
-
-		// Load old record
-		$this->OldRecordset = NULL;
-		if ($bValidKey) {
-			$this->CurrentFilter = $this->KeyFilter();
-			$sSql = $this->SQL();
-			$conn = &$this->Connection();
-			$this->OldRecordset = ew_LoadRecordset($sSql, $conn);
-		}
-		$this->LoadRowValues($this->OldRecordset); // Load row values
-		return $bValidKey;
 	}
 
 	// Render row values based on field settings
@@ -739,7 +634,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 			$this->NoTelpHp->LinkCustomAttributes = "";
 			$this->NoTelpHp->HrefValue = "";
 			$this->NoTelpHp->TooltipValue = "";
-		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
+		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
 
 			// Customer
 			$this->Customer->EditAttrs["class"] = "form-control";
@@ -765,7 +660,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 			$this->NoTelpHp->EditValue = ew_HtmlEncode($this->NoTelpHp->CurrentValue);
 			$this->NoTelpHp->PlaceHolder = ew_RemoveHtml($this->NoTelpHp->FldCaption());
 
-			// Edit refer script
+			// Add refer script
 			// Customer
 
 			$this->Customer->LinkCustomAttributes = "";
@@ -817,71 +712,57 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		return $ValidateForm;
 	}
 
-	// Update record based on key values
-	function EditRow() {
-		global $Security, $Language;
-		$sFilter = $this->KeyFilter();
-		$sFilter = $this->ApplyUserIDFilters($sFilter);
+	// Add record
+	function AddRow($rsold = NULL) {
+		global $Language, $Security;
 		$conn = &$this->Connection();
-		$this->CurrentFilter = $sFilter;
-		$sSql = $this->SQL();
-		$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
-		$rs = $conn->Execute($sSql);
-		$conn->raiseErrorFn = '';
-		if ($rs === FALSE)
-			return FALSE;
-		if ($rs->EOF) {
-			$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record message
-			$EditRow = FALSE; // Update Failed
-		} else {
 
-			// Save old values
-			$rsold = &$rs->fields;
-			$this->LoadDbValues($rsold);
-			$rsnew = array();
-
-			// Customer
-			$this->Customer->SetDbValueDef($rsnew, $this->Customer->CurrentValue, "", $this->Customer->ReadOnly);
-
-			// Pekerjaan
-			$this->Pekerjaan->SetDbValueDef($rsnew, $this->Pekerjaan->CurrentValue, NULL, $this->Pekerjaan->ReadOnly);
-
-			// Alamat
-			$this->Alamat->SetDbValueDef($rsnew, $this->Alamat->CurrentValue, NULL, $this->Alamat->ReadOnly);
-
-			// NoTelpHp
-			$this->NoTelpHp->SetDbValueDef($rsnew, $this->NoTelpHp->CurrentValue, NULL, $this->NoTelpHp->ReadOnly);
-
-			// Call Row Updating event
-			$bUpdateRow = $this->Row_Updating($rsold, $rsnew);
-			if ($bUpdateRow) {
-				$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
-				if (count($rsnew) > 0)
-					$EditRow = $this->Update($rsnew, "", $rsold);
-				else
-					$EditRow = TRUE; // No field to update
-				$conn->raiseErrorFn = '';
-				if ($EditRow) {
-				}
-			} else {
-				if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
-
-					// Use the message, do nothing
-				} elseif ($this->CancelMessage <> "") {
-					$this->setFailureMessage($this->CancelMessage);
-					$this->CancelMessage = "";
-				} else {
-					$this->setFailureMessage($Language->Phrase("UpdateCancelled"));
-				}
-				$EditRow = FALSE;
-			}
+		// Load db values from rsold
+		$this->LoadDbValues($rsold);
+		if ($rsold) {
 		}
+		$rsnew = array();
 
-		// Call Row_Updated event
-		if ($EditRow)
-			$this->Row_Updated($rsold, $rsnew);
-		$rs->Close();
-		return $EditRow;
+		// Customer
+		$this->Customer->SetDbValueDef($rsnew, $this->Customer->CurrentValue, "", FALSE);
+
+		// Pekerjaan
+		$this->Pekerjaan->SetDbValueDef($rsnew, $this->Pekerjaan->CurrentValue, NULL, FALSE);
+
+		// Alamat
+		$this->Alamat->SetDbValueDef($rsnew, $this->Alamat->CurrentValue, NULL, FALSE);
+
+		// NoTelpHp
+		$this->NoTelpHp->SetDbValueDef($rsnew, $this->NoTelpHp->CurrentValue, NULL, FALSE);
+
+		// Call Row Inserting event
+		$rs = ($rsold == NULL) ? NULL : $rsold->fields;
+		$bInsertRow = $this->Row_Inserting($rs, $rsnew);
+		if ($bInsertRow) {
+			$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+			$AddRow = $this->Insert($rsnew);
+			$conn->raiseErrorFn = '';
+			if ($AddRow) {
+			}
+		} else {
+			if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
+
+				// Use the message, do nothing
+			} elseif ($this->CancelMessage <> "") {
+				$this->setFailureMessage($this->CancelMessage);
+				$this->CancelMessage = "";
+			} else {
+				$this->setFailureMessage($Language->Phrase("InsertCancelled"));
+			}
+			$AddRow = FALSE;
+		}
+		if ($AddRow) {
+
+			// Call Row Inserted event
+			$rs = ($rsold == NULL) ? NULL : $rsold->fields;
+			$this->Row_Inserted($rs, $rsnew);
+		}
+		return $AddRow;
 	}
 
 	// Set up Breadcrumb
@@ -890,8 +771,8 @@ class ct01_nasabah_edit extends ct01_nasabah {
 		$Breadcrumb = new cBreadcrumb();
 		$url = substr(ew_CurrentUrl(), strrpos(ew_CurrentUrl(), "/")+1);
 		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t01_nasabahlist.php"), "", $this->TableVar, TRUE);
-		$PageId = "edit";
-		$Breadcrumb->Add("edit", $PageId, $url);
+		$PageId = "addopt";
+		$Breadcrumb->Add("addopt", $PageId, $url);
 	}
 
 	// Setup lookup filters of a field
@@ -970,6 +851,7 @@ class ct01_nasabah_edit extends ct01_nasabah {
 
 	}
 
+	// Custom validate event
 	// Form Custom Validate event
 	function Form_CustomValidate(&$CustomError) {
 
@@ -982,29 +864,28 @@ class ct01_nasabah_edit extends ct01_nasabah {
 <?php
 
 // Create page object
-if (!isset($t01_nasabah_edit)) $t01_nasabah_edit = new ct01_nasabah_edit();
+if (!isset($t01_nasabah_addopt)) $t01_nasabah_addopt = new ct01_nasabah_addopt();
 
 // Page init
-$t01_nasabah_edit->Page_Init();
+$t01_nasabah_addopt->Page_Init();
 
 // Page main
-$t01_nasabah_edit->Page_Main();
+$t01_nasabah_addopt->Page_Main();
 
 // Global Page Rendering event (in userfn*.php)
 Page_Rendering();
 
 // Page Rendering event
-$t01_nasabah_edit->Page_Render();
+$t01_nasabah_addopt->Page_Render();
 ?>
-<?php include_once "header.php" ?>
 <script type="text/javascript">
 
 // Form object
-var CurrentPageID = EW_PAGE_ID = "edit";
-var CurrentForm = ft01_nasabahedit = new ew_Form("ft01_nasabahedit", "edit");
+var CurrentPageID = EW_PAGE_ID = "addopt";
+var CurrentForm = ft01_nasabahaddopt = new ew_Form("ft01_nasabahaddopt", "addopt");
 
 // Validate form
-ft01_nasabahedit.Validate = function() {
+ft01_nasabahaddopt.Validate = function() {
 	if (!this.ValidateRequired)
 		return true; // Ignore validation
 	var $ = jQuery, fobj = this.GetForm(), $fobj = $(fobj);
@@ -1026,20 +907,11 @@ ft01_nasabahedit.Validate = function() {
 			if (!this.Form_CustomValidate(fobj))
 				return false;
 	}
-
-	// Process detail forms
-	var dfs = $fobj.find("input[name='detailpage']").get();
-	for (var i = 0; i < dfs.length; i++) {
-		var df = dfs[i], val = df.value;
-		if (val && ewForms[val])
-			if (!ewForms[val].Validate())
-				return false;
-	}
 	return true;
 }
 
 // Form_CustomValidate event
-ft01_nasabahedit.Form_CustomValidate = 
+ft01_nasabahaddopt.Form_CustomValidate = 
  function(fobj) { // DO NOT CHANGE THIS LINE!
 
  	// Your custom validation code here, return false if invalid.
@@ -1047,7 +919,7 @@ ft01_nasabahedit.Form_CustomValidate =
  }
 
 // Use JavaScript validation or not
-ft01_nasabahedit.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
+ft01_nasabahaddopt.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
 
 // Dynamic selection lists
 // Form object for search
@@ -1057,84 +929,57 @@ ft01_nasabahedit.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?
 
 // Write your client script here, no need to add script tags.
 </script>
-<?php $t01_nasabah_edit->ShowPageHeader(); ?>
 <?php
-$t01_nasabah_edit->ShowMessage();
+$t01_nasabah_addopt->ShowMessage();
 ?>
-<form name="ft01_nasabahedit" id="ft01_nasabahedit" class="<?php echo $t01_nasabah_edit->FormClassName ?>" action="<?php echo ew_CurrentPage() ?>" method="post">
-<?php if ($t01_nasabah_edit->CheckToken) { ?>
-<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t01_nasabah_edit->Token ?>">
+<form name="ft01_nasabahaddopt" id="ft01_nasabahaddopt" class="ewForm form-horizontal" action="t01_nasabahaddopt.php" method="post">
+<?php if ($t01_nasabah_addopt->CheckToken) { ?>
+<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t01_nasabah_addopt->Token ?>">
 <?php } ?>
 <input type="hidden" name="t" value="t01_nasabah">
-<input type="hidden" name="a_edit" id="a_edit" value="U">
-<input type="hidden" name="modal" value="<?php echo intval($t01_nasabah_edit->IsModal) ?>">
-<div class="ewEditDiv"><!-- page* -->
+<input type="hidden" name="a_addopt" id="a_addopt" value="A">
 <?php if ($t01_nasabah->Customer->Visible) { // Customer ?>
-	<div id="r_Customer" class="form-group">
-		<label id="elh_t01_nasabah_Customer" for="x_Customer" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Customer->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Customer->CellAttributes() ?>>
-<span id="el_t01_nasabah_Customer">
+	<div class="form-group">
+		<label class="col-sm-2 control-label ewLabel" for="x_Customer"><?php echo $t01_nasabah->Customer->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="col-sm-10">
 <input type="text" data-table="t01_nasabah" data-field="x_Customer" name="x_Customer" id="x_Customer" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Customer->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->Customer->EditValue ?>"<?php echo $t01_nasabah->Customer->EditAttributes() ?>>
-</span>
-<?php echo $t01_nasabah->Customer->CustomMsg ?></div></div>
+</div>
 	</div>
 <?php } ?>
 <?php if ($t01_nasabah->Pekerjaan->Visible) { // Pekerjaan ?>
-	<div id="r_Pekerjaan" class="form-group">
-		<label id="elh_t01_nasabah_Pekerjaan" for="x_Pekerjaan" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Pekerjaan->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Pekerjaan->CellAttributes() ?>>
-<span id="el_t01_nasabah_Pekerjaan">
+	<div class="form-group">
+		<label class="col-sm-2 control-label ewLabel" for="x_Pekerjaan"><?php echo $t01_nasabah->Pekerjaan->FldCaption() ?></label>
+		<div class="col-sm-10">
 <input type="text" data-table="t01_nasabah" data-field="x_Pekerjaan" name="x_Pekerjaan" id="x_Pekerjaan" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Pekerjaan->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->Pekerjaan->EditValue ?>"<?php echo $t01_nasabah->Pekerjaan->EditAttributes() ?>>
-</span>
-<?php echo $t01_nasabah->Pekerjaan->CustomMsg ?></div></div>
+</div>
 	</div>
 <?php } ?>
 <?php if ($t01_nasabah->Alamat->Visible) { // Alamat ?>
-	<div id="r_Alamat" class="form-group">
-		<label id="elh_t01_nasabah_Alamat" for="x_Alamat" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->Alamat->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->Alamat->CellAttributes() ?>>
-<span id="el_t01_nasabah_Alamat">
+	<div class="form-group">
+		<label class="col-sm-2 control-label ewLabel" for="x_Alamat"><?php echo $t01_nasabah->Alamat->FldCaption() ?></label>
+		<div class="col-sm-10">
 <textarea data-table="t01_nasabah" data-field="x_Alamat" name="x_Alamat" id="x_Alamat" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->Alamat->getPlaceHolder()) ?>"<?php echo $t01_nasabah->Alamat->EditAttributes() ?>><?php echo $t01_nasabah->Alamat->EditValue ?></textarea>
-</span>
-<?php echo $t01_nasabah->Alamat->CustomMsg ?></div></div>
+</div>
 	</div>
 <?php } ?>
 <?php if ($t01_nasabah->NoTelpHp->Visible) { // NoTelpHp ?>
-	<div id="r_NoTelpHp" class="form-group">
-		<label id="elh_t01_nasabah_NoTelpHp" for="x_NoTelpHp" class="<?php echo $t01_nasabah_edit->LeftColumnClass ?>"><?php echo $t01_nasabah->NoTelpHp->FldCaption() ?></label>
-		<div class="<?php echo $t01_nasabah_edit->RightColumnClass ?>"><div<?php echo $t01_nasabah->NoTelpHp->CellAttributes() ?>>
-<span id="el_t01_nasabah_NoTelpHp">
+	<div class="form-group">
+		<label class="col-sm-2 control-label ewLabel" for="x_NoTelpHp"><?php echo $t01_nasabah->NoTelpHp->FldCaption() ?></label>
+		<div class="col-sm-10">
 <input type="text" data-table="t01_nasabah" data-field="x_NoTelpHp" name="x_NoTelpHp" id="x_NoTelpHp" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t01_nasabah->NoTelpHp->getPlaceHolder()) ?>" value="<?php echo $t01_nasabah->NoTelpHp->EditValue ?>"<?php echo $t01_nasabah->NoTelpHp->EditAttributes() ?>>
-</span>
-<?php echo $t01_nasabah->NoTelpHp->CustomMsg ?></div></div>
+</div>
 	</div>
-<?php } ?>
-</div><!-- /page* -->
-<input type="hidden" data-table="t01_nasabah" data-field="x_id" name="x_id" id="x_id" value="<?php echo ew_HtmlEncode($t01_nasabah->id->CurrentValue) ?>">
-<?php if (!$t01_nasabah_edit->IsModal) { ?>
-<div class="form-group"><!-- buttons .form-group -->
-	<div class="<?php echo $t01_nasabah_edit->OffsetColumnClass ?>"><!-- buttons offset -->
-<button class="btn btn-primary ewButton" name="btnAction" id="btnAction" type="submit"><?php echo $Language->Phrase("SaveBtn") ?></button>
-<button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $t01_nasabah_edit->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
-	</div><!-- /buttons offset -->
-</div><!-- /buttons .form-group -->
 <?php } ?>
 </form>
 <script type="text/javascript">
-ft01_nasabahedit.Init();
+ft01_nasabahaddopt.Init();
 </script>
-<?php
-$t01_nasabah_edit->ShowPageFooter();
-if (EW_DEBUG_ENABLED)
-	echo ew_DebugMsg();
-?>
 <script type="text/javascript">
 
 // Write your table-specific startup script here
 // document.write("page loaded");
 
 </script>
-<?php include_once "footer.php" ?>
 <?php
-$t01_nasabah_edit->Page_Terminate();
+$t01_nasabah_addopt->Page_Terminate();
 ?>

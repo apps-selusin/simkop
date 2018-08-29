@@ -5,7 +5,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "ewcfg14.php" ?>
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql14.php") ?>
 <?php include_once "phpfn14.php" ?>
-<?php include_once "t01_nasabahinfo.php" ?>
+<?php include_once "t02_jaminaninfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
 <?php include_once "userfn14.php" ?>
 <?php
@@ -14,9 +14,9 @@ ob_start(); // Turn on output buffering
 // Page class
 //
 
-$t01_nasabah_view = NULL; // Initialize page object first
+$t02_jaminan_view = NULL; // Initialize page object first
 
-class ct01_nasabah_view extends ct01_nasabah {
+class ct02_jaminan_view extends ct02_jaminan {
 
 	// Page ID
 	var $PageID = 'view';
@@ -25,10 +25,10 @@ class ct01_nasabah_view extends ct01_nasabah {
 	var $ProjectID = '{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}';
 
 	// Table name
-	var $TableName = 't01_nasabah';
+	var $TableName = 't02_jaminan';
 
 	// Page object name
-	var $PageObjName = 't01_nasabah_view';
+	var $PageObjName = 't02_jaminan_view';
 
 	// Page headings
 	var $Heading = '';
@@ -288,10 +288,10 @@ class ct01_nasabah_view extends ct01_nasabah {
 		// Parent constuctor
 		parent::__construct();
 
-		// Table object (t01_nasabah)
-		if (!isset($GLOBALS["t01_nasabah"]) || get_class($GLOBALS["t01_nasabah"]) == "ct01_nasabah") {
-			$GLOBALS["t01_nasabah"] = &$this;
-			$GLOBALS["Table"] = &$GLOBALS["t01_nasabah"];
+		// Table object (t02_jaminan)
+		if (!isset($GLOBALS["t02_jaminan"]) || get_class($GLOBALS["t02_jaminan"]) == "ct02_jaminan") {
+			$GLOBALS["t02_jaminan"] = &$this;
+			$GLOBALS["Table"] = &$GLOBALS["t02_jaminan"];
 		}
 		$KeyUrl = "";
 		if (@$_GET["id"] <> "") {
@@ -315,7 +315,7 @@ class ct01_nasabah_view extends ct01_nasabah {
 
 		// Table name (for backward compatibility)
 		if (!defined("EW_TABLE_NAME"))
-			define("EW_TABLE_NAME", 't01_nasabah', TRUE);
+			define("EW_TABLE_NAME", 't02_jaminan', TRUE);
 
 		// Start timer
 		if (!isset($GLOBALS["gTimer"]))
@@ -370,7 +370,7 @@ class ct01_nasabah_view extends ct01_nasabah {
 			$Security->SaveLastUrl();
 			$this->setFailureMessage(ew_DeniedMsg()); // Set no permission
 			if ($Security->CanList())
-				$this->Page_Terminate(ew_GetUrl("t01_nasabahlist.php"));
+				$this->Page_Terminate(ew_GetUrl("t02_jaminanlist.php"));
 			else
 				$this->Page_Terminate(ew_GetUrl("login.php"));
 		}
@@ -386,10 +386,13 @@ class ct01_nasabah_view extends ct01_nasabah {
 		// 
 
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->Customer->SetVisibility();
-		$this->Pekerjaan->SetVisibility();
-		$this->Alamat->SetVisibility();
-		$this->NoTelpHp->SetVisibility();
+		$this->MerkType->SetVisibility();
+		$this->NoRangka->SetVisibility();
+		$this->NoMesin->SetVisibility();
+		$this->Warna->SetVisibility();
+		$this->NoPol->SetVisibility();
+		$this->Keterangan->SetVisibility();
+		$this->AtasNama->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -421,13 +424,13 @@ class ct01_nasabah_view extends ct01_nasabah {
 		Page_Unloaded();
 
 		// Export
-		global $EW_EXPORT, $t01_nasabah;
+		global $EW_EXPORT, $t02_jaminan;
 		if ($this->CustomExport <> "" && $this->CustomExport == $this->Export && array_key_exists($this->CustomExport, $EW_EXPORT)) {
 				$sContent = ob_get_contents();
 			if ($gsExportFile == "") $gsExportFile = $this->TableVar;
 			$class = $EW_EXPORT[$this->CustomExport];
 			if (class_exists($class)) {
-				$doc = new $class($t01_nasabah);
+				$doc = new $class($t02_jaminan);
 				$doc->Text = $sContent;
 				if ($this->Export == "email")
 					echo $this->ExportEmail($doc->Text);
@@ -453,7 +456,7 @@ class ct01_nasabah_view extends ct01_nasabah {
 				$pageName = ew_GetPageName($url);
 				if ($pageName != $this->GetListUrl()) { // Not List page
 					$row["caption"] = $this->GetModalCaption($pageName);
-					if ($pageName == "t01_nasabahview.php")
+					if ($pageName == "t02_jaminanview.php")
 						$row["view"] = "1";
 				} else { // List page should not be shown as modal => error
 					$row["error"] = $this->getFailureMessage();
@@ -501,7 +504,7 @@ class ct01_nasabah_view extends ct01_nasabah {
 				$this->id->setFormValue($_POST["id"]);
 				$this->RecKey["id"] = $this->id->FormValue;
 			} else {
-				$sReturnUrl = "t01_nasabahlist.php"; // Return to list
+				$sReturnUrl = "t02_jaminanlist.php"; // Return to list
 			}
 
 			// Get action
@@ -511,11 +514,11 @@ class ct01_nasabah_view extends ct01_nasabah {
 					if (!$this->LoadRow()) { // Load record based on key
 						if ($this->getSuccessMessage() == "" && $this->getFailureMessage() == "")
 							$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record message
-						$sReturnUrl = "t01_nasabahlist.php"; // No matching record, return to list
+						$sReturnUrl = "t02_jaminanlist.php"; // No matching record, return to list
 					}
 			}
 		} else {
-			$sReturnUrl = "t01_nasabahlist.php"; // Not page request, return to list
+			$sReturnUrl = "t02_jaminanlist.php"; // Not page request, return to list
 		}
 		if ($sReturnUrl <> "")
 			$this->Page_Terminate($sReturnUrl);
@@ -653,20 +656,26 @@ class ct01_nasabah_view extends ct01_nasabah {
 			return;
 		if ($this->AuditTrailOnView) $this->WriteAuditTrailOnView($row);
 		$this->id->setDbValue($row['id']);
-		$this->Customer->setDbValue($row['Customer']);
-		$this->Pekerjaan->setDbValue($row['Pekerjaan']);
-		$this->Alamat->setDbValue($row['Alamat']);
-		$this->NoTelpHp->setDbValue($row['NoTelpHp']);
+		$this->MerkType->setDbValue($row['MerkType']);
+		$this->NoRangka->setDbValue($row['NoRangka']);
+		$this->NoMesin->setDbValue($row['NoMesin']);
+		$this->Warna->setDbValue($row['Warna']);
+		$this->NoPol->setDbValue($row['NoPol']);
+		$this->Keterangan->setDbValue($row['Keterangan']);
+		$this->AtasNama->setDbValue($row['AtasNama']);
 	}
 
 	// Return a row with default values
 	function NewRow() {
 		$row = array();
 		$row['id'] = NULL;
-		$row['Customer'] = NULL;
-		$row['Pekerjaan'] = NULL;
-		$row['Alamat'] = NULL;
-		$row['NoTelpHp'] = NULL;
+		$row['MerkType'] = NULL;
+		$row['NoRangka'] = NULL;
+		$row['NoMesin'] = NULL;
+		$row['Warna'] = NULL;
+		$row['NoPol'] = NULL;
+		$row['Keterangan'] = NULL;
+		$row['AtasNama'] = NULL;
 		return $row;
 	}
 
@@ -676,10 +685,13 @@ class ct01_nasabah_view extends ct01_nasabah {
 			return;
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
-		$this->Customer->DbValue = $row['Customer'];
-		$this->Pekerjaan->DbValue = $row['Pekerjaan'];
-		$this->Alamat->DbValue = $row['Alamat'];
-		$this->NoTelpHp->DbValue = $row['NoTelpHp'];
+		$this->MerkType->DbValue = $row['MerkType'];
+		$this->NoRangka->DbValue = $row['NoRangka'];
+		$this->NoMesin->DbValue = $row['NoMesin'];
+		$this->Warna->DbValue = $row['Warna'];
+		$this->NoPol->DbValue = $row['NoPol'];
+		$this->Keterangan->DbValue = $row['Keterangan'];
+		$this->AtasNama->DbValue = $row['AtasNama'];
 	}
 
 	// Render row values based on field settings
@@ -699,10 +711,13 @@ class ct01_nasabah_view extends ct01_nasabah {
 
 		// Common render codes for all row types
 		// id
-		// Customer
-		// Pekerjaan
-		// Alamat
-		// NoTelpHp
+		// MerkType
+		// NoRangka
+		// NoMesin
+		// Warna
+		// NoPol
+		// Keterangan
+		// AtasNama
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -710,41 +725,68 @@ class ct01_nasabah_view extends ct01_nasabah {
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// Customer
-		$this->Customer->ViewValue = $this->Customer->CurrentValue;
-		$this->Customer->ViewCustomAttributes = "";
+		// MerkType
+		$this->MerkType->ViewValue = $this->MerkType->CurrentValue;
+		$this->MerkType->ViewCustomAttributes = "";
 
-		// Pekerjaan
-		$this->Pekerjaan->ViewValue = $this->Pekerjaan->CurrentValue;
-		$this->Pekerjaan->ViewCustomAttributes = "";
+		// NoRangka
+		$this->NoRangka->ViewValue = $this->NoRangka->CurrentValue;
+		$this->NoRangka->ViewCustomAttributes = "";
 
-		// Alamat
-		$this->Alamat->ViewValue = $this->Alamat->CurrentValue;
-		$this->Alamat->ViewCustomAttributes = "";
+		// NoMesin
+		$this->NoMesin->ViewValue = $this->NoMesin->CurrentValue;
+		$this->NoMesin->ViewCustomAttributes = "";
 
-		// NoTelpHp
-		$this->NoTelpHp->ViewValue = $this->NoTelpHp->CurrentValue;
-		$this->NoTelpHp->ViewCustomAttributes = "";
+		// Warna
+		$this->Warna->ViewValue = $this->Warna->CurrentValue;
+		$this->Warna->ViewCustomAttributes = "";
 
-			// Customer
-			$this->Customer->LinkCustomAttributes = "";
-			$this->Customer->HrefValue = "";
-			$this->Customer->TooltipValue = "";
+		// NoPol
+		$this->NoPol->ViewValue = $this->NoPol->CurrentValue;
+		$this->NoPol->ViewCustomAttributes = "";
 
-			// Pekerjaan
-			$this->Pekerjaan->LinkCustomAttributes = "";
-			$this->Pekerjaan->HrefValue = "";
-			$this->Pekerjaan->TooltipValue = "";
+		// Keterangan
+		$this->Keterangan->ViewValue = $this->Keterangan->CurrentValue;
+		$this->Keterangan->ViewCustomAttributes = "";
 
-			// Alamat
-			$this->Alamat->LinkCustomAttributes = "";
-			$this->Alamat->HrefValue = "";
-			$this->Alamat->TooltipValue = "";
+		// AtasNama
+		$this->AtasNama->ViewValue = $this->AtasNama->CurrentValue;
+		$this->AtasNama->ViewCustomAttributes = "";
 
-			// NoTelpHp
-			$this->NoTelpHp->LinkCustomAttributes = "";
-			$this->NoTelpHp->HrefValue = "";
-			$this->NoTelpHp->TooltipValue = "";
+			// MerkType
+			$this->MerkType->LinkCustomAttributes = "";
+			$this->MerkType->HrefValue = "";
+			$this->MerkType->TooltipValue = "";
+
+			// NoRangka
+			$this->NoRangka->LinkCustomAttributes = "";
+			$this->NoRangka->HrefValue = "";
+			$this->NoRangka->TooltipValue = "";
+
+			// NoMesin
+			$this->NoMesin->LinkCustomAttributes = "";
+			$this->NoMesin->HrefValue = "";
+			$this->NoMesin->TooltipValue = "";
+
+			// Warna
+			$this->Warna->LinkCustomAttributes = "";
+			$this->Warna->HrefValue = "";
+			$this->Warna->TooltipValue = "";
+
+			// NoPol
+			$this->NoPol->LinkCustomAttributes = "";
+			$this->NoPol->HrefValue = "";
+			$this->NoPol->TooltipValue = "";
+
+			// Keterangan
+			$this->Keterangan->LinkCustomAttributes = "";
+			$this->Keterangan->HrefValue = "";
+			$this->Keterangan->TooltipValue = "";
+
+			// AtasNama
+			$this->AtasNama->LinkCustomAttributes = "";
+			$this->AtasNama->HrefValue = "";
+			$this->AtasNama->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -757,7 +799,7 @@ class ct01_nasabah_view extends ct01_nasabah {
 		global $Breadcrumb, $Language;
 		$Breadcrumb = new cBreadcrumb();
 		$url = substr(ew_CurrentUrl(), strrpos(ew_CurrentUrl(), "/")+1);
-		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t01_nasabahlist.php"), "", $this->TableVar, TRUE);
+		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t02_jaminanlist.php"), "", $this->TableVar, TRUE);
 		$PageId = "view";
 		$Breadcrumb->Add("view", $PageId, $url);
 	}
@@ -869,29 +911,29 @@ class ct01_nasabah_view extends ct01_nasabah {
 <?php
 
 // Create page object
-if (!isset($t01_nasabah_view)) $t01_nasabah_view = new ct01_nasabah_view();
+if (!isset($t02_jaminan_view)) $t02_jaminan_view = new ct02_jaminan_view();
 
 // Page init
-$t01_nasabah_view->Page_Init();
+$t02_jaminan_view->Page_Init();
 
 // Page main
-$t01_nasabah_view->Page_Main();
+$t02_jaminan_view->Page_Main();
 
 // Global Page Rendering event (in userfn*.php)
 Page_Rendering();
 
 // Page Rendering event
-$t01_nasabah_view->Page_Render();
+$t02_jaminan_view->Page_Render();
 ?>
 <?php include_once "header.php" ?>
 <script type="text/javascript">
 
 // Form object
 var CurrentPageID = EW_PAGE_ID = "view";
-var CurrentForm = ft01_nasabahview = new ew_Form("ft01_nasabahview", "view");
+var CurrentForm = ft02_jaminanview = new ew_Form("ft02_jaminanview", "view");
 
 // Form_CustomValidate event
-ft01_nasabahview.Form_CustomValidate = 
+ft02_jaminanview.Form_CustomValidate = 
  function(fobj) { // DO NOT CHANGE THIS LINE!
 
  	// Your custom validation code here, return false if invalid.
@@ -899,7 +941,7 @@ ft01_nasabahview.Form_CustomValidate =
  }
 
 // Use JavaScript validation or not
-ft01_nasabahview.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
+ft02_jaminanview.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
 
 // Dynamic selection lists
 // Form object for search
@@ -910,64 +952,97 @@ ft01_nasabahview.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?
 // Write your client script here, no need to add script tags.
 </script>
 <div class="ewToolbar">
-<?php $t01_nasabah_view->ExportOptions->Render("body") ?>
+<?php $t02_jaminan_view->ExportOptions->Render("body") ?>
 <?php
-	foreach ($t01_nasabah_view->OtherOptions as &$option)
+	foreach ($t02_jaminan_view->OtherOptions as &$option)
 		$option->Render("body");
 ?>
 <div class="clearfix"></div>
 </div>
-<?php $t01_nasabah_view->ShowPageHeader(); ?>
+<?php $t02_jaminan_view->ShowPageHeader(); ?>
 <?php
-$t01_nasabah_view->ShowMessage();
+$t02_jaminan_view->ShowMessage();
 ?>
-<form name="ft01_nasabahview" id="ft01_nasabahview" class="form-inline ewForm ewViewForm" action="<?php echo ew_CurrentPage() ?>" method="post">
-<?php if ($t01_nasabah_view->CheckToken) { ?>
-<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t01_nasabah_view->Token ?>">
+<form name="ft02_jaminanview" id="ft02_jaminanview" class="form-inline ewForm ewViewForm" action="<?php echo ew_CurrentPage() ?>" method="post">
+<?php if ($t02_jaminan_view->CheckToken) { ?>
+<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t02_jaminan_view->Token ?>">
 <?php } ?>
-<input type="hidden" name="t" value="t01_nasabah">
-<input type="hidden" name="modal" value="<?php echo intval($t01_nasabah_view->IsModal) ?>">
+<input type="hidden" name="t" value="t02_jaminan">
+<input type="hidden" name="modal" value="<?php echo intval($t02_jaminan_view->IsModal) ?>">
 <table class="table table-striped table-bordered table-hover table-condensed ewViewTable">
-<?php if ($t01_nasabah->Customer->Visible) { // Customer ?>
-	<tr id="r_Customer">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_Customer"><?php echo $t01_nasabah->Customer->FldCaption() ?></span></td>
-		<td data-name="Customer"<?php echo $t01_nasabah->Customer->CellAttributes() ?>>
-<span id="el_t01_nasabah_Customer">
-<span<?php echo $t01_nasabah->Customer->ViewAttributes() ?>>
-<?php echo $t01_nasabah->Customer->ViewValue ?></span>
+<?php if ($t02_jaminan->MerkType->Visible) { // MerkType ?>
+	<tr id="r_MerkType">
+		<td class="col-sm-2"><span id="elh_t02_jaminan_MerkType"><?php echo $t02_jaminan->MerkType->FldCaption() ?></span></td>
+		<td data-name="MerkType"<?php echo $t02_jaminan->MerkType->CellAttributes() ?>>
+<span id="el_t02_jaminan_MerkType">
+<span<?php echo $t02_jaminan->MerkType->ViewAttributes() ?>>
+<?php echo $t02_jaminan->MerkType->ViewValue ?></span>
 </span>
 </td>
 	</tr>
 <?php } ?>
-<?php if ($t01_nasabah->Pekerjaan->Visible) { // Pekerjaan ?>
-	<tr id="r_Pekerjaan">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_Pekerjaan"><?php echo $t01_nasabah->Pekerjaan->FldCaption() ?></span></td>
-		<td data-name="Pekerjaan"<?php echo $t01_nasabah->Pekerjaan->CellAttributes() ?>>
-<span id="el_t01_nasabah_Pekerjaan">
-<span<?php echo $t01_nasabah->Pekerjaan->ViewAttributes() ?>>
-<?php echo $t01_nasabah->Pekerjaan->ViewValue ?></span>
+<?php if ($t02_jaminan->NoRangka->Visible) { // NoRangka ?>
+	<tr id="r_NoRangka">
+		<td class="col-sm-2"><span id="elh_t02_jaminan_NoRangka"><?php echo $t02_jaminan->NoRangka->FldCaption() ?></span></td>
+		<td data-name="NoRangka"<?php echo $t02_jaminan->NoRangka->CellAttributes() ?>>
+<span id="el_t02_jaminan_NoRangka">
+<span<?php echo $t02_jaminan->NoRangka->ViewAttributes() ?>>
+<?php echo $t02_jaminan->NoRangka->ViewValue ?></span>
 </span>
 </td>
 	</tr>
 <?php } ?>
-<?php if ($t01_nasabah->Alamat->Visible) { // Alamat ?>
-	<tr id="r_Alamat">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_Alamat"><?php echo $t01_nasabah->Alamat->FldCaption() ?></span></td>
-		<td data-name="Alamat"<?php echo $t01_nasabah->Alamat->CellAttributes() ?>>
-<span id="el_t01_nasabah_Alamat">
-<span<?php echo $t01_nasabah->Alamat->ViewAttributes() ?>>
-<?php echo $t01_nasabah->Alamat->ViewValue ?></span>
+<?php if ($t02_jaminan->NoMesin->Visible) { // NoMesin ?>
+	<tr id="r_NoMesin">
+		<td class="col-sm-2"><span id="elh_t02_jaminan_NoMesin"><?php echo $t02_jaminan->NoMesin->FldCaption() ?></span></td>
+		<td data-name="NoMesin"<?php echo $t02_jaminan->NoMesin->CellAttributes() ?>>
+<span id="el_t02_jaminan_NoMesin">
+<span<?php echo $t02_jaminan->NoMesin->ViewAttributes() ?>>
+<?php echo $t02_jaminan->NoMesin->ViewValue ?></span>
 </span>
 </td>
 	</tr>
 <?php } ?>
-<?php if ($t01_nasabah->NoTelpHp->Visible) { // NoTelpHp ?>
-	<tr id="r_NoTelpHp">
-		<td class="col-sm-2"><span id="elh_t01_nasabah_NoTelpHp"><?php echo $t01_nasabah->NoTelpHp->FldCaption() ?></span></td>
-		<td data-name="NoTelpHp"<?php echo $t01_nasabah->NoTelpHp->CellAttributes() ?>>
-<span id="el_t01_nasabah_NoTelpHp">
-<span<?php echo $t01_nasabah->NoTelpHp->ViewAttributes() ?>>
-<?php echo $t01_nasabah->NoTelpHp->ViewValue ?></span>
+<?php if ($t02_jaminan->Warna->Visible) { // Warna ?>
+	<tr id="r_Warna">
+		<td class="col-sm-2"><span id="elh_t02_jaminan_Warna"><?php echo $t02_jaminan->Warna->FldCaption() ?></span></td>
+		<td data-name="Warna"<?php echo $t02_jaminan->Warna->CellAttributes() ?>>
+<span id="el_t02_jaminan_Warna">
+<span<?php echo $t02_jaminan->Warna->ViewAttributes() ?>>
+<?php echo $t02_jaminan->Warna->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t02_jaminan->NoPol->Visible) { // NoPol ?>
+	<tr id="r_NoPol">
+		<td class="col-sm-2"><span id="elh_t02_jaminan_NoPol"><?php echo $t02_jaminan->NoPol->FldCaption() ?></span></td>
+		<td data-name="NoPol"<?php echo $t02_jaminan->NoPol->CellAttributes() ?>>
+<span id="el_t02_jaminan_NoPol">
+<span<?php echo $t02_jaminan->NoPol->ViewAttributes() ?>>
+<?php echo $t02_jaminan->NoPol->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t02_jaminan->Keterangan->Visible) { // Keterangan ?>
+	<tr id="r_Keterangan">
+		<td class="col-sm-2"><span id="elh_t02_jaminan_Keterangan"><?php echo $t02_jaminan->Keterangan->FldCaption() ?></span></td>
+		<td data-name="Keterangan"<?php echo $t02_jaminan->Keterangan->CellAttributes() ?>>
+<span id="el_t02_jaminan_Keterangan">
+<span<?php echo $t02_jaminan->Keterangan->ViewAttributes() ?>>
+<?php echo $t02_jaminan->Keterangan->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t02_jaminan->AtasNama->Visible) { // AtasNama ?>
+	<tr id="r_AtasNama">
+		<td class="col-sm-2"><span id="elh_t02_jaminan_AtasNama"><?php echo $t02_jaminan->AtasNama->FldCaption() ?></span></td>
+		<td data-name="AtasNama"<?php echo $t02_jaminan->AtasNama->CellAttributes() ?>>
+<span id="el_t02_jaminan_AtasNama">
+<span<?php echo $t02_jaminan->AtasNama->ViewAttributes() ?>>
+<?php echo $t02_jaminan->AtasNama->ViewValue ?></span>
 </span>
 </td>
 	</tr>
@@ -975,10 +1050,10 @@ $t01_nasabah_view->ShowMessage();
 </table>
 </form>
 <script type="text/javascript">
-ft01_nasabahview.Init();
+ft02_jaminanview.Init();
 </script>
 <?php
-$t01_nasabah_view->ShowPageFooter();
+$t02_jaminan_view->ShowPageFooter();
 if (EW_DEBUG_ENABLED)
 	echo ew_DebugMsg();
 ?>
@@ -990,5 +1065,5 @@ if (EW_DEBUG_ENABLED)
 </script>
 <?php include_once "footer.php" ?>
 <?php
-$t01_nasabah_view->Page_Terminate();
+$t02_jaminan_view->Page_Terminate();
 ?>

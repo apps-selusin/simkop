@@ -307,8 +307,12 @@ class cdefault {
 		$this->Page_Terminate("cf01_home.php"); // Exit and go to default page
 		if ($Security->AllowList(CurrentProjectID() . 't01_nasabah'))
 			$this->Page_Terminate("t01_nasabahlist.php");
-		if ($Security->AllowList(CurrentProjectID() . 't02_angsuran'))
-			$this->Page_Terminate("t02_angsuranlist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't02_jaminan'))
+			$this->Page_Terminate("t02_jaminanlist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't03_pinjaman'))
+			$this->Page_Terminate("t03_pinjamanlist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't04_angsuran'))
+			$this->Page_Terminate("t04_angsuranlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't96_employees'))
 			$this->Page_Terminate("t96_employeeslist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't97_userlevels'))

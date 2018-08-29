@@ -1,23 +1,23 @@
 <?php
 
 // Global variable for table object
-$t01_nasabah = NULL;
+$t04_angsuran = NULL;
 
 //
-// Table class for t01_nasabah
+// Table class for t04_angsuran
 //
-class ct01_nasabah extends cTable {
-	var $AuditTrailOnAdd = TRUE;
-	var $AuditTrailOnEdit = TRUE;
-	var $AuditTrailOnDelete = TRUE;
-	var $AuditTrailOnView = FALSE;
-	var $AuditTrailOnViewData = FALSE;
-	var $AuditTrailOnSearch = FALSE;
+class ct04_angsuran extends cTable {
 	var $id;
-	var $Customer;
-	var $Pekerjaan;
-	var $Alamat;
-	var $NoTelpHp;
+	var $pinjaman_id;
+	var $AngsuranTanggal;
+	var $AngsuranPokok;
+	var $AngsuranBunga;
+	var $AngsuranTotal;
+	var $SisaHutang;
+	var $TanggalBayar;
+	var $TotalDenda;
+	var $Terlambat;
+	var $Keterangan;
 
 	//
 	// Table class constructor
@@ -27,12 +27,12 @@ class ct01_nasabah extends cTable {
 
 		// Language object
 		if (!isset($Language)) $Language = new cLanguage();
-		$this->TableVar = 't01_nasabah';
-		$this->TableName = 't01_nasabah';
+		$this->TableVar = 't04_angsuran';
+		$this->TableName = 't04_angsuran';
 		$this->TableType = 'TABLE';
 
 		// Update Table
-		$this->UpdateTable = "`t01_nasabah`";
+		$this->UpdateTable = "`t04_angsuran`";
 		$this->DBID = 'DB';
 		$this->ExportAll = TRUE;
 		$this->ExportPageBreakCount = 0; // Page break per every n record (PDF only)
@@ -52,30 +52,69 @@ class ct01_nasabah extends cTable {
 		$this->BasicSearch = new cBasicSearch($this->TableVar);
 
 		// id
-		$this->id = new cField('t01_nasabah', 't01_nasabah', 'x_id', 'id', '`id`', '`id`', 3, -1, FALSE, '`id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'NO');
+		$this->id = new cField('t04_angsuran', 't04_angsuran', 'x_id', 'id', '`id`', '`id`', 3, -1, FALSE, '`id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'NO');
 		$this->id->Sortable = TRUE; // Allow sort
 		$this->id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['id'] = &$this->id;
 
-		// Customer
-		$this->Customer = new cField('t01_nasabah', 't01_nasabah', 'x_Customer', 'Customer', '`Customer`', '`Customer`', 200, -1, FALSE, '`Customer`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->Customer->Sortable = TRUE; // Allow sort
-		$this->fields['Customer'] = &$this->Customer;
+		// pinjaman_id
+		$this->pinjaman_id = new cField('t04_angsuran', 't04_angsuran', 'x_pinjaman_id', 'pinjaman_id', '`pinjaman_id`', '`pinjaman_id`', 3, -1, FALSE, '`pinjaman_id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->pinjaman_id->Sortable = TRUE; // Allow sort
+		$this->pinjaman_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['pinjaman_id'] = &$this->pinjaman_id;
 
-		// Pekerjaan
-		$this->Pekerjaan = new cField('t01_nasabah', 't01_nasabah', 'x_Pekerjaan', 'Pekerjaan', '`Pekerjaan`', '`Pekerjaan`', 200, -1, FALSE, '`Pekerjaan`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->Pekerjaan->Sortable = TRUE; // Allow sort
-		$this->fields['Pekerjaan'] = &$this->Pekerjaan;
+		// AngsuranTanggal
+		$this->AngsuranTanggal = new cField('t04_angsuran', 't04_angsuran', 'x_AngsuranTanggal', 'AngsuranTanggal', '`AngsuranTanggal`', ew_CastDateFieldForLike('`AngsuranTanggal`', 7, "DB"), 133, 7, FALSE, '`AngsuranTanggal`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->AngsuranTanggal->Sortable = TRUE; // Allow sort
+		$this->AngsuranTanggal->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_SEPARATOR"], $Language->Phrase("IncorrectDateDMY"));
+		$this->fields['AngsuranTanggal'] = &$this->AngsuranTanggal;
 
-		// Alamat
-		$this->Alamat = new cField('t01_nasabah', 't01_nasabah', 'x_Alamat', 'Alamat', '`Alamat`', '`Alamat`', 201, -1, FALSE, '`Alamat`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXTAREA');
-		$this->Alamat->Sortable = TRUE; // Allow sort
-		$this->fields['Alamat'] = &$this->Alamat;
+		// AngsuranPokok
+		$this->AngsuranPokok = new cField('t04_angsuran', 't04_angsuran', 'x_AngsuranPokok', 'AngsuranPokok', '`AngsuranPokok`', '`AngsuranPokok`', 4, -1, FALSE, '`AngsuranPokok`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->AngsuranPokok->Sortable = TRUE; // Allow sort
+		$this->AngsuranPokok->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
+		$this->fields['AngsuranPokok'] = &$this->AngsuranPokok;
 
-		// NoTelpHp
-		$this->NoTelpHp = new cField('t01_nasabah', 't01_nasabah', 'x_NoTelpHp', 'NoTelpHp', '`NoTelpHp`', '`NoTelpHp`', 200, -1, FALSE, '`NoTelpHp`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->NoTelpHp->Sortable = TRUE; // Allow sort
-		$this->fields['NoTelpHp'] = &$this->NoTelpHp;
+		// AngsuranBunga
+		$this->AngsuranBunga = new cField('t04_angsuran', 't04_angsuran', 'x_AngsuranBunga', 'AngsuranBunga', '`AngsuranBunga`', '`AngsuranBunga`', 4, -1, FALSE, '`AngsuranBunga`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->AngsuranBunga->Sortable = TRUE; // Allow sort
+		$this->AngsuranBunga->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
+		$this->fields['AngsuranBunga'] = &$this->AngsuranBunga;
+
+		// AngsuranTotal
+		$this->AngsuranTotal = new cField('t04_angsuran', 't04_angsuran', 'x_AngsuranTotal', 'AngsuranTotal', '`AngsuranTotal`', '`AngsuranTotal`', 4, -1, FALSE, '`AngsuranTotal`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->AngsuranTotal->Sortable = TRUE; // Allow sort
+		$this->AngsuranTotal->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
+		$this->fields['AngsuranTotal'] = &$this->AngsuranTotal;
+
+		// SisaHutang
+		$this->SisaHutang = new cField('t04_angsuran', 't04_angsuran', 'x_SisaHutang', 'SisaHutang', '`SisaHutang`', '`SisaHutang`', 4, -1, FALSE, '`SisaHutang`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->SisaHutang->Sortable = TRUE; // Allow sort
+		$this->SisaHutang->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
+		$this->fields['SisaHutang'] = &$this->SisaHutang;
+
+		// TanggalBayar
+		$this->TanggalBayar = new cField('t04_angsuran', 't04_angsuran', 'x_TanggalBayar', 'TanggalBayar', '`TanggalBayar`', ew_CastDateFieldForLike('`TanggalBayar`', 7, "DB"), 133, 7, FALSE, '`TanggalBayar`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->TanggalBayar->Sortable = TRUE; // Allow sort
+		$this->TanggalBayar->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_SEPARATOR"], $Language->Phrase("IncorrectDateDMY"));
+		$this->fields['TanggalBayar'] = &$this->TanggalBayar;
+
+		// TotalDenda
+		$this->TotalDenda = new cField('t04_angsuran', 't04_angsuran', 'x_TotalDenda', 'TotalDenda', '`TotalDenda`', '`TotalDenda`', 4, -1, FALSE, '`TotalDenda`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->TotalDenda->Sortable = TRUE; // Allow sort
+		$this->TotalDenda->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
+		$this->fields['TotalDenda'] = &$this->TotalDenda;
+
+		// Terlambat
+		$this->Terlambat = new cField('t04_angsuran', 't04_angsuran', 'x_Terlambat', 'Terlambat', '`Terlambat`', '`Terlambat`', 2, -1, FALSE, '`Terlambat`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->Terlambat->Sortable = TRUE; // Allow sort
+		$this->Terlambat->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['Terlambat'] = &$this->Terlambat;
+
+		// Keterangan
+		$this->Keterangan = new cField('t04_angsuran', 't04_angsuran', 'x_Keterangan', 'Keterangan', '`Keterangan`', '`Keterangan`', 201, -1, FALSE, '`Keterangan`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXTAREA');
+		$this->Keterangan->Sortable = TRUE; // Allow sort
+		$this->fields['Keterangan'] = &$this->Keterangan;
 	}
 
 	// Field Visibility
@@ -126,11 +165,58 @@ class ct01_nasabah extends cTable {
 		}
 	}
 
+	// Current master table name
+	function getCurrentMasterTable() {
+		return @$_SESSION[EW_PROJECT_NAME . "_" . $this->TableVar . "_" . EW_TABLE_MASTER_TABLE];
+	}
+
+	function setCurrentMasterTable($v) {
+		$_SESSION[EW_PROJECT_NAME . "_" . $this->TableVar . "_" . EW_TABLE_MASTER_TABLE] = $v;
+	}
+
+	// Session master WHERE clause
+	function GetMasterFilter() {
+
+		// Master filter
+		$sMasterFilter = "";
+		if ($this->getCurrentMasterTable() == "t03_pinjaman") {
+			if ($this->pinjaman_id->getSessionValue() <> "")
+				$sMasterFilter .= "`id`=" . ew_QuotedValue($this->pinjaman_id->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
+			else
+				return "";
+		}
+		return $sMasterFilter;
+	}
+
+	// Session detail WHERE clause
+	function GetDetailFilter() {
+
+		// Detail filter
+		$sDetailFilter = "";
+		if ($this->getCurrentMasterTable() == "t03_pinjaman") {
+			if ($this->pinjaman_id->getSessionValue() <> "")
+				$sDetailFilter .= "`pinjaman_id`=" . ew_QuotedValue($this->pinjaman_id->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
+			else
+				return "";
+		}
+		return $sDetailFilter;
+	}
+
+	// Master filter
+	function SqlMasterFilter_t03_pinjaman() {
+		return "`id`=@id@";
+	}
+
+	// Detail filter
+	function SqlDetailFilter_t03_pinjaman() {
+		return "`pinjaman_id`=@pinjaman_id@";
+	}
+
 	// Table level SQL
 	var $_SqlFrom = "";
 
 	function getSqlFrom() { // From
-		return ($this->_SqlFrom <> "") ? $this->_SqlFrom : "`t01_nasabah`";
+		return ($this->_SqlFrom <> "") ? $this->_SqlFrom : "`t04_angsuran`";
 	}
 
 	function SqlFrom() { // For backward compatibility
@@ -360,8 +446,6 @@ class ct01_nasabah extends cTable {
 			// Get insert id if necessary
 			$this->id->setDbValue($conn->Insert_ID());
 			$rs['id'] = $this->id->DbValue;
-			if ($this->AuditTrailOnAdd)
-				$this->WriteAuditTrailOnAdd($rs);
 		}
 		return $bInsert;
 	}
@@ -388,12 +472,6 @@ class ct01_nasabah extends cTable {
 	function Update(&$rs, $where = "", $rsold = NULL, $curfilter = TRUE) {
 		$conn = &$this->Connection();
 		$bUpdate = $conn->Execute($this->UpdateSQL($rs, $where, $curfilter));
-		if ($bUpdate && $this->AuditTrailOnEdit) {
-			$rsaudit = $rs;
-			$fldname = 'id';
-			if (!array_key_exists($fldname, $rsaudit)) $rsaudit[$fldname] = $rsold[$fldname];
-			$this->WriteAuditTrailOnEdit($rsold, $rsaudit);
-		}
 		return $bUpdate;
 	}
 
@@ -421,8 +499,6 @@ class ct01_nasabah extends cTable {
 		$conn = &$this->Connection();
 		if ($bDelete)
 			$bDelete = $conn->Execute($this->DeleteSQL($rs, $where, $curfilter));
-		if ($bDelete && $this->AuditTrailOnDelete)
-			$this->WriteAuditTrailOnDelete($rs);
 		return $bDelete;
 	}
 
@@ -453,7 +529,7 @@ class ct01_nasabah extends cTable {
 		if (@$_SESSION[$name] <> "") {
 			return $_SESSION[$name];
 		} else {
-			return "t01_nasabahlist.php";
+			return "t04_angsuranlist.php";
 		}
 	}
 
@@ -464,11 +540,11 @@ class ct01_nasabah extends cTable {
 	// Get modal caption
 	function GetModalCaption($pageName) {
 		global $Language;
-		if ($pageName == "t01_nasabahview.php")
+		if ($pageName == "t04_angsuranview.php")
 			return $Language->Phrase("View");
-		elseif ($pageName == "t01_nasabahedit.php")
+		elseif ($pageName == "t04_angsuranedit.php")
 			return $Language->Phrase("Edit");
-		elseif ($pageName == "t01_nasabahadd.php")
+		elseif ($pageName == "t04_angsuranadd.php")
 			return $Language->Phrase("Add");
 		else
 			return "";
@@ -476,30 +552,30 @@ class ct01_nasabah extends cTable {
 
 	// List URL
 	function GetListUrl() {
-		return "t01_nasabahlist.php";
+		return "t04_angsuranlist.php";
 	}
 
 	// View URL
 	function GetViewUrl($parm = "") {
 		if ($parm <> "")
-			$url = $this->KeyUrl("t01_nasabahview.php", $this->UrlParm($parm));
+			$url = $this->KeyUrl("t04_angsuranview.php", $this->UrlParm($parm));
 		else
-			$url = $this->KeyUrl("t01_nasabahview.php", $this->UrlParm(EW_TABLE_SHOW_DETAIL . "="));
+			$url = $this->KeyUrl("t04_angsuranview.php", $this->UrlParm(EW_TABLE_SHOW_DETAIL . "="));
 		return $this->AddMasterUrl($url);
 	}
 
 	// Add URL
 	function GetAddUrl($parm = "") {
 		if ($parm <> "")
-			$url = "t01_nasabahadd.php?" . $this->UrlParm($parm);
+			$url = "t04_angsuranadd.php?" . $this->UrlParm($parm);
 		else
-			$url = "t01_nasabahadd.php";
+			$url = "t04_angsuranadd.php";
 		return $this->AddMasterUrl($url);
 	}
 
 	// Edit URL
 	function GetEditUrl($parm = "") {
-		$url = $this->KeyUrl("t01_nasabahedit.php", $this->UrlParm($parm));
+		$url = $this->KeyUrl("t04_angsuranedit.php", $this->UrlParm($parm));
 		return $this->AddMasterUrl($url);
 	}
 
@@ -511,7 +587,7 @@ class ct01_nasabah extends cTable {
 
 	// Copy URL
 	function GetCopyUrl($parm = "") {
-		$url = $this->KeyUrl("t01_nasabahadd.php", $this->UrlParm($parm));
+		$url = $this->KeyUrl("t04_angsuranadd.php", $this->UrlParm($parm));
 		return $this->AddMasterUrl($url);
 	}
 
@@ -523,11 +599,15 @@ class ct01_nasabah extends cTable {
 
 	// Delete URL
 	function GetDeleteUrl() {
-		return $this->KeyUrl("t01_nasabahdelete.php", $this->UrlParm());
+		return $this->KeyUrl("t04_angsurandelete.php", $this->UrlParm());
 	}
 
 	// Add master url
 	function AddMasterUrl($url) {
+		if ($this->getCurrentMasterTable() == "t03_pinjaman" && strpos($url, EW_TABLE_SHOW_MASTER . "=") === FALSE) {
+			$url .= (strpos($url, "?") !== FALSE ? "&" : "?") . EW_TABLE_SHOW_MASTER . "=" . $this->getCurrentMasterTable();
+			$url .= "&fk_id=" . urlencode($this->pinjaman_id->CurrentValue);
+		}
 		return $url;
 	}
 
@@ -625,10 +705,16 @@ class ct01_nasabah extends cTable {
 	// Load row values from recordset
 	function LoadListRowValues(&$rs) {
 		$this->id->setDbValue($rs->fields('id'));
-		$this->Customer->setDbValue($rs->fields('Customer'));
-		$this->Pekerjaan->setDbValue($rs->fields('Pekerjaan'));
-		$this->Alamat->setDbValue($rs->fields('Alamat'));
-		$this->NoTelpHp->setDbValue($rs->fields('NoTelpHp'));
+		$this->pinjaman_id->setDbValue($rs->fields('pinjaman_id'));
+		$this->AngsuranTanggal->setDbValue($rs->fields('AngsuranTanggal'));
+		$this->AngsuranPokok->setDbValue($rs->fields('AngsuranPokok'));
+		$this->AngsuranBunga->setDbValue($rs->fields('AngsuranBunga'));
+		$this->AngsuranTotal->setDbValue($rs->fields('AngsuranTotal'));
+		$this->SisaHutang->setDbValue($rs->fields('SisaHutang'));
+		$this->TanggalBayar->setDbValue($rs->fields('TanggalBayar'));
+		$this->TotalDenda->setDbValue($rs->fields('TotalDenda'));
+		$this->Terlambat->setDbValue($rs->fields('Terlambat'));
+		$this->Keterangan->setDbValue($rs->fields('Keterangan'));
 	}
 
 	// Render list row values
@@ -640,55 +726,129 @@ class ct01_nasabah extends cTable {
 
 	// Common render codes
 		// id
-		// Customer
-		// Pekerjaan
-		// Alamat
-		// NoTelpHp
+		// pinjaman_id
+		// AngsuranTanggal
+		// AngsuranPokok
+		// AngsuranBunga
+		// AngsuranTotal
+		// SisaHutang
+		// TanggalBayar
+		// TotalDenda
+		// Terlambat
+		// Keterangan
 		// id
 
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// Customer
-		$this->Customer->ViewValue = $this->Customer->CurrentValue;
-		$this->Customer->ViewCustomAttributes = "";
+		// pinjaman_id
+		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+		$this->pinjaman_id->ViewCustomAttributes = "";
 
-		// Pekerjaan
-		$this->Pekerjaan->ViewValue = $this->Pekerjaan->CurrentValue;
-		$this->Pekerjaan->ViewCustomAttributes = "";
+		// AngsuranTanggal
+		$this->AngsuranTanggal->ViewValue = $this->AngsuranTanggal->CurrentValue;
+		$this->AngsuranTanggal->ViewValue = ew_FormatDateTime($this->AngsuranTanggal->ViewValue, 7);
+		$this->AngsuranTanggal->ViewCustomAttributes = "";
 
-		// Alamat
-		$this->Alamat->ViewValue = $this->Alamat->CurrentValue;
-		$this->Alamat->ViewCustomAttributes = "";
+		// AngsuranPokok
+		$this->AngsuranPokok->ViewValue = $this->AngsuranPokok->CurrentValue;
+		$this->AngsuranPokok->ViewValue = ew_FormatNumber($this->AngsuranPokok->ViewValue, 2, -2, -2, -2);
+		$this->AngsuranPokok->CellCssStyle .= "text-align: right;";
+		$this->AngsuranPokok->ViewCustomAttributes = "";
 
-		// NoTelpHp
-		$this->NoTelpHp->ViewValue = $this->NoTelpHp->CurrentValue;
-		$this->NoTelpHp->ViewCustomAttributes = "";
+		// AngsuranBunga
+		$this->AngsuranBunga->ViewValue = $this->AngsuranBunga->CurrentValue;
+		$this->AngsuranBunga->ViewValue = ew_FormatNumber($this->AngsuranBunga->ViewValue, 2, -2, -2, -2);
+		$this->AngsuranBunga->CellCssStyle .= "text-align: right;";
+		$this->AngsuranBunga->ViewCustomAttributes = "";
+
+		// AngsuranTotal
+		$this->AngsuranTotal->ViewValue = $this->AngsuranTotal->CurrentValue;
+		$this->AngsuranTotal->ViewValue = ew_FormatNumber($this->AngsuranTotal->ViewValue, 2, -2, -2, -2);
+		$this->AngsuranTotal->CellCssStyle .= "text-align: right;";
+		$this->AngsuranTotal->ViewCustomAttributes = "";
+
+		// SisaHutang
+		$this->SisaHutang->ViewValue = $this->SisaHutang->CurrentValue;
+		$this->SisaHutang->ViewValue = ew_FormatNumber($this->SisaHutang->ViewValue, 2, -2, -2, -2);
+		$this->SisaHutang->CellCssStyle .= "text-align: right;";
+		$this->SisaHutang->ViewCustomAttributes = "";
+
+		// TanggalBayar
+		$this->TanggalBayar->ViewValue = $this->TanggalBayar->CurrentValue;
+		$this->TanggalBayar->ViewValue = ew_FormatDateTime($this->TanggalBayar->ViewValue, 7);
+		$this->TanggalBayar->ViewCustomAttributes = "";
+
+		// TotalDenda
+		$this->TotalDenda->ViewValue = $this->TotalDenda->CurrentValue;
+		$this->TotalDenda->ViewValue = ew_FormatNumber($this->TotalDenda->ViewValue, 2, -2, -2, -2);
+		$this->TotalDenda->CellCssStyle .= "text-align: right;";
+		$this->TotalDenda->ViewCustomAttributes = "";
+
+		// Terlambat
+		$this->Terlambat->ViewValue = $this->Terlambat->CurrentValue;
+		$this->Terlambat->ViewValue = ew_FormatNumber($this->Terlambat->ViewValue, 0, -2, -2, -2);
+		$this->Terlambat->CellCssStyle .= "text-align: right;";
+		$this->Terlambat->ViewCustomAttributes = "";
+
+		// Keterangan
+		$this->Keterangan->ViewValue = $this->Keterangan->CurrentValue;
+		$this->Keterangan->ViewCustomAttributes = "";
 
 		// id
 		$this->id->LinkCustomAttributes = "";
 		$this->id->HrefValue = "";
 		$this->id->TooltipValue = "";
 
-		// Customer
-		$this->Customer->LinkCustomAttributes = "";
-		$this->Customer->HrefValue = "";
-		$this->Customer->TooltipValue = "";
+		// pinjaman_id
+		$this->pinjaman_id->LinkCustomAttributes = "";
+		$this->pinjaman_id->HrefValue = "";
+		$this->pinjaman_id->TooltipValue = "";
 
-		// Pekerjaan
-		$this->Pekerjaan->LinkCustomAttributes = "";
-		$this->Pekerjaan->HrefValue = "";
-		$this->Pekerjaan->TooltipValue = "";
+		// AngsuranTanggal
+		$this->AngsuranTanggal->LinkCustomAttributes = "";
+		$this->AngsuranTanggal->HrefValue = "";
+		$this->AngsuranTanggal->TooltipValue = "";
 
-		// Alamat
-		$this->Alamat->LinkCustomAttributes = "";
-		$this->Alamat->HrefValue = "";
-		$this->Alamat->TooltipValue = "";
+		// AngsuranPokok
+		$this->AngsuranPokok->LinkCustomAttributes = "";
+		$this->AngsuranPokok->HrefValue = "";
+		$this->AngsuranPokok->TooltipValue = "";
 
-		// NoTelpHp
-		$this->NoTelpHp->LinkCustomAttributes = "";
-		$this->NoTelpHp->HrefValue = "";
-		$this->NoTelpHp->TooltipValue = "";
+		// AngsuranBunga
+		$this->AngsuranBunga->LinkCustomAttributes = "";
+		$this->AngsuranBunga->HrefValue = "";
+		$this->AngsuranBunga->TooltipValue = "";
+
+		// AngsuranTotal
+		$this->AngsuranTotal->LinkCustomAttributes = "";
+		$this->AngsuranTotal->HrefValue = "";
+		$this->AngsuranTotal->TooltipValue = "";
+
+		// SisaHutang
+		$this->SisaHutang->LinkCustomAttributes = "";
+		$this->SisaHutang->HrefValue = "";
+		$this->SisaHutang->TooltipValue = "";
+
+		// TanggalBayar
+		$this->TanggalBayar->LinkCustomAttributes = "";
+		$this->TanggalBayar->HrefValue = "";
+		$this->TanggalBayar->TooltipValue = "";
+
+		// TotalDenda
+		$this->TotalDenda->LinkCustomAttributes = "";
+		$this->TotalDenda->HrefValue = "";
+		$this->TotalDenda->TooltipValue = "";
+
+		// Terlambat
+		$this->Terlambat->LinkCustomAttributes = "";
+		$this->Terlambat->HrefValue = "";
+		$this->Terlambat->TooltipValue = "";
+
+		// Keterangan
+		$this->Keterangan->LinkCustomAttributes = "";
+		$this->Keterangan->HrefValue = "";
+		$this->Keterangan->TooltipValue = "";
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -710,29 +870,76 @@ class ct01_nasabah extends cTable {
 		$this->id->EditValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// Customer
-		$this->Customer->EditAttrs["class"] = "form-control";
-		$this->Customer->EditCustomAttributes = "";
-		$this->Customer->EditValue = $this->Customer->CurrentValue;
-		$this->Customer->PlaceHolder = ew_RemoveHtml($this->Customer->FldCaption());
+		// pinjaman_id
+		$this->pinjaman_id->EditAttrs["class"] = "form-control";
+		$this->pinjaman_id->EditCustomAttributes = "";
+		if ($this->pinjaman_id->getSessionValue() <> "") {
+			$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
+		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+		$this->pinjaman_id->ViewCustomAttributes = "";
+		} else {
+		$this->pinjaman_id->EditValue = $this->pinjaman_id->CurrentValue;
+		$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
+		}
 
-		// Pekerjaan
-		$this->Pekerjaan->EditAttrs["class"] = "form-control";
-		$this->Pekerjaan->EditCustomAttributes = "";
-		$this->Pekerjaan->EditValue = $this->Pekerjaan->CurrentValue;
-		$this->Pekerjaan->PlaceHolder = ew_RemoveHtml($this->Pekerjaan->FldCaption());
+		// AngsuranTanggal
+		$this->AngsuranTanggal->EditAttrs["class"] = "form-control";
+		$this->AngsuranTanggal->EditCustomAttributes = "";
+		$this->AngsuranTanggal->EditValue = ew_FormatDateTime($this->AngsuranTanggal->CurrentValue, 7);
+		$this->AngsuranTanggal->PlaceHolder = ew_RemoveHtml($this->AngsuranTanggal->FldCaption());
 
-		// Alamat
-		$this->Alamat->EditAttrs["class"] = "form-control";
-		$this->Alamat->EditCustomAttributes = "";
-		$this->Alamat->EditValue = $this->Alamat->CurrentValue;
-		$this->Alamat->PlaceHolder = ew_RemoveHtml($this->Alamat->FldCaption());
+		// AngsuranPokok
+		$this->AngsuranPokok->EditAttrs["class"] = "form-control";
+		$this->AngsuranPokok->EditCustomAttributes = "";
+		$this->AngsuranPokok->EditValue = $this->AngsuranPokok->CurrentValue;
+		$this->AngsuranPokok->PlaceHolder = ew_RemoveHtml($this->AngsuranPokok->FldCaption());
+		if (strval($this->AngsuranPokok->EditValue) <> "" && is_numeric($this->AngsuranPokok->EditValue)) $this->AngsuranPokok->EditValue = ew_FormatNumber($this->AngsuranPokok->EditValue, -2, -2, -2, -2);
 
-		// NoTelpHp
-		$this->NoTelpHp->EditAttrs["class"] = "form-control";
-		$this->NoTelpHp->EditCustomAttributes = "";
-		$this->NoTelpHp->EditValue = $this->NoTelpHp->CurrentValue;
-		$this->NoTelpHp->PlaceHolder = ew_RemoveHtml($this->NoTelpHp->FldCaption());
+		// AngsuranBunga
+		$this->AngsuranBunga->EditAttrs["class"] = "form-control";
+		$this->AngsuranBunga->EditCustomAttributes = "";
+		$this->AngsuranBunga->EditValue = $this->AngsuranBunga->CurrentValue;
+		$this->AngsuranBunga->PlaceHolder = ew_RemoveHtml($this->AngsuranBunga->FldCaption());
+		if (strval($this->AngsuranBunga->EditValue) <> "" && is_numeric($this->AngsuranBunga->EditValue)) $this->AngsuranBunga->EditValue = ew_FormatNumber($this->AngsuranBunga->EditValue, -2, -2, -2, -2);
+
+		// AngsuranTotal
+		$this->AngsuranTotal->EditAttrs["class"] = "form-control";
+		$this->AngsuranTotal->EditCustomAttributes = "";
+		$this->AngsuranTotal->EditValue = $this->AngsuranTotal->CurrentValue;
+		$this->AngsuranTotal->PlaceHolder = ew_RemoveHtml($this->AngsuranTotal->FldCaption());
+		if (strval($this->AngsuranTotal->EditValue) <> "" && is_numeric($this->AngsuranTotal->EditValue)) $this->AngsuranTotal->EditValue = ew_FormatNumber($this->AngsuranTotal->EditValue, -2, -2, -2, -2);
+
+		// SisaHutang
+		$this->SisaHutang->EditAttrs["class"] = "form-control";
+		$this->SisaHutang->EditCustomAttributes = "";
+		$this->SisaHutang->EditValue = $this->SisaHutang->CurrentValue;
+		$this->SisaHutang->PlaceHolder = ew_RemoveHtml($this->SisaHutang->FldCaption());
+		if (strval($this->SisaHutang->EditValue) <> "" && is_numeric($this->SisaHutang->EditValue)) $this->SisaHutang->EditValue = ew_FormatNumber($this->SisaHutang->EditValue, -2, -2, -2, -2);
+
+		// TanggalBayar
+		$this->TanggalBayar->EditAttrs["class"] = "form-control";
+		$this->TanggalBayar->EditCustomAttributes = "";
+		$this->TanggalBayar->EditValue = ew_FormatDateTime($this->TanggalBayar->CurrentValue, 7);
+		$this->TanggalBayar->PlaceHolder = ew_RemoveHtml($this->TanggalBayar->FldCaption());
+
+		// TotalDenda
+		$this->TotalDenda->EditAttrs["class"] = "form-control";
+		$this->TotalDenda->EditCustomAttributes = "";
+		$this->TotalDenda->EditValue = $this->TotalDenda->CurrentValue;
+		$this->TotalDenda->PlaceHolder = ew_RemoveHtml($this->TotalDenda->FldCaption());
+		if (strval($this->TotalDenda->EditValue) <> "" && is_numeric($this->TotalDenda->EditValue)) $this->TotalDenda->EditValue = ew_FormatNumber($this->TotalDenda->EditValue, -2, -2, -2, -2);
+
+		// Terlambat
+		$this->Terlambat->EditAttrs["class"] = "form-control";
+		$this->Terlambat->EditCustomAttributes = "";
+		$this->Terlambat->EditValue = $this->Terlambat->CurrentValue;
+		$this->Terlambat->PlaceHolder = ew_RemoveHtml($this->Terlambat->FldCaption());
+
+		// Keterangan
+		$this->Keterangan->EditAttrs["class"] = "form-control";
+		$this->Keterangan->EditCustomAttributes = "";
+		$this->Keterangan->EditValue = $this->Keterangan->CurrentValue;
+		$this->Keterangan->PlaceHolder = ew_RemoveHtml($this->Keterangan->FldCaption());
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -761,15 +968,29 @@ class ct01_nasabah extends cTable {
 			if ($Doc->Horizontal) { // Horizontal format, write header
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
-					if ($this->Customer->Exportable) $Doc->ExportCaption($this->Customer);
-					if ($this->Pekerjaan->Exportable) $Doc->ExportCaption($this->Pekerjaan);
-					if ($this->Alamat->Exportable) $Doc->ExportCaption($this->Alamat);
-					if ($this->NoTelpHp->Exportable) $Doc->ExportCaption($this->NoTelpHp);
+					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
+					if ($this->pinjaman_id->Exportable) $Doc->ExportCaption($this->pinjaman_id);
+					if ($this->AngsuranTanggal->Exportable) $Doc->ExportCaption($this->AngsuranTanggal);
+					if ($this->AngsuranPokok->Exportable) $Doc->ExportCaption($this->AngsuranPokok);
+					if ($this->AngsuranBunga->Exportable) $Doc->ExportCaption($this->AngsuranBunga);
+					if ($this->AngsuranTotal->Exportable) $Doc->ExportCaption($this->AngsuranTotal);
+					if ($this->SisaHutang->Exportable) $Doc->ExportCaption($this->SisaHutang);
+					if ($this->TanggalBayar->Exportable) $Doc->ExportCaption($this->TanggalBayar);
+					if ($this->TotalDenda->Exportable) $Doc->ExportCaption($this->TotalDenda);
+					if ($this->Terlambat->Exportable) $Doc->ExportCaption($this->Terlambat);
+					if ($this->Keterangan->Exportable) $Doc->ExportCaption($this->Keterangan);
 				} else {
 					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
-					if ($this->Customer->Exportable) $Doc->ExportCaption($this->Customer);
-					if ($this->Pekerjaan->Exportable) $Doc->ExportCaption($this->Pekerjaan);
-					if ($this->NoTelpHp->Exportable) $Doc->ExportCaption($this->NoTelpHp);
+					if ($this->pinjaman_id->Exportable) $Doc->ExportCaption($this->pinjaman_id);
+					if ($this->AngsuranTanggal->Exportable) $Doc->ExportCaption($this->AngsuranTanggal);
+					if ($this->AngsuranPokok->Exportable) $Doc->ExportCaption($this->AngsuranPokok);
+					if ($this->AngsuranBunga->Exportable) $Doc->ExportCaption($this->AngsuranBunga);
+					if ($this->AngsuranTotal->Exportable) $Doc->ExportCaption($this->AngsuranTotal);
+					if ($this->SisaHutang->Exportable) $Doc->ExportCaption($this->SisaHutang);
+					if ($this->TanggalBayar->Exportable) $Doc->ExportCaption($this->TanggalBayar);
+					if ($this->TotalDenda->Exportable) $Doc->ExportCaption($this->TotalDenda);
+					if ($this->Terlambat->Exportable) $Doc->ExportCaption($this->Terlambat);
+					if ($this->Keterangan->Exportable) $Doc->ExportCaption($this->Keterangan);
 				}
 				$Doc->EndExportRow();
 			}
@@ -801,15 +1022,29 @@ class ct01_nasabah extends cTable {
 				if (!$Doc->ExportCustom) {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
-						if ($this->Customer->Exportable) $Doc->ExportField($this->Customer);
-						if ($this->Pekerjaan->Exportable) $Doc->ExportField($this->Pekerjaan);
-						if ($this->Alamat->Exportable) $Doc->ExportField($this->Alamat);
-						if ($this->NoTelpHp->Exportable) $Doc->ExportField($this->NoTelpHp);
+						if ($this->id->Exportable) $Doc->ExportField($this->id);
+						if ($this->pinjaman_id->Exportable) $Doc->ExportField($this->pinjaman_id);
+						if ($this->AngsuranTanggal->Exportable) $Doc->ExportField($this->AngsuranTanggal);
+						if ($this->AngsuranPokok->Exportable) $Doc->ExportField($this->AngsuranPokok);
+						if ($this->AngsuranBunga->Exportable) $Doc->ExportField($this->AngsuranBunga);
+						if ($this->AngsuranTotal->Exportable) $Doc->ExportField($this->AngsuranTotal);
+						if ($this->SisaHutang->Exportable) $Doc->ExportField($this->SisaHutang);
+						if ($this->TanggalBayar->Exportable) $Doc->ExportField($this->TanggalBayar);
+						if ($this->TotalDenda->Exportable) $Doc->ExportField($this->TotalDenda);
+						if ($this->Terlambat->Exportable) $Doc->ExportField($this->Terlambat);
+						if ($this->Keterangan->Exportable) $Doc->ExportField($this->Keterangan);
 					} else {
 						if ($this->id->Exportable) $Doc->ExportField($this->id);
-						if ($this->Customer->Exportable) $Doc->ExportField($this->Customer);
-						if ($this->Pekerjaan->Exportable) $Doc->ExportField($this->Pekerjaan);
-						if ($this->NoTelpHp->Exportable) $Doc->ExportField($this->NoTelpHp);
+						if ($this->pinjaman_id->Exportable) $Doc->ExportField($this->pinjaman_id);
+						if ($this->AngsuranTanggal->Exportable) $Doc->ExportField($this->AngsuranTanggal);
+						if ($this->AngsuranPokok->Exportable) $Doc->ExportField($this->AngsuranPokok);
+						if ($this->AngsuranBunga->Exportable) $Doc->ExportField($this->AngsuranBunga);
+						if ($this->AngsuranTotal->Exportable) $Doc->ExportField($this->AngsuranTotal);
+						if ($this->SisaHutang->Exportable) $Doc->ExportField($this->SisaHutang);
+						if ($this->TanggalBayar->Exportable) $Doc->ExportField($this->TanggalBayar);
+						if ($this->TotalDenda->Exportable) $Doc->ExportField($this->TotalDenda);
+						if ($this->Terlambat->Exportable) $Doc->ExportField($this->Terlambat);
+						if ($this->Keterangan->Exportable) $Doc->ExportField($this->Keterangan);
 					}
 					$Doc->EndExportRow($RowCnt);
 				}
@@ -848,129 +1083,6 @@ class ct01_nasabah extends cTable {
 			return ew_ArrayToJson($rsarr);
 		} else {
 			return FALSE;
-		}
-	}
-
-	// Write Audit Trail start/end for grid update
-	function WriteAuditTrailDummy($typ) {
-		$table = 't01_nasabah';
-		$usr = CurrentUserID();
-		ew_WriteAuditTrail("log", ew_StdCurrentDateTime(), ew_ScriptName(), $usr, $typ, $table, "", "", "", "");
-	}
-
-	// Write Audit Trail (add page)
-	function WriteAuditTrailOnAdd(&$rs) {
-		global $Language;
-		if (!$this->AuditTrailOnAdd) return;
-		$table = 't01_nasabah';
-
-		// Get key value
-		$key = "";
-		if ($key <> "") $key .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
-		$key .= $rs['id'];
-
-		// Write Audit Trail
-		$dt = ew_StdCurrentDateTime();
-		$id = ew_ScriptName();
-		$usr = CurrentUserID();
-		foreach (array_keys($rs) as $fldname) {
-			if (array_key_exists($fldname, $this->fields) && $this->fields[$fldname]->FldDataType <> EW_DATATYPE_BLOB) { // Ignore BLOB fields
-				if ($this->fields[$fldname]->FldHtmlTag == "PASSWORD") {
-					$newvalue = $Language->Phrase("PasswordMask"); // Password Field
-				} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_MEMO) {
-					if (EW_AUDIT_TRAIL_TO_DATABASE)
-						$newvalue = $rs[$fldname];
-					else
-						$newvalue = "[MEMO]"; // Memo Field
-				} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_XML) {
-					$newvalue = "[XML]"; // XML Field
-				} else {
-					$newvalue = $rs[$fldname];
-				}
-				ew_WriteAuditTrail("log", $dt, $id, $usr, "A", $table, $fldname, $key, "", $newvalue);
-			}
-		}
-	}
-
-	// Write Audit Trail (edit page)
-	function WriteAuditTrailOnEdit(&$rsold, &$rsnew) {
-		global $Language;
-		if (!$this->AuditTrailOnEdit) return;
-		$table = 't01_nasabah';
-
-		// Get key value
-		$key = "";
-		if ($key <> "") $key .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
-		$key .= $rsold['id'];
-
-		// Write Audit Trail
-		$dt = ew_StdCurrentDateTime();
-		$id = ew_ScriptName();
-		$usr = CurrentUserID();
-		foreach (array_keys($rsnew) as $fldname) {
-			if (array_key_exists($fldname, $this->fields) && array_key_exists($fldname, $rsold) && $this->fields[$fldname]->FldDataType <> EW_DATATYPE_BLOB) { // Ignore BLOB fields
-				if ($this->fields[$fldname]->FldDataType == EW_DATATYPE_DATE) { // DateTime field
-					$modified = (ew_FormatDateTime($rsold[$fldname], 0) <> ew_FormatDateTime($rsnew[$fldname], 0));
-				} else {
-					$modified = !ew_CompareValue($rsold[$fldname], $rsnew[$fldname]);
-				}
-				if ($modified) {
-					if ($this->fields[$fldname]->FldHtmlTag == "PASSWORD") { // Password Field
-						$oldvalue = $Language->Phrase("PasswordMask");
-						$newvalue = $Language->Phrase("PasswordMask");
-					} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_MEMO) { // Memo field
-						if (EW_AUDIT_TRAIL_TO_DATABASE) {
-							$oldvalue = $rsold[$fldname];
-							$newvalue = $rsnew[$fldname];
-						} else {
-							$oldvalue = "[MEMO]";
-							$newvalue = "[MEMO]";
-						}
-					} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_XML) { // XML field
-						$oldvalue = "[XML]";
-						$newvalue = "[XML]";
-					} else {
-						$oldvalue = $rsold[$fldname];
-						$newvalue = $rsnew[$fldname];
-					}
-					ew_WriteAuditTrail("log", $dt, $id, $usr, "U", $table, $fldname, $key, $oldvalue, $newvalue);
-				}
-			}
-		}
-	}
-
-	// Write Audit Trail (delete page)
-	function WriteAuditTrailOnDelete(&$rs) {
-		global $Language;
-		if (!$this->AuditTrailOnDelete) return;
-		$table = 't01_nasabah';
-
-		// Get key value
-		$key = "";
-		if ($key <> "")
-			$key .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
-		$key .= $rs['id'];
-
-		// Write Audit Trail
-		$dt = ew_StdCurrentDateTime();
-		$id = ew_ScriptName();
-		$curUser = CurrentUserID();
-		foreach (array_keys($rs) as $fldname) {
-			if (array_key_exists($fldname, $this->fields) && $this->fields[$fldname]->FldDataType <> EW_DATATYPE_BLOB) { // Ignore BLOB fields
-				if ($this->fields[$fldname]->FldHtmlTag == "PASSWORD") {
-					$oldvalue = $Language->Phrase("PasswordMask"); // Password Field
-				} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_MEMO) {
-					if (EW_AUDIT_TRAIL_TO_DATABASE)
-						$oldvalue = $rs[$fldname];
-					else
-						$oldvalue = "[MEMO]"; // Memo field
-				} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_XML) {
-					$oldvalue = "[XML]"; // XML field
-				} else {
-					$oldvalue = $rs[$fldname];
-				}
-				ew_WriteAuditTrail("log", $dt, $id, $curUser, "D", $table, $fldname, $key, $oldvalue, "");
-			}
 		}
 	}
 
@@ -1026,36 +1138,6 @@ class ct01_nasabah extends cTable {
 	function Row_Inserted($rsold, &$rsnew) {
 
 		//echo "Row Inserted"
-		// create data rincian nasabah
-
-		$i = 1;
-		$NoKontrak = $rsnew["NoKontrak"];
-		$dTanggal = $rsnew["TglKontrak"];
-		$AngsuranPokok = $rsnew["Pinjaman"] / $rsnew["LamaAngsuran"];
-		$AngsuranBunga = $rsnew["JumlahAngsuran"] - $AngsuranPokok;
-		$AngsuranTotal = $rsnew["JumlahAngsuran"];
-		$SisaHutang = $rsnew["Pinjaman"];
-		for ($i; $i <= 12; $i++) {
-			$dTanggal = "";
-			$q = "insert into t02_angsuran (
-				NoKontrak,
-				Tanggal,
-				AngsuranPokok,
-				AngsuranBunga,
-				AngsuranTotal,
-				SisaHutang
-				) values (
-				'".$NoKontrak."',
-				'".$dTanggal."',
-				".$AngsuranPokok.",
-				".$AngsuranBunga.",
-				".$AngsuranTotal.",
-				".$SisaHutang."
-				)";
-			ew_Execute($q);
-			$dTanggal = "";
-			$SisaHutang -= $AngsuranPokok;
-		}
 	}
 
 	// Row Updating event
@@ -1064,12 +1146,6 @@ class ct01_nasabah extends cTable {
 		// Enter your code here
 		// To cancel, set return value to FALSE
 
-		$q = "select count(id) from t02_angsuran where nasabah_id = ".$rsold->fields["id"]."";
-		$t02_reccount = ew_ExecuteScalar($q);
-		if ($t02_reccount > 0) {
-			$this->setFailureMessage("Data Rincian Angsuran sudah terbentuk, Data Lama Angsuran tidak bisa diubah !");
-			return FALSE;
-		}
 		return TRUE;
 	}
 

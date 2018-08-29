@@ -1,12 +1,12 @@
 <?php
 
 // Global variable for table object
-$t01_nasabah = NULL;
+$t03_pinjaman = NULL;
 
 //
-// Table class for t01_nasabah
+// Table class for t03_pinjaman
 //
-class ct01_nasabah extends cTable {
+class ct03_pinjaman extends cTable {
 	var $AuditTrailOnAdd = TRUE;
 	var $AuditTrailOnEdit = TRUE;
 	var $AuditTrailOnDelete = TRUE;
@@ -14,10 +14,16 @@ class ct01_nasabah extends cTable {
 	var $AuditTrailOnViewData = FALSE;
 	var $AuditTrailOnSearch = FALSE;
 	var $id;
-	var $Customer;
-	var $Pekerjaan;
-	var $Alamat;
-	var $NoTelpHp;
+	var $NoKontrak;
+	var $TglKontrak;
+	var $nasabah_id;
+	var $jaminan_id;
+	var $Pinjaman;
+	var $Denda;
+	var $DispensasiDenda;
+	var $LamaAngsuran;
+	var $JumlahAngsuran;
+	var $NoKontrakRefTo;
 
 	//
 	// Table class constructor
@@ -27,12 +33,12 @@ class ct01_nasabah extends cTable {
 
 		// Language object
 		if (!isset($Language)) $Language = new cLanguage();
-		$this->TableVar = 't01_nasabah';
-		$this->TableName = 't01_nasabah';
+		$this->TableVar = 't03_pinjaman';
+		$this->TableName = 't03_pinjaman';
 		$this->TableType = 'TABLE';
 
 		// Update Table
-		$this->UpdateTable = "`t01_nasabah`";
+		$this->UpdateTable = "`t03_pinjaman`";
 		$this->DBID = 'DB';
 		$this->ExportAll = TRUE;
 		$this->ExportPageBreakCount = 0; // Page break per every n record (PDF only)
@@ -52,30 +58,73 @@ class ct01_nasabah extends cTable {
 		$this->BasicSearch = new cBasicSearch($this->TableVar);
 
 		// id
-		$this->id = new cField('t01_nasabah', 't01_nasabah', 'x_id', 'id', '`id`', '`id`', 3, -1, FALSE, '`id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'NO');
+		$this->id = new cField('t03_pinjaman', 't03_pinjaman', 'x_id', 'id', '`id`', '`id`', 3, -1, FALSE, '`id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'NO');
 		$this->id->Sortable = TRUE; // Allow sort
 		$this->id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['id'] = &$this->id;
 
-		// Customer
-		$this->Customer = new cField('t01_nasabah', 't01_nasabah', 'x_Customer', 'Customer', '`Customer`', '`Customer`', 200, -1, FALSE, '`Customer`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->Customer->Sortable = TRUE; // Allow sort
-		$this->fields['Customer'] = &$this->Customer;
+		// NoKontrak
+		$this->NoKontrak = new cField('t03_pinjaman', 't03_pinjaman', 'x_NoKontrak', 'NoKontrak', '`NoKontrak`', '`NoKontrak`', 200, -1, FALSE, '`NoKontrak`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->NoKontrak->Sortable = TRUE; // Allow sort
+		$this->fields['NoKontrak'] = &$this->NoKontrak;
 
-		// Pekerjaan
-		$this->Pekerjaan = new cField('t01_nasabah', 't01_nasabah', 'x_Pekerjaan', 'Pekerjaan', '`Pekerjaan`', '`Pekerjaan`', 200, -1, FALSE, '`Pekerjaan`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->Pekerjaan->Sortable = TRUE; // Allow sort
-		$this->fields['Pekerjaan'] = &$this->Pekerjaan;
+		// TglKontrak
+		$this->TglKontrak = new cField('t03_pinjaman', 't03_pinjaman', 'x_TglKontrak', 'TglKontrak', '`TglKontrak`', ew_CastDateFieldForLike('`TglKontrak`', 7, "DB"), 133, 7, FALSE, '`TglKontrak`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->TglKontrak->Sortable = TRUE; // Allow sort
+		$this->TglKontrak->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_SEPARATOR"], $Language->Phrase("IncorrectDateDMY"));
+		$this->fields['TglKontrak'] = &$this->TglKontrak;
 
-		// Alamat
-		$this->Alamat = new cField('t01_nasabah', 't01_nasabah', 'x_Alamat', 'Alamat', '`Alamat`', '`Alamat`', 201, -1, FALSE, '`Alamat`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXTAREA');
-		$this->Alamat->Sortable = TRUE; // Allow sort
-		$this->fields['Alamat'] = &$this->Alamat;
+		// nasabah_id
+		$this->nasabah_id = new cField('t03_pinjaman', 't03_pinjaman', 'x_nasabah_id', 'nasabah_id', '`nasabah_id`', '`nasabah_id`', 3, -1, FALSE, '`EV__nasabah_id`', TRUE, TRUE, TRUE, 'FORMATTED TEXT', 'SELECT');
+		$this->nasabah_id->Sortable = TRUE; // Allow sort
+		$this->nasabah_id->UsePleaseSelect = TRUE; // Use PleaseSelect by default
+		$this->nasabah_id->PleaseSelectText = $Language->Phrase("PleaseSelect"); // PleaseSelect text
+		$this->nasabah_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['nasabah_id'] = &$this->nasabah_id;
 
-		// NoTelpHp
-		$this->NoTelpHp = new cField('t01_nasabah', 't01_nasabah', 'x_NoTelpHp', 'NoTelpHp', '`NoTelpHp`', '`NoTelpHp`', 200, -1, FALSE, '`NoTelpHp`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->NoTelpHp->Sortable = TRUE; // Allow sort
-		$this->fields['NoTelpHp'] = &$this->NoTelpHp;
+		// jaminan_id
+		$this->jaminan_id = new cField('t03_pinjaman', 't03_pinjaman', 'x_jaminan_id', 'jaminan_id', '`jaminan_id`', '`jaminan_id`', 3, -1, FALSE, '`EV__jaminan_id`', TRUE, TRUE, TRUE, 'FORMATTED TEXT', 'SELECT');
+		$this->jaminan_id->Sortable = TRUE; // Allow sort
+		$this->jaminan_id->UsePleaseSelect = TRUE; // Use PleaseSelect by default
+		$this->jaminan_id->PleaseSelectText = $Language->Phrase("PleaseSelect"); // PleaseSelect text
+		$this->jaminan_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['jaminan_id'] = &$this->jaminan_id;
+
+		// Pinjaman
+		$this->Pinjaman = new cField('t03_pinjaman', 't03_pinjaman', 'x_Pinjaman', 'Pinjaman', '`Pinjaman`', '`Pinjaman`', 4, -1, FALSE, '`Pinjaman`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->Pinjaman->Sortable = TRUE; // Allow sort
+		$this->Pinjaman->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
+		$this->fields['Pinjaman'] = &$this->Pinjaman;
+
+		// Denda
+		$this->Denda = new cField('t03_pinjaman', 't03_pinjaman', 'x_Denda', 'Denda', '`Denda`', '`Denda`', 131, -1, FALSE, '`Denda`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->Denda->Sortable = TRUE; // Allow sort
+		$this->Denda->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
+		$this->fields['Denda'] = &$this->Denda;
+
+		// DispensasiDenda
+		$this->DispensasiDenda = new cField('t03_pinjaman', 't03_pinjaman', 'x_DispensasiDenda', 'DispensasiDenda', '`DispensasiDenda`', '`DispensasiDenda`', 16, -1, FALSE, '`DispensasiDenda`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->DispensasiDenda->Sortable = TRUE; // Allow sort
+		$this->DispensasiDenda->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['DispensasiDenda'] = &$this->DispensasiDenda;
+
+		// LamaAngsuran
+		$this->LamaAngsuran = new cField('t03_pinjaman', 't03_pinjaman', 'x_LamaAngsuran', 'LamaAngsuran', '`LamaAngsuran`', '`LamaAngsuran`', 16, -1, FALSE, '`LamaAngsuran`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->LamaAngsuran->Sortable = TRUE; // Allow sort
+		$this->LamaAngsuran->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['LamaAngsuran'] = &$this->LamaAngsuran;
+
+		// JumlahAngsuran
+		$this->JumlahAngsuran = new cField('t03_pinjaman', 't03_pinjaman', 'x_JumlahAngsuran', 'JumlahAngsuran', '`JumlahAngsuran`', '`JumlahAngsuran`', 4, -1, FALSE, '`JumlahAngsuran`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->JumlahAngsuran->Sortable = TRUE; // Allow sort
+		$this->JumlahAngsuran->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
+		$this->fields['JumlahAngsuran'] = &$this->JumlahAngsuran;
+
+		// NoKontrakRefTo
+		$this->NoKontrakRefTo = new cField('t03_pinjaman', 't03_pinjaman', 'x_NoKontrakRefTo', 'NoKontrakRefTo', '`NoKontrakRefTo`', '`NoKontrakRefTo`', 3, -1, FALSE, '`NoKontrakRefTo`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->NoKontrakRefTo->Sortable = TRUE; // Allow sort
+		$this->NoKontrakRefTo->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['NoKontrakRefTo'] = &$this->NoKontrakRefTo;
 	}
 
 	// Field Visibility
@@ -121,16 +170,62 @@ class ct01_nasabah extends cTable {
 			} else {
 				$this->setSessionOrderBy($sSortField . " " . $sThisSort); // Save to Session
 			}
+			$sSortFieldList = ($ofld->FldVirtualExpression <> "") ? $ofld->FldVirtualExpression : $sSortField;
+			if ($ctrl) {
+				$sOrderByList = $this->getSessionOrderByList();
+				if (strpos($sOrderByList, $sSortFieldList . " " . $sLastSort) !== FALSE) {
+					$sOrderByList = str_replace($sSortFieldList . " " . $sLastSort, $sSortFieldList . " " . $sThisSort, $sOrderByList);
+				} else {
+					if ($sOrderByList <> "") $sOrderByList .= ", ";
+					$sOrderByList .= $sSortFieldList . " " . $sThisSort;
+				}
+				$this->setSessionOrderByList($sOrderByList); // Save to Session
+			} else {
+				$this->setSessionOrderByList($sSortFieldList . " " . $sThisSort); // Save to Session
+			}
 		} else {
 			if (!$ctrl) $ofld->setSort("");
 		}
+	}
+
+	// Session ORDER BY for List page
+	function getSessionOrderByList() {
+		return @$_SESSION[EW_PROJECT_NAME . "_" . $this->TableVar . "_" . EW_TABLE_ORDER_BY_LIST];
+	}
+
+	function setSessionOrderByList($v) {
+		$_SESSION[EW_PROJECT_NAME . "_" . $this->TableVar . "_" . EW_TABLE_ORDER_BY_LIST] = $v;
+	}
+
+	// Current detail table name
+	function getCurrentDetailTable() {
+		return @$_SESSION[EW_PROJECT_NAME . "_" . $this->TableVar . "_" . EW_TABLE_DETAIL_TABLE];
+	}
+
+	function setCurrentDetailTable($v) {
+		$_SESSION[EW_PROJECT_NAME . "_" . $this->TableVar . "_" . EW_TABLE_DETAIL_TABLE] = $v;
+	}
+
+	// Get detail url
+	function GetDetailUrl() {
+
+		// Detail url
+		$sDetailUrl = "";
+		if ($this->getCurrentDetailTable() == "t04_angsuran") {
+			$sDetailUrl = $GLOBALS["t04_angsuran"]->GetListUrl() . "?" . EW_TABLE_SHOW_MASTER . "=" . $this->TableVar;
+			$sDetailUrl .= "&fk_id=" . urlencode($this->id->CurrentValue);
+		}
+		if ($sDetailUrl == "") {
+			$sDetailUrl = "t03_pinjamanlist.php";
+		}
+		return $sDetailUrl;
 	}
 
 	// Table level SQL
 	var $_SqlFrom = "";
 
 	function getSqlFrom() { // From
-		return ($this->_SqlFrom <> "") ? $this->_SqlFrom : "`t01_nasabah`";
+		return ($this->_SqlFrom <> "") ? $this->_SqlFrom : "`t03_pinjaman`";
 	}
 
 	function SqlFrom() { // For backward compatibility
@@ -152,6 +247,23 @@ class ct01_nasabah extends cTable {
 
 	function setSqlSelect($v) {
 		$this->_SqlSelect = $v;
+	}
+	var $_SqlSelectList = "";
+
+	function getSqlSelectList() { // Select for List page
+		$select = "";
+		$select = "SELECT * FROM (" .
+			"SELECT *, (SELECT CONCAT(COALESCE(`Customer`, ''),'" . ew_ValueSeparator(1, $this->nasabah_id) . "',COALESCE(`NoTelpHp`,'')) FROM `t01_nasabah` `EW_TMP_LOOKUPTABLE` WHERE `EW_TMP_LOOKUPTABLE`.`id` = `t03_pinjaman`.`nasabah_id` LIMIT 1) AS `EV__nasabah_id`, (SELECT CONCAT(COALESCE(`MerkType`, ''),'" . ew_ValueSeparator(1, $this->jaminan_id) . "',COALESCE(`NoPol`,'')) FROM `t02_jaminan` `EW_TMP_LOOKUPTABLE` WHERE `EW_TMP_LOOKUPTABLE`.`id` = `t03_pinjaman`.`jaminan_id` LIMIT 1) AS `EV__jaminan_id` FROM `t03_pinjaman`" .
+			") `EW_TMP_TABLE`";
+		return ($this->_SqlSelectList <> "") ? $this->_SqlSelectList : $select;
+	}
+
+	function SqlSelectList() { // For backward compatibility
+		return $this->getSqlSelectList();
+	}
+
+	function setSqlSelectList($v) {
+		$this->_SqlSelectList = $v;
 	}
 	var $_SqlWhere = "";
 
@@ -264,16 +376,44 @@ class ct01_nasabah extends cTable {
 		ew_AddFilter($sFilter, $this->CurrentFilter);
 		$sFilter = $this->ApplyUserIDFilters($sFilter);
 		$this->Recordset_Selecting($sFilter);
-		$sSelect = $this->getSqlSelect();
-		$sSort = $this->UseSessionForListSQL ? $this->getSessionOrderBy() : "";
+		if ($this->UseVirtualFields()) {
+			$sSelect = $this->getSqlSelectList();
+			$sSort = $this->UseSessionForListSQL ? $this->getSessionOrderByList() : "";
+		} else {
+			$sSelect = $this->getSqlSelect();
+			$sSort = $this->UseSessionForListSQL ? $this->getSessionOrderBy() : "";
+		}
 		return ew_BuildSelectSql($sSelect, $this->getSqlWhere(), $this->getSqlGroupBy(),
 			$this->getSqlHaving(), $this->getSqlOrderBy(), $sFilter, $sSort);
 	}
 
 	// Get ORDER BY clause
 	function GetOrderBy() {
-		$sSort = $this->getSessionOrderBy();
+		$sSort = ($this->UseVirtualFields()) ? $this->getSessionOrderByList() : $this->getSessionOrderBy();
 		return ew_BuildSelectSql("", "", "", "", $this->getSqlOrderBy(), "", $sSort);
+	}
+
+	// Check if virtual fields is used in SQL
+	function UseVirtualFields() {
+		$sWhere = $this->UseSessionForListSQL ? $this->getSessionWhere() : $this->CurrentFilter;
+		$sOrderBy = $this->UseSessionForListSQL ? $this->getSessionOrderByList() : "";
+		if ($sWhere <> "")
+			$sWhere = " " . str_replace(array("(",")"), array("",""), $sWhere) . " ";
+		if ($sOrderBy <> "")
+			$sOrderBy = " " . str_replace(array("(",")"), array("",""), $sOrderBy) . " ";
+		if ($this->nasabah_id->AdvancedSearch->SearchValue <> "" ||
+			$this->nasabah_id->AdvancedSearch->SearchValue2 <> "" ||
+			strpos($sWhere, " " . $this->nasabah_id->FldVirtualExpression . " ") !== FALSE)
+			return TRUE;
+		if (strpos($sOrderBy, " " . $this->nasabah_id->FldVirtualExpression . " ") !== FALSE)
+			return TRUE;
+		if ($this->jaminan_id->AdvancedSearch->SearchValue <> "" ||
+			$this->jaminan_id->AdvancedSearch->SearchValue2 <> "" ||
+			strpos($sWhere, " " . $this->jaminan_id->FldVirtualExpression . " ") !== FALSE)
+			return TRUE;
+		if (strpos($sOrderBy, " " . $this->jaminan_id->FldVirtualExpression . " ") !== FALSE)
+			return TRUE;
+		return FALSE;
 	}
 
 	// Try to get record count
@@ -324,7 +464,10 @@ class ct01_nasabah extends cTable {
 		$select = $this->TableType == 'CUSTOMVIEW' ? $this->getSqlSelect() : "SELECT * FROM " . $this->getSqlFrom();
 		$groupBy = $this->TableType == 'CUSTOMVIEW' ? $this->getSqlGroupBy() : "";
 		$having = $this->TableType == 'CUSTOMVIEW' ? $this->getSqlHaving() : "";
-		$sql = ew_BuildSelectSql($select, $this->getSqlWhere(), $groupBy, $having, "", $filter, "");
+		if ($this->UseVirtualFields())
+			$sql = ew_BuildSelectSql($this->getSqlSelectList(), $this->getSqlWhere(), $groupBy, $having, "", $filter, "");
+		else
+			$sql = ew_BuildSelectSql($select, $this->getSqlWhere(), $groupBy, $having, "", $filter, "");
 		$cnt = $this->TryGetRecordCount($sql);
 		if ($cnt == -1) {
 			$conn = &$this->Connection();
@@ -453,7 +596,7 @@ class ct01_nasabah extends cTable {
 		if (@$_SESSION[$name] <> "") {
 			return $_SESSION[$name];
 		} else {
-			return "t01_nasabahlist.php";
+			return "t03_pinjamanlist.php";
 		}
 	}
 
@@ -464,11 +607,11 @@ class ct01_nasabah extends cTable {
 	// Get modal caption
 	function GetModalCaption($pageName) {
 		global $Language;
-		if ($pageName == "t01_nasabahview.php")
+		if ($pageName == "t03_pinjamanview.php")
 			return $Language->Phrase("View");
-		elseif ($pageName == "t01_nasabahedit.php")
+		elseif ($pageName == "t03_pinjamanedit.php")
 			return $Language->Phrase("Edit");
-		elseif ($pageName == "t01_nasabahadd.php")
+		elseif ($pageName == "t03_pinjamanadd.php")
 			return $Language->Phrase("Add");
 		else
 			return "";
@@ -476,30 +619,33 @@ class ct01_nasabah extends cTable {
 
 	// List URL
 	function GetListUrl() {
-		return "t01_nasabahlist.php";
+		return "t03_pinjamanlist.php";
 	}
 
 	// View URL
 	function GetViewUrl($parm = "") {
 		if ($parm <> "")
-			$url = $this->KeyUrl("t01_nasabahview.php", $this->UrlParm($parm));
+			$url = $this->KeyUrl("t03_pinjamanview.php", $this->UrlParm($parm));
 		else
-			$url = $this->KeyUrl("t01_nasabahview.php", $this->UrlParm(EW_TABLE_SHOW_DETAIL . "="));
+			$url = $this->KeyUrl("t03_pinjamanview.php", $this->UrlParm(EW_TABLE_SHOW_DETAIL . "="));
 		return $this->AddMasterUrl($url);
 	}
 
 	// Add URL
 	function GetAddUrl($parm = "") {
 		if ($parm <> "")
-			$url = "t01_nasabahadd.php?" . $this->UrlParm($parm);
+			$url = "t03_pinjamanadd.php?" . $this->UrlParm($parm);
 		else
-			$url = "t01_nasabahadd.php";
+			$url = "t03_pinjamanadd.php";
 		return $this->AddMasterUrl($url);
 	}
 
 	// Edit URL
 	function GetEditUrl($parm = "") {
-		$url = $this->KeyUrl("t01_nasabahedit.php", $this->UrlParm($parm));
+		if ($parm <> "")
+			$url = $this->KeyUrl("t03_pinjamanedit.php", $this->UrlParm($parm));
+		else
+			$url = $this->KeyUrl("t03_pinjamanedit.php", $this->UrlParm(EW_TABLE_SHOW_DETAIL . "="));
 		return $this->AddMasterUrl($url);
 	}
 
@@ -511,7 +657,10 @@ class ct01_nasabah extends cTable {
 
 	// Copy URL
 	function GetCopyUrl($parm = "") {
-		$url = $this->KeyUrl("t01_nasabahadd.php", $this->UrlParm($parm));
+		if ($parm <> "")
+			$url = $this->KeyUrl("t03_pinjamanadd.php", $this->UrlParm($parm));
+		else
+			$url = $this->KeyUrl("t03_pinjamanadd.php", $this->UrlParm(EW_TABLE_SHOW_DETAIL . "="));
 		return $this->AddMasterUrl($url);
 	}
 
@@ -523,7 +672,7 @@ class ct01_nasabah extends cTable {
 
 	// Delete URL
 	function GetDeleteUrl() {
-		return $this->KeyUrl("t01_nasabahdelete.php", $this->UrlParm());
+		return $this->KeyUrl("t03_pinjamandelete.php", $this->UrlParm());
 	}
 
 	// Add master url
@@ -625,10 +774,16 @@ class ct01_nasabah extends cTable {
 	// Load row values from recordset
 	function LoadListRowValues(&$rs) {
 		$this->id->setDbValue($rs->fields('id'));
-		$this->Customer->setDbValue($rs->fields('Customer'));
-		$this->Pekerjaan->setDbValue($rs->fields('Pekerjaan'));
-		$this->Alamat->setDbValue($rs->fields('Alamat'));
-		$this->NoTelpHp->setDbValue($rs->fields('NoTelpHp'));
+		$this->NoKontrak->setDbValue($rs->fields('NoKontrak'));
+		$this->TglKontrak->setDbValue($rs->fields('TglKontrak'));
+		$this->nasabah_id->setDbValue($rs->fields('nasabah_id'));
+		$this->jaminan_id->setDbValue($rs->fields('jaminan_id'));
+		$this->Pinjaman->setDbValue($rs->fields('Pinjaman'));
+		$this->Denda->setDbValue($rs->fields('Denda'));
+		$this->DispensasiDenda->setDbValue($rs->fields('DispensasiDenda'));
+		$this->LamaAngsuran->setDbValue($rs->fields('LamaAngsuran'));
+		$this->JumlahAngsuran->setDbValue($rs->fields('JumlahAngsuran'));
+		$this->NoKontrakRefTo->setDbValue($rs->fields('NoKontrakRefTo'));
 	}
 
 	// Render list row values
@@ -640,55 +795,174 @@ class ct01_nasabah extends cTable {
 
 	// Common render codes
 		// id
-		// Customer
-		// Pekerjaan
-		// Alamat
-		// NoTelpHp
+		// NoKontrak
+		// TglKontrak
+		// nasabah_id
+		// jaminan_id
+		// Pinjaman
+		// Denda
+		// DispensasiDenda
+		// LamaAngsuran
+		// JumlahAngsuran
+		// NoKontrakRefTo
 		// id
 
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// Customer
-		$this->Customer->ViewValue = $this->Customer->CurrentValue;
-		$this->Customer->ViewCustomAttributes = "";
+		// NoKontrak
+		$this->NoKontrak->ViewValue = $this->NoKontrak->CurrentValue;
+		$this->NoKontrak->ViewCustomAttributes = "";
 
-		// Pekerjaan
-		$this->Pekerjaan->ViewValue = $this->Pekerjaan->CurrentValue;
-		$this->Pekerjaan->ViewCustomAttributes = "";
+		// TglKontrak
+		$this->TglKontrak->ViewValue = $this->TglKontrak->CurrentValue;
+		$this->TglKontrak->ViewValue = ew_FormatDateTime($this->TglKontrak->ViewValue, 7);
+		$this->TglKontrak->ViewCustomAttributes = "";
 
-		// Alamat
-		$this->Alamat->ViewValue = $this->Alamat->CurrentValue;
-		$this->Alamat->ViewCustomAttributes = "";
+		// nasabah_id
+		if ($this->nasabah_id->VirtualValue <> "") {
+			$this->nasabah_id->ViewValue = $this->nasabah_id->VirtualValue;
+		} else {
+		if (strval($this->nasabah_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->nasabah_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `Customer` AS `DispFld`, `NoTelpHp` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t01_nasabah`";
+		$sWhereWrk = "";
+		$this->nasabah_id->LookupFilters = array("dx1" => '`Customer`', "dx2" => '`NoTelpHp`');
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->nasabah_id, $sWhereWrk); // Call Lookup Selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = $rswrk->fields('Disp2Fld');
+				$this->nasabah_id->ViewValue = $this->nasabah_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->nasabah_id->ViewValue = $this->nasabah_id->CurrentValue;
+			}
+		} else {
+			$this->nasabah_id->ViewValue = NULL;
+		}
+		}
+		$this->nasabah_id->ViewCustomAttributes = "";
 
-		// NoTelpHp
-		$this->NoTelpHp->ViewValue = $this->NoTelpHp->CurrentValue;
-		$this->NoTelpHp->ViewCustomAttributes = "";
+		// jaminan_id
+		if ($this->jaminan_id->VirtualValue <> "") {
+			$this->jaminan_id->ViewValue = $this->jaminan_id->VirtualValue;
+		} else {
+		if (strval($this->jaminan_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->jaminan_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `MerkType` AS `DispFld`, `NoPol` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t02_jaminan`";
+		$sWhereWrk = "";
+		$this->jaminan_id->LookupFilters = array("dx1" => '`MerkType`', "dx2" => '`NoPol`');
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->jaminan_id, $sWhereWrk); // Call Lookup Selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = $rswrk->fields('Disp2Fld');
+				$this->jaminan_id->ViewValue = $this->jaminan_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->jaminan_id->ViewValue = $this->jaminan_id->CurrentValue;
+			}
+		} else {
+			$this->jaminan_id->ViewValue = NULL;
+		}
+		}
+		$this->jaminan_id->ViewCustomAttributes = "";
+
+		// Pinjaman
+		$this->Pinjaman->ViewValue = $this->Pinjaman->CurrentValue;
+		$this->Pinjaman->ViewValue = ew_FormatNumber($this->Pinjaman->ViewValue, 2, -2, -2, -2);
+		$this->Pinjaman->CellCssStyle .= "text-align: right;";
+		$this->Pinjaman->ViewCustomAttributes = "";
+
+		// Denda
+		$this->Denda->ViewValue = $this->Denda->CurrentValue;
+		$this->Denda->ViewValue = ew_FormatNumber($this->Denda->ViewValue, 2, -2, -2, -2);
+		$this->Denda->CellCssStyle .= "text-align: right;";
+		$this->Denda->ViewCustomAttributes = "";
+
+		// DispensasiDenda
+		$this->DispensasiDenda->ViewValue = $this->DispensasiDenda->CurrentValue;
+		$this->DispensasiDenda->ViewValue = ew_FormatNumber($this->DispensasiDenda->ViewValue, 0, -2, -2, -2);
+		$this->DispensasiDenda->CellCssStyle .= "text-align: right;";
+		$this->DispensasiDenda->ViewCustomAttributes = "";
+
+		// LamaAngsuran
+		$this->LamaAngsuran->ViewValue = $this->LamaAngsuran->CurrentValue;
+		$this->LamaAngsuran->ViewValue = ew_FormatNumber($this->LamaAngsuran->ViewValue, 0, -2, -2, -2);
+		$this->LamaAngsuran->CellCssStyle .= "text-align: right;";
+		$this->LamaAngsuran->ViewCustomAttributes = "";
+
+		// JumlahAngsuran
+		$this->JumlahAngsuran->ViewValue = $this->JumlahAngsuran->CurrentValue;
+		$this->JumlahAngsuran->ViewValue = ew_FormatNumber($this->JumlahAngsuran->ViewValue, 2, -2, -2, -2);
+		$this->JumlahAngsuran->CellCssStyle .= "text-align: right;";
+		$this->JumlahAngsuran->ViewCustomAttributes = "";
+
+		// NoKontrakRefTo
+		$this->NoKontrakRefTo->ViewValue = $this->NoKontrakRefTo->CurrentValue;
+		$this->NoKontrakRefTo->ViewCustomAttributes = "";
 
 		// id
 		$this->id->LinkCustomAttributes = "";
 		$this->id->HrefValue = "";
 		$this->id->TooltipValue = "";
 
-		// Customer
-		$this->Customer->LinkCustomAttributes = "";
-		$this->Customer->HrefValue = "";
-		$this->Customer->TooltipValue = "";
+		// NoKontrak
+		$this->NoKontrak->LinkCustomAttributes = "";
+		$this->NoKontrak->HrefValue = "";
+		$this->NoKontrak->TooltipValue = "";
 
-		// Pekerjaan
-		$this->Pekerjaan->LinkCustomAttributes = "";
-		$this->Pekerjaan->HrefValue = "";
-		$this->Pekerjaan->TooltipValue = "";
+		// TglKontrak
+		$this->TglKontrak->LinkCustomAttributes = "";
+		$this->TglKontrak->HrefValue = "";
+		$this->TglKontrak->TooltipValue = "";
 
-		// Alamat
-		$this->Alamat->LinkCustomAttributes = "";
-		$this->Alamat->HrefValue = "";
-		$this->Alamat->TooltipValue = "";
+		// nasabah_id
+		$this->nasabah_id->LinkCustomAttributes = "";
+		$this->nasabah_id->HrefValue = "";
+		$this->nasabah_id->TooltipValue = "";
 
-		// NoTelpHp
-		$this->NoTelpHp->LinkCustomAttributes = "";
-		$this->NoTelpHp->HrefValue = "";
-		$this->NoTelpHp->TooltipValue = "";
+		// jaminan_id
+		$this->jaminan_id->LinkCustomAttributes = "";
+		$this->jaminan_id->HrefValue = "";
+		$this->jaminan_id->TooltipValue = "";
+
+		// Pinjaman
+		$this->Pinjaman->LinkCustomAttributes = "";
+		$this->Pinjaman->HrefValue = "";
+		$this->Pinjaman->TooltipValue = "";
+
+		// Denda
+		$this->Denda->LinkCustomAttributes = "";
+		$this->Denda->HrefValue = "";
+		$this->Denda->TooltipValue = "";
+
+		// DispensasiDenda
+		$this->DispensasiDenda->LinkCustomAttributes = "";
+		$this->DispensasiDenda->HrefValue = "";
+		$this->DispensasiDenda->TooltipValue = "";
+
+		// LamaAngsuran
+		$this->LamaAngsuran->LinkCustomAttributes = "";
+		$this->LamaAngsuran->HrefValue = "";
+		$this->LamaAngsuran->TooltipValue = "";
+
+		// JumlahAngsuran
+		$this->JumlahAngsuran->LinkCustomAttributes = "";
+		$this->JumlahAngsuran->HrefValue = "";
+		$this->JumlahAngsuran->TooltipValue = "";
+
+		// NoKontrakRefTo
+		$this->NoKontrakRefTo->LinkCustomAttributes = "";
+		$this->NoKontrakRefTo->HrefValue = "";
+		$this->NoKontrakRefTo->TooltipValue = "";
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -710,29 +984,64 @@ class ct01_nasabah extends cTable {
 		$this->id->EditValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// Customer
-		$this->Customer->EditAttrs["class"] = "form-control";
-		$this->Customer->EditCustomAttributes = "";
-		$this->Customer->EditValue = $this->Customer->CurrentValue;
-		$this->Customer->PlaceHolder = ew_RemoveHtml($this->Customer->FldCaption());
+		// NoKontrak
+		$this->NoKontrak->EditAttrs["class"] = "form-control";
+		$this->NoKontrak->EditCustomAttributes = "";
+		$this->NoKontrak->EditValue = $this->NoKontrak->CurrentValue;
+		$this->NoKontrak->PlaceHolder = ew_RemoveHtml($this->NoKontrak->FldCaption());
 
-		// Pekerjaan
-		$this->Pekerjaan->EditAttrs["class"] = "form-control";
-		$this->Pekerjaan->EditCustomAttributes = "";
-		$this->Pekerjaan->EditValue = $this->Pekerjaan->CurrentValue;
-		$this->Pekerjaan->PlaceHolder = ew_RemoveHtml($this->Pekerjaan->FldCaption());
+		// TglKontrak
+		$this->TglKontrak->EditAttrs["class"] = "form-control";
+		$this->TglKontrak->EditCustomAttributes = "";
+		$this->TglKontrak->EditValue = ew_FormatDateTime($this->TglKontrak->CurrentValue, 7);
+		$this->TglKontrak->PlaceHolder = ew_RemoveHtml($this->TglKontrak->FldCaption());
 
-		// Alamat
-		$this->Alamat->EditAttrs["class"] = "form-control";
-		$this->Alamat->EditCustomAttributes = "";
-		$this->Alamat->EditValue = $this->Alamat->CurrentValue;
-		$this->Alamat->PlaceHolder = ew_RemoveHtml($this->Alamat->FldCaption());
+		// nasabah_id
+		$this->nasabah_id->EditAttrs["class"] = "form-control";
+		$this->nasabah_id->EditCustomAttributes = "";
 
-		// NoTelpHp
-		$this->NoTelpHp->EditAttrs["class"] = "form-control";
-		$this->NoTelpHp->EditCustomAttributes = "";
-		$this->NoTelpHp->EditValue = $this->NoTelpHp->CurrentValue;
-		$this->NoTelpHp->PlaceHolder = ew_RemoveHtml($this->NoTelpHp->FldCaption());
+		// jaminan_id
+		$this->jaminan_id->EditAttrs["class"] = "form-control";
+		$this->jaminan_id->EditCustomAttributes = "";
+
+		// Pinjaman
+		$this->Pinjaman->EditAttrs["class"] = "form-control";
+		$this->Pinjaman->EditCustomAttributes = "";
+		$this->Pinjaman->EditValue = $this->Pinjaman->CurrentValue;
+		$this->Pinjaman->PlaceHolder = ew_RemoveHtml($this->Pinjaman->FldCaption());
+		if (strval($this->Pinjaman->EditValue) <> "" && is_numeric($this->Pinjaman->EditValue)) $this->Pinjaman->EditValue = ew_FormatNumber($this->Pinjaman->EditValue, -2, -2, -2, -2);
+
+		// Denda
+		$this->Denda->EditAttrs["class"] = "form-control";
+		$this->Denda->EditCustomAttributes = "";
+		$this->Denda->EditValue = $this->Denda->CurrentValue;
+		$this->Denda->PlaceHolder = ew_RemoveHtml($this->Denda->FldCaption());
+		if (strval($this->Denda->EditValue) <> "" && is_numeric($this->Denda->EditValue)) $this->Denda->EditValue = ew_FormatNumber($this->Denda->EditValue, -2, -2, -2, -2);
+
+		// DispensasiDenda
+		$this->DispensasiDenda->EditAttrs["class"] = "form-control";
+		$this->DispensasiDenda->EditCustomAttributes = "";
+		$this->DispensasiDenda->EditValue = $this->DispensasiDenda->CurrentValue;
+		$this->DispensasiDenda->PlaceHolder = ew_RemoveHtml($this->DispensasiDenda->FldCaption());
+
+		// LamaAngsuran
+		$this->LamaAngsuran->EditAttrs["class"] = "form-control";
+		$this->LamaAngsuran->EditCustomAttributes = "";
+		$this->LamaAngsuran->EditValue = $this->LamaAngsuran->CurrentValue;
+		$this->LamaAngsuran->PlaceHolder = ew_RemoveHtml($this->LamaAngsuran->FldCaption());
+
+		// JumlahAngsuran
+		$this->JumlahAngsuran->EditAttrs["class"] = "form-control";
+		$this->JumlahAngsuran->EditCustomAttributes = "";
+		$this->JumlahAngsuran->EditValue = $this->JumlahAngsuran->CurrentValue;
+		$this->JumlahAngsuran->PlaceHolder = ew_RemoveHtml($this->JumlahAngsuran->FldCaption());
+		if (strval($this->JumlahAngsuran->EditValue) <> "" && is_numeric($this->JumlahAngsuran->EditValue)) $this->JumlahAngsuran->EditValue = ew_FormatNumber($this->JumlahAngsuran->EditValue, -2, -2, -2, -2);
+
+		// NoKontrakRefTo
+		$this->NoKontrakRefTo->EditAttrs["class"] = "form-control";
+		$this->NoKontrakRefTo->EditCustomAttributes = "";
+		$this->NoKontrakRefTo->EditValue = $this->NoKontrakRefTo->CurrentValue;
+		$this->NoKontrakRefTo->PlaceHolder = ew_RemoveHtml($this->NoKontrakRefTo->FldCaption());
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -761,15 +1070,28 @@ class ct01_nasabah extends cTable {
 			if ($Doc->Horizontal) { // Horizontal format, write header
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
-					if ($this->Customer->Exportable) $Doc->ExportCaption($this->Customer);
-					if ($this->Pekerjaan->Exportable) $Doc->ExportCaption($this->Pekerjaan);
-					if ($this->Alamat->Exportable) $Doc->ExportCaption($this->Alamat);
-					if ($this->NoTelpHp->Exportable) $Doc->ExportCaption($this->NoTelpHp);
+					if ($this->NoKontrak->Exportable) $Doc->ExportCaption($this->NoKontrak);
+					if ($this->TglKontrak->Exportable) $Doc->ExportCaption($this->TglKontrak);
+					if ($this->nasabah_id->Exportable) $Doc->ExportCaption($this->nasabah_id);
+					if ($this->jaminan_id->Exportable) $Doc->ExportCaption($this->jaminan_id);
+					if ($this->Pinjaman->Exportable) $Doc->ExportCaption($this->Pinjaman);
+					if ($this->Denda->Exportable) $Doc->ExportCaption($this->Denda);
+					if ($this->DispensasiDenda->Exportable) $Doc->ExportCaption($this->DispensasiDenda);
+					if ($this->LamaAngsuran->Exportable) $Doc->ExportCaption($this->LamaAngsuran);
+					if ($this->JumlahAngsuran->Exportable) $Doc->ExportCaption($this->JumlahAngsuran);
+					if ($this->NoKontrakRefTo->Exportable) $Doc->ExportCaption($this->NoKontrakRefTo);
 				} else {
 					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
-					if ($this->Customer->Exportable) $Doc->ExportCaption($this->Customer);
-					if ($this->Pekerjaan->Exportable) $Doc->ExportCaption($this->Pekerjaan);
-					if ($this->NoTelpHp->Exportable) $Doc->ExportCaption($this->NoTelpHp);
+					if ($this->NoKontrak->Exportable) $Doc->ExportCaption($this->NoKontrak);
+					if ($this->TglKontrak->Exportable) $Doc->ExportCaption($this->TglKontrak);
+					if ($this->nasabah_id->Exportable) $Doc->ExportCaption($this->nasabah_id);
+					if ($this->jaminan_id->Exportable) $Doc->ExportCaption($this->jaminan_id);
+					if ($this->Pinjaman->Exportable) $Doc->ExportCaption($this->Pinjaman);
+					if ($this->Denda->Exportable) $Doc->ExportCaption($this->Denda);
+					if ($this->DispensasiDenda->Exportable) $Doc->ExportCaption($this->DispensasiDenda);
+					if ($this->LamaAngsuran->Exportable) $Doc->ExportCaption($this->LamaAngsuran);
+					if ($this->JumlahAngsuran->Exportable) $Doc->ExportCaption($this->JumlahAngsuran);
+					if ($this->NoKontrakRefTo->Exportable) $Doc->ExportCaption($this->NoKontrakRefTo);
 				}
 				$Doc->EndExportRow();
 			}
@@ -801,15 +1123,28 @@ class ct01_nasabah extends cTable {
 				if (!$Doc->ExportCustom) {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
-						if ($this->Customer->Exportable) $Doc->ExportField($this->Customer);
-						if ($this->Pekerjaan->Exportable) $Doc->ExportField($this->Pekerjaan);
-						if ($this->Alamat->Exportable) $Doc->ExportField($this->Alamat);
-						if ($this->NoTelpHp->Exportable) $Doc->ExportField($this->NoTelpHp);
+						if ($this->NoKontrak->Exportable) $Doc->ExportField($this->NoKontrak);
+						if ($this->TglKontrak->Exportable) $Doc->ExportField($this->TglKontrak);
+						if ($this->nasabah_id->Exportable) $Doc->ExportField($this->nasabah_id);
+						if ($this->jaminan_id->Exportable) $Doc->ExportField($this->jaminan_id);
+						if ($this->Pinjaman->Exportable) $Doc->ExportField($this->Pinjaman);
+						if ($this->Denda->Exportable) $Doc->ExportField($this->Denda);
+						if ($this->DispensasiDenda->Exportable) $Doc->ExportField($this->DispensasiDenda);
+						if ($this->LamaAngsuran->Exportable) $Doc->ExportField($this->LamaAngsuran);
+						if ($this->JumlahAngsuran->Exportable) $Doc->ExportField($this->JumlahAngsuran);
+						if ($this->NoKontrakRefTo->Exportable) $Doc->ExportField($this->NoKontrakRefTo);
 					} else {
 						if ($this->id->Exportable) $Doc->ExportField($this->id);
-						if ($this->Customer->Exportable) $Doc->ExportField($this->Customer);
-						if ($this->Pekerjaan->Exportable) $Doc->ExportField($this->Pekerjaan);
-						if ($this->NoTelpHp->Exportable) $Doc->ExportField($this->NoTelpHp);
+						if ($this->NoKontrak->Exportable) $Doc->ExportField($this->NoKontrak);
+						if ($this->TglKontrak->Exportable) $Doc->ExportField($this->TglKontrak);
+						if ($this->nasabah_id->Exportable) $Doc->ExportField($this->nasabah_id);
+						if ($this->jaminan_id->Exportable) $Doc->ExportField($this->jaminan_id);
+						if ($this->Pinjaman->Exportable) $Doc->ExportField($this->Pinjaman);
+						if ($this->Denda->Exportable) $Doc->ExportField($this->Denda);
+						if ($this->DispensasiDenda->Exportable) $Doc->ExportField($this->DispensasiDenda);
+						if ($this->LamaAngsuran->Exportable) $Doc->ExportField($this->LamaAngsuran);
+						if ($this->JumlahAngsuran->Exportable) $Doc->ExportField($this->JumlahAngsuran);
+						if ($this->NoKontrakRefTo->Exportable) $Doc->ExportField($this->NoKontrakRefTo);
 					}
 					$Doc->EndExportRow($RowCnt);
 				}
@@ -853,7 +1188,7 @@ class ct01_nasabah extends cTable {
 
 	// Write Audit Trail start/end for grid update
 	function WriteAuditTrailDummy($typ) {
-		$table = 't01_nasabah';
+		$table = 't03_pinjaman';
 		$usr = CurrentUserID();
 		ew_WriteAuditTrail("log", ew_StdCurrentDateTime(), ew_ScriptName(), $usr, $typ, $table, "", "", "", "");
 	}
@@ -862,7 +1197,7 @@ class ct01_nasabah extends cTable {
 	function WriteAuditTrailOnAdd(&$rs) {
 		global $Language;
 		if (!$this->AuditTrailOnAdd) return;
-		$table = 't01_nasabah';
+		$table = 't03_pinjaman';
 
 		// Get key value
 		$key = "";
@@ -896,7 +1231,7 @@ class ct01_nasabah extends cTable {
 	function WriteAuditTrailOnEdit(&$rsold, &$rsnew) {
 		global $Language;
 		if (!$this->AuditTrailOnEdit) return;
-		$table = 't01_nasabah';
+		$table = 't03_pinjaman';
 
 		// Get key value
 		$key = "";
@@ -943,7 +1278,7 @@ class ct01_nasabah extends cTable {
 	function WriteAuditTrailOnDelete(&$rs) {
 		global $Language;
 		if (!$this->AuditTrailOnDelete) return;
-		$table = 't01_nasabah';
+		$table = 't03_pinjaman';
 
 		// Get key value
 		$key = "";
@@ -1026,36 +1361,6 @@ class ct01_nasabah extends cTable {
 	function Row_Inserted($rsold, &$rsnew) {
 
 		//echo "Row Inserted"
-		// create data rincian nasabah
-
-		$i = 1;
-		$NoKontrak = $rsnew["NoKontrak"];
-		$dTanggal = $rsnew["TglKontrak"];
-		$AngsuranPokok = $rsnew["Pinjaman"] / $rsnew["LamaAngsuran"];
-		$AngsuranBunga = $rsnew["JumlahAngsuran"] - $AngsuranPokok;
-		$AngsuranTotal = $rsnew["JumlahAngsuran"];
-		$SisaHutang = $rsnew["Pinjaman"];
-		for ($i; $i <= 12; $i++) {
-			$dTanggal = "";
-			$q = "insert into t02_angsuran (
-				NoKontrak,
-				Tanggal,
-				AngsuranPokok,
-				AngsuranBunga,
-				AngsuranTotal,
-				SisaHutang
-				) values (
-				'".$NoKontrak."',
-				'".$dTanggal."',
-				".$AngsuranPokok.",
-				".$AngsuranBunga.",
-				".$AngsuranTotal.",
-				".$SisaHutang."
-				)";
-			ew_Execute($q);
-			$dTanggal = "";
-			$SisaHutang -= $AngsuranPokok;
-		}
 	}
 
 	// Row Updating event
@@ -1064,12 +1369,6 @@ class ct01_nasabah extends cTable {
 		// Enter your code here
 		// To cancel, set return value to FALSE
 
-		$q = "select count(id) from t02_angsuran where nasabah_id = ".$rsold->fields["id"]."";
-		$t02_reccount = ew_ExecuteScalar($q);
-		if ($t02_reccount > 0) {
-			$this->setFailureMessage("Data Rincian Angsuran sudah terbentuk, Data Lama Angsuran tidak bisa diubah !");
-			return FALSE;
-		}
 		return TRUE;
 	}
 
