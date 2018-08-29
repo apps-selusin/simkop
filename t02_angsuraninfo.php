@@ -14,7 +14,7 @@ class ct02_angsuran extends cTable {
 	var $AuditTrailOnViewData = FALSE;
 	var $AuditTrailOnSearch = FALSE;
 	var $id;
-	var $nasabah_id;
+	var $NoKontrak;
 	var $Tanggal;
 	var $AngsuranPokok;
 	var $AngsuranBunga;
@@ -63,11 +63,11 @@ class ct02_angsuran extends cTable {
 		$this->id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['id'] = &$this->id;
 
-		// nasabah_id
-		$this->nasabah_id = new cField('t02_angsuran', 't02_angsuran', 'x_nasabah_id', 'nasabah_id', '`nasabah_id`', '`nasabah_id`', 3, -1, FALSE, '`nasabah_id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->nasabah_id->Sortable = TRUE; // Allow sort
-		$this->nasabah_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
-		$this->fields['nasabah_id'] = &$this->nasabah_id;
+		// NoKontrak
+		$this->NoKontrak = new cField('t02_angsuran', 't02_angsuran', 'x_NoKontrak', 'NoKontrak', '`NoKontrak`', '`NoKontrak`', 200, -1, FALSE, '`NoKontrak`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->NoKontrak->Sortable = TRUE; // Allow sort
+		$this->NoKontrak->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['NoKontrak'] = &$this->NoKontrak;
 
 		// Tanggal
 		$this->Tanggal = new cField('t02_angsuran', 't02_angsuran', 'x_Tanggal', 'Tanggal', '`Tanggal`', ew_CastDateFieldForLike('`Tanggal`', 0, "DB"), 133, 0, FALSE, '`Tanggal`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
@@ -186,8 +186,8 @@ class ct02_angsuran extends cTable {
 		// Master filter
 		$sMasterFilter = "";
 		if ($this->getCurrentMasterTable() == "t01_nasabah") {
-			if ($this->nasabah_id->getSessionValue() <> "")
-				$sMasterFilter .= "`id`=" . ew_QuotedValue($this->nasabah_id->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
+			if ($this->NoKontrak->getSessionValue() <> "")
+				$sMasterFilter .= "`id`=" . ew_QuotedValue($this->NoKontrak->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
 			else
 				return "";
 		}
@@ -200,8 +200,8 @@ class ct02_angsuran extends cTable {
 		// Detail filter
 		$sDetailFilter = "";
 		if ($this->getCurrentMasterTable() == "t01_nasabah") {
-			if ($this->nasabah_id->getSessionValue() <> "")
-				$sDetailFilter .= "`nasabah_id`=" . ew_QuotedValue($this->nasabah_id->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
+			if ($this->NoKontrak->getSessionValue() <> "")
+				$sDetailFilter .= "`NoKontrak`=" . ew_QuotedValue($this->NoKontrak->getSessionValue(), EW_DATATYPE_STRING, "DB");
 			else
 				return "";
 		}
@@ -215,7 +215,7 @@ class ct02_angsuran extends cTable {
 
 	// Detail filter
 	function SqlDetailFilter_t01_nasabah() {
-		return "`nasabah_id`=@nasabah_id@";
+		return "`NoKontrak`='@NoKontrak@'";
 	}
 
 	// Table level SQL
@@ -622,7 +622,7 @@ class ct02_angsuran extends cTable {
 	function AddMasterUrl($url) {
 		if ($this->getCurrentMasterTable() == "t01_nasabah" && strpos($url, EW_TABLE_SHOW_MASTER . "=") === FALSE) {
 			$url .= (strpos($url, "?") !== FALSE ? "&" : "?") . EW_TABLE_SHOW_MASTER . "=" . $this->getCurrentMasterTable();
-			$url .= "&fk_id=" . urlencode($this->nasabah_id->CurrentValue);
+			$url .= "&fk_id=" . urlencode($this->NoKontrak->CurrentValue);
 		}
 		return $url;
 	}
@@ -721,7 +721,7 @@ class ct02_angsuran extends cTable {
 	// Load row values from recordset
 	function LoadListRowValues(&$rs) {
 		$this->id->setDbValue($rs->fields('id'));
-		$this->nasabah_id->setDbValue($rs->fields('nasabah_id'));
+		$this->NoKontrak->setDbValue($rs->fields('NoKontrak'));
 		$this->Tanggal->setDbValue($rs->fields('Tanggal'));
 		$this->AngsuranPokok->setDbValue($rs->fields('AngsuranPokok'));
 		$this->AngsuranBunga->setDbValue($rs->fields('AngsuranBunga'));
@@ -742,7 +742,7 @@ class ct02_angsuran extends cTable {
 
 	// Common render codes
 		// id
-		// nasabah_id
+		// NoKontrak
 		// Tanggal
 		// AngsuranPokok
 		// AngsuranBunga
@@ -757,9 +757,9 @@ class ct02_angsuran extends cTable {
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// nasabah_id
-		$this->nasabah_id->ViewValue = $this->nasabah_id->CurrentValue;
-		$this->nasabah_id->ViewCustomAttributes = "";
+		// NoKontrak
+		$this->NoKontrak->ViewValue = $this->NoKontrak->CurrentValue;
+		$this->NoKontrak->ViewCustomAttributes = "";
 
 		// Tanggal
 		$this->Tanggal->ViewValue = $this->Tanggal->CurrentValue;
@@ -804,10 +804,10 @@ class ct02_angsuran extends cTable {
 		$this->id->HrefValue = "";
 		$this->id->TooltipValue = "";
 
-		// nasabah_id
-		$this->nasabah_id->LinkCustomAttributes = "";
-		$this->nasabah_id->HrefValue = "";
-		$this->nasabah_id->TooltipValue = "";
+		// NoKontrak
+		$this->NoKontrak->LinkCustomAttributes = "";
+		$this->NoKontrak->HrefValue = "";
+		$this->NoKontrak->TooltipValue = "";
 
 		// Tanggal
 		$this->Tanggal->LinkCustomAttributes = "";
@@ -874,16 +874,16 @@ class ct02_angsuran extends cTable {
 		$this->id->EditValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// nasabah_id
-		$this->nasabah_id->EditAttrs["class"] = "form-control";
-		$this->nasabah_id->EditCustomAttributes = "";
-		if ($this->nasabah_id->getSessionValue() <> "") {
-			$this->nasabah_id->CurrentValue = $this->nasabah_id->getSessionValue();
-		$this->nasabah_id->ViewValue = $this->nasabah_id->CurrentValue;
-		$this->nasabah_id->ViewCustomAttributes = "";
+		// NoKontrak
+		$this->NoKontrak->EditAttrs["class"] = "form-control";
+		$this->NoKontrak->EditCustomAttributes = "";
+		if ($this->NoKontrak->getSessionValue() <> "") {
+			$this->NoKontrak->CurrentValue = $this->NoKontrak->getSessionValue();
+		$this->NoKontrak->ViewValue = $this->NoKontrak->CurrentValue;
+		$this->NoKontrak->ViewCustomAttributes = "";
 		} else {
-		$this->nasabah_id->EditValue = $this->nasabah_id->CurrentValue;
-		$this->nasabah_id->PlaceHolder = ew_RemoveHtml($this->nasabah_id->FldCaption());
+		$this->NoKontrak->EditValue = $this->NoKontrak->CurrentValue;
+		$this->NoKontrak->PlaceHolder = ew_RemoveHtml($this->NoKontrak->FldCaption());
 		}
 
 		// Tanggal
@@ -973,7 +973,7 @@ class ct02_angsuran extends cTable {
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
 					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
-					if ($this->nasabah_id->Exportable) $Doc->ExportCaption($this->nasabah_id);
+					if ($this->NoKontrak->Exportable) $Doc->ExportCaption($this->NoKontrak);
 					if ($this->Tanggal->Exportable) $Doc->ExportCaption($this->Tanggal);
 					if ($this->AngsuranPokok->Exportable) $Doc->ExportCaption($this->AngsuranPokok);
 					if ($this->AngsuranBunga->Exportable) $Doc->ExportCaption($this->AngsuranBunga);
@@ -985,7 +985,7 @@ class ct02_angsuran extends cTable {
 					if ($this->Keterangan->Exportable) $Doc->ExportCaption($this->Keterangan);
 				} else {
 					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
-					if ($this->nasabah_id->Exportable) $Doc->ExportCaption($this->nasabah_id);
+					if ($this->NoKontrak->Exportable) $Doc->ExportCaption($this->NoKontrak);
 					if ($this->Tanggal->Exportable) $Doc->ExportCaption($this->Tanggal);
 					if ($this->AngsuranPokok->Exportable) $Doc->ExportCaption($this->AngsuranPokok);
 					if ($this->AngsuranBunga->Exportable) $Doc->ExportCaption($this->AngsuranBunga);
@@ -1026,7 +1026,7 @@ class ct02_angsuran extends cTable {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
 						if ($this->id->Exportable) $Doc->ExportField($this->id);
-						if ($this->nasabah_id->Exportable) $Doc->ExportField($this->nasabah_id);
+						if ($this->NoKontrak->Exportable) $Doc->ExportField($this->NoKontrak);
 						if ($this->Tanggal->Exportable) $Doc->ExportField($this->Tanggal);
 						if ($this->AngsuranPokok->Exportable) $Doc->ExportField($this->AngsuranPokok);
 						if ($this->AngsuranBunga->Exportable) $Doc->ExportField($this->AngsuranBunga);
@@ -1038,7 +1038,7 @@ class ct02_angsuran extends cTable {
 						if ($this->Keterangan->Exportable) $Doc->ExportField($this->Keterangan);
 					} else {
 						if ($this->id->Exportable) $Doc->ExportField($this->id);
-						if ($this->nasabah_id->Exportable) $Doc->ExportField($this->nasabah_id);
+						if ($this->NoKontrak->Exportable) $Doc->ExportField($this->NoKontrak);
 						if ($this->Tanggal->Exportable) $Doc->ExportField($this->Tanggal);
 						if ($this->AngsuranPokok->Exportable) $Doc->ExportField($this->AngsuranPokok);
 						if ($this->AngsuranBunga->Exportable) $Doc->ExportField($this->AngsuranBunga);

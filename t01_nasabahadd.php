@@ -1420,13 +1420,13 @@ class ct01_nasabah_add extends ct01_nasabah {
 		if ($AddRow) {
 			$DetailTblVar = explode(",", $this->getCurrentDetailTable());
 			if (in_array("t02_angsuran", $DetailTblVar) && $GLOBALS["t02_angsuran"]->DetailAdd) {
-				$GLOBALS["t02_angsuran"]->nasabah_id->setSessionValue($this->id->CurrentValue); // Set master key
+				$GLOBALS["t02_angsuran"]->NoKontrak->setSessionValue($this->id->CurrentValue); // Set master key
 				if (!isset($GLOBALS["t02_angsuran_grid"])) $GLOBALS["t02_angsuran_grid"] = new ct02_angsuran_grid(); // Get detail page object
 				$Security->LoadCurrentUserLevel($this->ProjectID . "t02_angsuran"); // Load user level of detail table
 				$AddRow = $GLOBALS["t02_angsuran_grid"]->GridInsert();
 				$Security->LoadCurrentUserLevel($this->ProjectID . $this->TableName); // Restore user level of master table
 				if (!$AddRow)
-					$GLOBALS["t02_angsuran"]->nasabah_id->setSessionValue(""); // Clear master key if insert failed
+					$GLOBALS["t02_angsuran"]->NoKontrak->setSessionValue(""); // Clear master key if insert failed
 			}
 		}
 
@@ -1472,9 +1472,9 @@ class ct01_nasabah_add extends ct01_nasabah {
 					// Save current master table to detail table
 					$GLOBALS["t02_angsuran_grid"]->setCurrentMasterTable($this->TableVar);
 					$GLOBALS["t02_angsuran_grid"]->setStartRecordNumber(1);
-					$GLOBALS["t02_angsuran_grid"]->nasabah_id->FldIsDetailKey = TRUE;
-					$GLOBALS["t02_angsuran_grid"]->nasabah_id->CurrentValue = $this->id->CurrentValue;
-					$GLOBALS["t02_angsuran_grid"]->nasabah_id->setSessionValue($GLOBALS["t02_angsuran_grid"]->nasabah_id->CurrentValue);
+					$GLOBALS["t02_angsuran_grid"]->NoKontrak->FldIsDetailKey = TRUE;
+					$GLOBALS["t02_angsuran_grid"]->NoKontrak->CurrentValue = $this->id->CurrentValue;
+					$GLOBALS["t02_angsuran_grid"]->NoKontrak->setSessionValue($GLOBALS["t02_angsuran_grid"]->NoKontrak->CurrentValue);
 				}
 			}
 		}

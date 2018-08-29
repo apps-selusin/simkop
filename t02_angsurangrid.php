@@ -42,12 +42,12 @@ ft02_angsurangrid.Validate = function() {
 		var checkrow = (gridinsert) ? !this.EmptyRow(infix) : true;
 		if (checkrow) {
 			addcnt++;
-			elm = this.GetElements("x" + infix + "_nasabah_id");
+			elm = this.GetElements("x" + infix + "_NoKontrak");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t02_angsuran->nasabah_id->FldCaption(), $t02_angsuran->nasabah_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_nasabah_id");
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t02_angsuran->NoKontrak->FldCaption(), $t02_angsuran->NoKontrak->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_NoKontrak");
 			if (elm && !ew_CheckInteger(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t02_angsuran->nasabah_id->FldErrMsg()) ?>");
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t02_angsuran->NoKontrak->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_Tanggal");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t02_angsuran->Tanggal->FldCaption(), $t02_angsuran->Tanggal->ReqErrMsg)) ?>");
@@ -102,7 +102,7 @@ ft02_angsurangrid.Validate = function() {
 // Check empty row
 ft02_angsurangrid.EmptyRow = function(infix) {
 	var fobj = this.Form;
-	if (ew_ValueChanged(fobj, infix, "nasabah_id", false)) return false;
+	if (ew_ValueChanged(fobj, infix, "NoKontrak", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "Tanggal", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "AngsuranPokok", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "AngsuranBunga", false)) return false;
@@ -207,12 +207,12 @@ $t02_angsuran_grid->ListOptions->Render("header", "left");
 		</div></div></th>
 	<?php } ?>
 <?php } ?>
-<?php if ($t02_angsuran->nasabah_id->Visible) { // nasabah_id ?>
-	<?php if ($t02_angsuran->SortUrl($t02_angsuran->nasabah_id) == "") { ?>
-		<th data-name="nasabah_id" class="<?php echo $t02_angsuran->nasabah_id->HeaderCellClass() ?>"><div id="elh_t02_angsuran_nasabah_id" class="t02_angsuran_nasabah_id"><div class="ewTableHeaderCaption"><?php echo $t02_angsuran->nasabah_id->FldCaption() ?></div></div></th>
+<?php if ($t02_angsuran->NoKontrak->Visible) { // NoKontrak ?>
+	<?php if ($t02_angsuran->SortUrl($t02_angsuran->NoKontrak) == "") { ?>
+		<th data-name="NoKontrak" class="<?php echo $t02_angsuran->NoKontrak->HeaderCellClass() ?>"><div id="elh_t02_angsuran_NoKontrak" class="t02_angsuran_NoKontrak"><div class="ewTableHeaderCaption"><?php echo $t02_angsuran->NoKontrak->FldCaption() ?></div></div></th>
 	<?php } else { ?>
-		<th data-name="nasabah_id" class="<?php echo $t02_angsuran->nasabah_id->HeaderCellClass() ?>"><div><div id="elh_t02_angsuran_nasabah_id" class="t02_angsuran_nasabah_id">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t02_angsuran->nasabah_id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t02_angsuran->nasabah_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t02_angsuran->nasabah_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+		<th data-name="NoKontrak" class="<?php echo $t02_angsuran->NoKontrak->HeaderCellClass() ?>"><div><div id="elh_t02_angsuran_NoKontrak" class="t02_angsuran_NoKontrak">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t02_angsuran->NoKontrak->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t02_angsuran->NoKontrak->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t02_angsuran->NoKontrak->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
 		</div></div></th>
 	<?php } ?>
 <?php } ?>
@@ -424,46 +424,46 @@ $t02_angsuran_grid->ListOptions->Render("body", "left", $t02_angsuran_grid->RowC
 <?php } ?>
 </td>
 	<?php } ?>
-	<?php if ($t02_angsuran->nasabah_id->Visible) { // nasabah_id ?>
-		<td data-name="nasabah_id"<?php echo $t02_angsuran->nasabah_id->CellAttributes() ?>>
+	<?php if ($t02_angsuran->NoKontrak->Visible) { // NoKontrak ?>
+		<td data-name="NoKontrak"<?php echo $t02_angsuran->NoKontrak->CellAttributes() ?>>
 <?php if ($t02_angsuran->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<?php if ($t02_angsuran->nasabah_id->getSessionValue() <> "") { ?>
-<span id="el<?php echo $t02_angsuran_grid->RowCnt ?>_t02_angsuran_nasabah_id" class="form-group t02_angsuran_nasabah_id">
-<span<?php echo $t02_angsuran->nasabah_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t02_angsuran->nasabah_id->ViewValue ?></p></span>
+<?php if ($t02_angsuran->NoKontrak->getSessionValue() <> "") { ?>
+<span id="el<?php echo $t02_angsuran_grid->RowCnt ?>_t02_angsuran_NoKontrak" class="form-group t02_angsuran_NoKontrak">
+<span<?php echo $t02_angsuran->NoKontrak->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t02_angsuran->NoKontrak->ViewValue ?></p></span>
 </span>
-<input type="hidden" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->CurrentValue) ?>">
+<input type="hidden" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->CurrentValue) ?>">
 <?php } else { ?>
-<span id="el<?php echo $t02_angsuran_grid->RowCnt ?>_t02_angsuran_nasabah_id" class="form-group t02_angsuran_nasabah_id">
-<input type="text" data-table="t02_angsuran" data-field="x_nasabah_id" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" size="30" placeholder="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->getPlaceHolder()) ?>" value="<?php echo $t02_angsuran->nasabah_id->EditValue ?>"<?php echo $t02_angsuran->nasabah_id->EditAttributes() ?>>
+<span id="el<?php echo $t02_angsuran_grid->RowCnt ?>_t02_angsuran_NoKontrak" class="form-group t02_angsuran_NoKontrak">
+<input type="text" data-table="t02_angsuran" data-field="x_NoKontrak" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" size="30" placeholder="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->getPlaceHolder()) ?>" value="<?php echo $t02_angsuran->NoKontrak->EditValue ?>"<?php echo $t02_angsuran->NoKontrak->EditAttributes() ?>>
 </span>
 <?php } ?>
-<input type="hidden" data-table="t02_angsuran" data-field="x_nasabah_id" name="o<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" id="o<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->OldValue) ?>">
+<input type="hidden" data-table="t02_angsuran" data-field="x_NoKontrak" name="o<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" id="o<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->OldValue) ?>">
 <?php } ?>
 <?php if ($t02_angsuran->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<?php if ($t02_angsuran->nasabah_id->getSessionValue() <> "") { ?>
-<span id="el<?php echo $t02_angsuran_grid->RowCnt ?>_t02_angsuran_nasabah_id" class="form-group t02_angsuran_nasabah_id">
-<span<?php echo $t02_angsuran->nasabah_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t02_angsuran->nasabah_id->ViewValue ?></p></span>
+<?php if ($t02_angsuran->NoKontrak->getSessionValue() <> "") { ?>
+<span id="el<?php echo $t02_angsuran_grid->RowCnt ?>_t02_angsuran_NoKontrak" class="form-group t02_angsuran_NoKontrak">
+<span<?php echo $t02_angsuran->NoKontrak->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t02_angsuran->NoKontrak->ViewValue ?></p></span>
 </span>
-<input type="hidden" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->CurrentValue) ?>">
+<input type="hidden" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->CurrentValue) ?>">
 <?php } else { ?>
-<span id="el<?php echo $t02_angsuran_grid->RowCnt ?>_t02_angsuran_nasabah_id" class="form-group t02_angsuran_nasabah_id">
-<input type="text" data-table="t02_angsuran" data-field="x_nasabah_id" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" size="30" placeholder="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->getPlaceHolder()) ?>" value="<?php echo $t02_angsuran->nasabah_id->EditValue ?>"<?php echo $t02_angsuran->nasabah_id->EditAttributes() ?>>
+<span id="el<?php echo $t02_angsuran_grid->RowCnt ?>_t02_angsuran_NoKontrak" class="form-group t02_angsuran_NoKontrak">
+<input type="text" data-table="t02_angsuran" data-field="x_NoKontrak" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" size="30" placeholder="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->getPlaceHolder()) ?>" value="<?php echo $t02_angsuran->NoKontrak->EditValue ?>"<?php echo $t02_angsuran->NoKontrak->EditAttributes() ?>>
 </span>
 <?php } ?>
 <?php } ?>
 <?php if ($t02_angsuran->RowType == EW_ROWTYPE_VIEW) { // View record ?>
-<span id="el<?php echo $t02_angsuran_grid->RowCnt ?>_t02_angsuran_nasabah_id" class="t02_angsuran_nasabah_id">
-<span<?php echo $t02_angsuran->nasabah_id->ViewAttributes() ?>>
-<?php echo $t02_angsuran->nasabah_id->ListViewValue() ?></span>
+<span id="el<?php echo $t02_angsuran_grid->RowCnt ?>_t02_angsuran_NoKontrak" class="t02_angsuran_NoKontrak">
+<span<?php echo $t02_angsuran->NoKontrak->ViewAttributes() ?>>
+<?php echo $t02_angsuran->NoKontrak->ListViewValue() ?></span>
 </span>
 <?php if ($t02_angsuran->CurrentAction <> "F") { ?>
-<input type="hidden" data-table="t02_angsuran" data-field="x_nasabah_id" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->FormValue) ?>">
-<input type="hidden" data-table="t02_angsuran" data-field="x_nasabah_id" name="o<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" id="o<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->OldValue) ?>">
+<input type="hidden" data-table="t02_angsuran" data-field="x_NoKontrak" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->FormValue) ?>">
+<input type="hidden" data-table="t02_angsuran" data-field="x_NoKontrak" name="o<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" id="o<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->OldValue) ?>">
 <?php } else { ?>
-<input type="hidden" data-table="t02_angsuran" data-field="x_nasabah_id" name="ft02_angsurangrid$x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" id="ft02_angsurangrid$x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->FormValue) ?>">
-<input type="hidden" data-table="t02_angsuran" data-field="x_nasabah_id" name="ft02_angsurangrid$o<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" id="ft02_angsurangrid$o<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->OldValue) ?>">
+<input type="hidden" data-table="t02_angsuran" data-field="x_NoKontrak" name="ft02_angsurangrid$x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" id="ft02_angsurangrid$x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->FormValue) ?>">
+<input type="hidden" data-table="t02_angsuran" data-field="x_NoKontrak" name="ft02_angsurangrid$o<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" id="ft02_angsurangrid$o<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->OldValue) ?>">
 <?php } ?>
 <?php } ?>
 </td>
@@ -747,28 +747,28 @@ $t02_angsuran_grid->ListOptions->Render("body", "left", $t02_angsuran_grid->RowI
 <input type="hidden" data-table="t02_angsuran" data-field="x_id" name="o<?php echo $t02_angsuran_grid->RowIndex ?>_id" id="o<?php echo $t02_angsuran_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t02_angsuran->id->OldValue) ?>">
 </td>
 	<?php } ?>
-	<?php if ($t02_angsuran->nasabah_id->Visible) { // nasabah_id ?>
-		<td data-name="nasabah_id">
+	<?php if ($t02_angsuran->NoKontrak->Visible) { // NoKontrak ?>
+		<td data-name="NoKontrak">
 <?php if ($t02_angsuran->CurrentAction <> "F") { ?>
-<?php if ($t02_angsuran->nasabah_id->getSessionValue() <> "") { ?>
-<span id="el$rowindex$_t02_angsuran_nasabah_id" class="form-group t02_angsuran_nasabah_id">
-<span<?php echo $t02_angsuran->nasabah_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t02_angsuran->nasabah_id->ViewValue ?></p></span>
+<?php if ($t02_angsuran->NoKontrak->getSessionValue() <> "") { ?>
+<span id="el$rowindex$_t02_angsuran_NoKontrak" class="form-group t02_angsuran_NoKontrak">
+<span<?php echo $t02_angsuran->NoKontrak->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t02_angsuran->NoKontrak->ViewValue ?></p></span>
 </span>
-<input type="hidden" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->CurrentValue) ?>">
+<input type="hidden" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->CurrentValue) ?>">
 <?php } else { ?>
-<span id="el$rowindex$_t02_angsuran_nasabah_id" class="form-group t02_angsuran_nasabah_id">
-<input type="text" data-table="t02_angsuran" data-field="x_nasabah_id" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" size="30" placeholder="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->getPlaceHolder()) ?>" value="<?php echo $t02_angsuran->nasabah_id->EditValue ?>"<?php echo $t02_angsuran->nasabah_id->EditAttributes() ?>>
+<span id="el$rowindex$_t02_angsuran_NoKontrak" class="form-group t02_angsuran_NoKontrak">
+<input type="text" data-table="t02_angsuran" data-field="x_NoKontrak" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" size="30" placeholder="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->getPlaceHolder()) ?>" value="<?php echo $t02_angsuran->NoKontrak->EditValue ?>"<?php echo $t02_angsuran->NoKontrak->EditAttributes() ?>>
 </span>
 <?php } ?>
 <?php } else { ?>
-<span id="el$rowindex$_t02_angsuran_nasabah_id" class="form-group t02_angsuran_nasabah_id">
-<span<?php echo $t02_angsuran->nasabah_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t02_angsuran->nasabah_id->ViewValue ?></p></span>
+<span id="el$rowindex$_t02_angsuran_NoKontrak" class="form-group t02_angsuran_NoKontrak">
+<span<?php echo $t02_angsuran->NoKontrak->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t02_angsuran->NoKontrak->ViewValue ?></p></span>
 </span>
-<input type="hidden" data-table="t02_angsuran" data-field="x_nasabah_id" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->FormValue) ?>">
+<input type="hidden" data-table="t02_angsuran" data-field="x_NoKontrak" name="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" id="x<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->FormValue) ?>">
 <?php } ?>
-<input type="hidden" data-table="t02_angsuran" data-field="x_nasabah_id" name="o<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" id="o<?php echo $t02_angsuran_grid->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t02_angsuran->nasabah_id->OldValue) ?>">
+<input type="hidden" data-table="t02_angsuran" data-field="x_NoKontrak" name="o<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" id="o<?php echo $t02_angsuran_grid->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t02_angsuran->NoKontrak->OldValue) ?>">
 </td>
 	<?php } ?>
 	<?php if ($t02_angsuran->Tanggal->Visible) { // Tanggal ?>

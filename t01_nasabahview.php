@@ -1073,9 +1073,9 @@ class ct01_nasabah_view extends ct01_nasabah {
 					// Save current master table to detail table
 					$GLOBALS["t02_angsuran_grid"]->setCurrentMasterTable($this->TableVar);
 					$GLOBALS["t02_angsuran_grid"]->setStartRecordNumber(1);
-					$GLOBALS["t02_angsuran_grid"]->nasabah_id->FldIsDetailKey = TRUE;
-					$GLOBALS["t02_angsuran_grid"]->nasabah_id->CurrentValue = $this->id->CurrentValue;
-					$GLOBALS["t02_angsuran_grid"]->nasabah_id->setSessionValue($GLOBALS["t02_angsuran_grid"]->nasabah_id->CurrentValue);
+					$GLOBALS["t02_angsuran_grid"]->NoKontrak->FldIsDetailKey = TRUE;
+					$GLOBALS["t02_angsuran_grid"]->NoKontrak->CurrentValue = $this->id->CurrentValue;
+					$GLOBALS["t02_angsuran_grid"]->NoKontrak->setSessionValue($GLOBALS["t02_angsuran_grid"]->NoKontrak->CurrentValue);
 				}
 			}
 		}

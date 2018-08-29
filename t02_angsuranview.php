@@ -393,7 +393,7 @@ class ct02_angsuran_view extends ct02_angsuran {
 		$this->id->SetVisibility();
 		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
 			$this->id->Visible = FALSE;
-		$this->nasabah_id->SetVisibility();
+		$this->NoKontrak->SetVisibility();
 		$this->Tanggal->SetVisibility();
 		$this->AngsuranPokok->SetVisibility();
 		$this->AngsuranBunga->SetVisibility();
@@ -669,7 +669,7 @@ class ct02_angsuran_view extends ct02_angsuran {
 			return;
 		if ($this->AuditTrailOnView) $this->WriteAuditTrailOnView($row);
 		$this->id->setDbValue($row['id']);
-		$this->nasabah_id->setDbValue($row['nasabah_id']);
+		$this->NoKontrak->setDbValue($row['NoKontrak']);
 		$this->Tanggal->setDbValue($row['Tanggal']);
 		$this->AngsuranPokok->setDbValue($row['AngsuranPokok']);
 		$this->AngsuranBunga->setDbValue($row['AngsuranBunga']);
@@ -685,7 +685,7 @@ class ct02_angsuran_view extends ct02_angsuran {
 	function NewRow() {
 		$row = array();
 		$row['id'] = NULL;
-		$row['nasabah_id'] = NULL;
+		$row['NoKontrak'] = NULL;
 		$row['Tanggal'] = NULL;
 		$row['AngsuranPokok'] = NULL;
 		$row['AngsuranBunga'] = NULL;
@@ -704,7 +704,7 @@ class ct02_angsuran_view extends ct02_angsuran {
 			return;
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
-		$this->nasabah_id->DbValue = $row['nasabah_id'];
+		$this->NoKontrak->DbValue = $row['NoKontrak'];
 		$this->Tanggal->DbValue = $row['Tanggal'];
 		$this->AngsuranPokok->DbValue = $row['AngsuranPokok'];
 		$this->AngsuranBunga->DbValue = $row['AngsuranBunga'];
@@ -753,7 +753,7 @@ class ct02_angsuran_view extends ct02_angsuran {
 
 		// Common render codes for all row types
 		// id
-		// nasabah_id
+		// NoKontrak
 		// Tanggal
 		// AngsuranPokok
 		// AngsuranBunga
@@ -770,9 +770,9 @@ class ct02_angsuran_view extends ct02_angsuran {
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// nasabah_id
-		$this->nasabah_id->ViewValue = $this->nasabah_id->CurrentValue;
-		$this->nasabah_id->ViewCustomAttributes = "";
+		// NoKontrak
+		$this->NoKontrak->ViewValue = $this->NoKontrak->CurrentValue;
+		$this->NoKontrak->ViewCustomAttributes = "";
 
 		// Tanggal
 		$this->Tanggal->ViewValue = $this->Tanggal->CurrentValue;
@@ -817,10 +817,10 @@ class ct02_angsuran_view extends ct02_angsuran {
 			$this->id->HrefValue = "";
 			$this->id->TooltipValue = "";
 
-			// nasabah_id
-			$this->nasabah_id->LinkCustomAttributes = "";
-			$this->nasabah_id->HrefValue = "";
-			$this->nasabah_id->TooltipValue = "";
+			// NoKontrak
+			$this->NoKontrak->LinkCustomAttributes = "";
+			$this->NoKontrak->HrefValue = "";
+			$this->NoKontrak->TooltipValue = "";
 
 			// Tanggal
 			$this->Tanggal->LinkCustomAttributes = "";
@@ -889,8 +889,8 @@ class ct02_angsuran_view extends ct02_angsuran {
 				$bValidMaster = TRUE;
 				if (@$_GET["fk_id"] <> "") {
 					$GLOBALS["t01_nasabah"]->id->setQueryStringValue($_GET["fk_id"]);
-					$this->nasabah_id->setQueryStringValue($GLOBALS["t01_nasabah"]->id->QueryStringValue);
-					$this->nasabah_id->setSessionValue($this->nasabah_id->QueryStringValue);
+					$this->NoKontrak->setQueryStringValue($GLOBALS["t01_nasabah"]->id->QueryStringValue);
+					$this->NoKontrak->setSessionValue($this->NoKontrak->QueryStringValue);
 					if (!is_numeric($GLOBALS["t01_nasabah"]->id->QueryStringValue)) $bValidMaster = FALSE;
 				} else {
 					$bValidMaster = FALSE;
@@ -907,8 +907,8 @@ class ct02_angsuran_view extends ct02_angsuran {
 				$bValidMaster = TRUE;
 				if (@$_POST["fk_id"] <> "") {
 					$GLOBALS["t01_nasabah"]->id->setFormValue($_POST["fk_id"]);
-					$this->nasabah_id->setFormValue($GLOBALS["t01_nasabah"]->id->FormValue);
-					$this->nasabah_id->setSessionValue($this->nasabah_id->FormValue);
+					$this->NoKontrak->setFormValue($GLOBALS["t01_nasabah"]->id->FormValue);
+					$this->NoKontrak->setSessionValue($this->NoKontrak->FormValue);
 					if (!is_numeric($GLOBALS["t01_nasabah"]->id->FormValue)) $bValidMaster = FALSE;
 				} else {
 					$bValidMaster = FALSE;
@@ -929,7 +929,7 @@ class ct02_angsuran_view extends ct02_angsuran {
 
 			// Clear previous master key from Session
 			if ($sMasterTblVar <> "t01_nasabah") {
-				if ($this->nasabah_id->CurrentValue == "") $this->nasabah_id->setSessionValue("");
+				if ($this->NoKontrak->CurrentValue == "") $this->NoKontrak->setSessionValue("");
 			}
 		}
 		$this->DbMasterFilter = $this->GetMasterFilter(); // Get master filter
@@ -1123,13 +1123,13 @@ $t02_angsuran_view->ShowMessage();
 </td>
 	</tr>
 <?php } ?>
-<?php if ($t02_angsuran->nasabah_id->Visible) { // nasabah_id ?>
-	<tr id="r_nasabah_id">
-		<td class="col-sm-2"><span id="elh_t02_angsuran_nasabah_id"><?php echo $t02_angsuran->nasabah_id->FldCaption() ?></span></td>
-		<td data-name="nasabah_id"<?php echo $t02_angsuran->nasabah_id->CellAttributes() ?>>
-<span id="el_t02_angsuran_nasabah_id">
-<span<?php echo $t02_angsuran->nasabah_id->ViewAttributes() ?>>
-<?php echo $t02_angsuran->nasabah_id->ViewValue ?></span>
+<?php if ($t02_angsuran->NoKontrak->Visible) { // NoKontrak ?>
+	<tr id="r_NoKontrak">
+		<td class="col-sm-2"><span id="elh_t02_angsuran_NoKontrak"><?php echo $t02_angsuran->NoKontrak->FldCaption() ?></span></td>
+		<td data-name="NoKontrak"<?php echo $t02_angsuran->NoKontrak->CellAttributes() ?>>
+<span id="el_t02_angsuran_NoKontrak">
+<span<?php echo $t02_angsuran->NoKontrak->ViewAttributes() ?>>
+<?php echo $t02_angsuran->NoKontrak->ViewValue ?></span>
 </span>
 </td>
 	</tr>
