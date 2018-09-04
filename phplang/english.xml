@@ -649,7 +649,7 @@
       <phrase id="menutext" value="Permissions" />
     </menu>
     <menu id="4">
-      <phrase id="menutext" value="User Activity-Log" />
+      <phrase id="menutext" value="Activity-Log" />
     </menu>
     <table id="cf01_home_php">
       <phrase id="tblcaption" value="Home" />
@@ -875,7 +875,7 @@
       </field>
     </table>
     <table id="t99_audittrail">
-      <phrase id="tblcaption" value="User Activity-Log" />
+      <phrase id="tblcaption" value="Activity-Log" />
       <field id="id">
         <phrase id="fldcaption" value="id" />
       </field>
