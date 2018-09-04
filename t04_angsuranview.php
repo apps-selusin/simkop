@@ -98,6 +98,12 @@ class ct04_angsuran_view extends ct04_angsuran {
 	var $GridEditUrl;
 	var $MultiDeleteUrl;
 	var $MultiUpdateUrl;
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -384,10 +390,6 @@ class ct04_angsuran_view extends ct04_angsuran {
 		// 
 
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
-		$this->pinjaman_id->SetVisibility();
 		$this->AngsuranKe->SetVisibility();
 		$this->AngsuranTanggal->SetVisibility();
 		$this->AngsuranPokok->SetVisibility();
@@ -547,15 +549,6 @@ class ct04_angsuran_view extends ct04_angsuran {
 		$options = &$this->OtherOptions;
 		$option = &$options["action"];
 
-		// Add
-		$item = &$option->Add("add");
-		$addcaption = ew_HtmlTitle($Language->Phrase("ViewPageAddLink"));
-		if ($this->IsModal) // Modal
-			$item->Body = "<a class=\"ewAction ewAdd\" title=\"" . $addcaption . "\" data-caption=\"" . $addcaption . "\" href=\"javascript:void(0);\" onclick=\"ew_ModalDialogShow({lnk:this,url:'" . ew_HtmlEncode($this->AddUrl) . "'});\">" . $Language->Phrase("ViewPageAddLink") . "</a>";
-		else
-			$item->Body = "<a class=\"ewAction ewAdd\" title=\"" . $addcaption . "\" data-caption=\"" . $addcaption . "\" href=\"" . ew_HtmlEncode($this->AddUrl) . "\">" . $Language->Phrase("ViewPageAddLink") . "</a>";
-		$item->Visible = ($this->AddUrl <> "" && $Security->CanAdd());
-
 		// Edit
 		$item = &$option->Add("edit");
 		$editcaption = ew_HtmlTitle($Language->Phrase("ViewPageEditLink"));
@@ -564,23 +557,6 @@ class ct04_angsuran_view extends ct04_angsuran {
 		else
 			$item->Body = "<a class=\"ewAction ewEdit\" title=\"" . $editcaption . "\" data-caption=\"" . $editcaption . "\" href=\"" . ew_HtmlEncode($this->EditUrl) . "\">" . $Language->Phrase("ViewPageEditLink") . "</a>";
 		$item->Visible = ($this->EditUrl <> "" && $Security->CanEdit());
-
-		// Copy
-		$item = &$option->Add("copy");
-		$copycaption = ew_HtmlTitle($Language->Phrase("ViewPageCopyLink"));
-		if ($this->IsModal) // Modal
-			$item->Body = "<a class=\"ewAction ewCopy\" title=\"" . $copycaption . "\" data-caption=\"" . $copycaption . "\" href=\"javascript:void(0);\" onclick=\"ew_ModalDialogShow({lnk:this,btn:'AddBtn',url:'" . ew_HtmlEncode($this->CopyUrl) . "'});\">" . $Language->Phrase("ViewPageCopyLink") . "</a>";
-		else
-			$item->Body = "<a class=\"ewAction ewCopy\" title=\"" . $copycaption . "\" data-caption=\"" . $copycaption . "\" href=\"" . ew_HtmlEncode($this->CopyUrl) . "\">" . $Language->Phrase("ViewPageCopyLink") . "</a>";
-		$item->Visible = ($this->CopyUrl <> "" && $Security->CanAdd());
-
-		// Delete
-		$item = &$option->Add("delete");
-		if ($this->IsModal) // Handle as inline delete
-			$item->Body = "<a onclick=\"return ew_ConfirmDelete(this);\" class=\"ewAction ewDelete\" title=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" href=\"" . ew_HtmlEncode(ew_UrlAddQuery($this->DeleteUrl, "a_delete=1")) . "\">" . $Language->Phrase("ViewPageDeleteLink") . "</a>";
-		else
-			$item->Body = "<a class=\"ewAction ewDelete\" title=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" href=\"" . ew_HtmlEncode($this->DeleteUrl) . "\">" . $Language->Phrase("ViewPageDeleteLink") . "</a>";
-		$item->Visible = ($this->DeleteUrl <> "" && $Security->CanDelete());
 
 		// Set up action default
 		$option = &$options["action"];
@@ -662,6 +638,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 		$this->Row_Selected($row);
 		if (!$rs || $rs->EOF)
 			return;
+		if ($this->AuditTrailOnView) $this->WriteAuditTrailOnView($row);
 		$this->id->setDbValue($row['id']);
 		$this->pinjaman_id->setDbValue($row['pinjaman_id']);
 		$this->AngsuranKe->setDbValue($row['AngsuranKe']);
@@ -825,16 +802,6 @@ class ct04_angsuran_view extends ct04_angsuran {
 		// Keterangan
 		$this->Keterangan->ViewValue = $this->Keterangan->CurrentValue;
 		$this->Keterangan->ViewCustomAttributes = "";
-
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-			$this->pinjaman_id->TooltipValue = "";
 
 			// AngsuranKe
 			$this->AngsuranKe->LinkCustomAttributes = "";
@@ -1131,28 +1098,6 @@ $t04_angsuran_view->ShowMessage();
 <input type="hidden" name="t" value="t04_angsuran">
 <input type="hidden" name="modal" value="<?php echo intval($t04_angsuran_view->IsModal) ?>">
 <table class="table table-striped table-bordered table-hover table-condensed ewViewTable">
-<?php if ($t04_angsuran->id->Visible) { // id ?>
-	<tr id="r_id">
-		<td class="col-sm-2"><span id="elh_t04_angsuran_id"><?php echo $t04_angsuran->id->FldCaption() ?></span></td>
-		<td data-name="id"<?php echo $t04_angsuran->id->CellAttributes() ?>>
-<span id="el_t04_angsuran_id">
-<span<?php echo $t04_angsuran->id->ViewAttributes() ?>>
-<?php echo $t04_angsuran->id->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t04_angsuran->pinjaman_id->Visible) { // pinjaman_id ?>
-	<tr id="r_pinjaman_id">
-		<td class="col-sm-2"><span id="elh_t04_angsuran_pinjaman_id"><?php echo $t04_angsuran->pinjaman_id->FldCaption() ?></span></td>
-		<td data-name="pinjaman_id"<?php echo $t04_angsuran->pinjaman_id->CellAttributes() ?>>
-<span id="el_t04_angsuran_pinjaman_id">
-<span<?php echo $t04_angsuran->pinjaman_id->ViewAttributes() ?>>
-<?php echo $t04_angsuran->pinjaman_id->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
 <?php if ($t04_angsuran->AngsuranKe->Visible) { // AngsuranKe ?>
 	<tr id="r_AngsuranKe">
 		<td class="col-sm-2"><span id="elh_t04_angsuran_AngsuranKe"><?php echo $t04_angsuran->AngsuranKe->FldCaption() ?></span></td>

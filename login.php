@@ -453,6 +453,7 @@ class clogin extends ct96_employees {
 			} else {
 				setcookie(EW_PROJECT_NAME . '[AutoLogin]', "", EW_COOKIE_EXPIRY_TIME); // Clear auto login cookie
 			}
+			$this->WriteAuditTrailOnLogin($this->Username);
 
 			// Call loggedin event
 			$this->User_LoggedIn($this->Username);
@@ -493,6 +494,14 @@ class clogin extends ct96_employees {
 			ew_AddMessage($gsFormError, $sFormCustomError);
 		}
 		return $ValidateForm;
+	}
+
+	//
+	// Write audit trail on login
+	//
+	function WriteAuditTrailOnLogin($usr) {
+		global $Language;
+		ew_WriteAuditTrail("log", ew_StdCurrentDateTime(), ew_ScriptName(), $usr, $Language->Phrase("AuditTrailLogin"), ew_CurrentUserIP(), "", "", "", "");
 	}
 
 	// Page Load event

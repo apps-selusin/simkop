@@ -312,6 +312,7 @@ class clogout {
 				setcookie(EW_PROJECT_NAME . '[Username]', ""); // Clear user name cookie
 			setcookie(EW_PROJECT_NAME . '[Password]', ""); // Clear password cookie
 			setcookie(EW_PROJECT_NAME . '[LastUrl]', ""); // Clear last URL
+			$this->WriteAuditTrailOnLogout($sUsername);
 
 			// Call User LoggedOut event
 			$this->User_LoggedOut($sUsername);
@@ -335,6 +336,14 @@ class clogout {
 			else
 				$this->Page_Terminate("login.php"); // Go to login page
 		}
+	}
+
+	//
+	// Write audit trail on logout
+	//
+	function WriteAuditTrailOnLogout($usr) {
+		global $Language;
+		ew_WriteAuditTrail("log", ew_StdCurrentDateTime(), ew_ScriptName(), $usr, $Language->Phrase("AuditTrailLogout"), ew_CurrentUserIP(), "", "", "", "");
 	}
 
 	// Page Load event

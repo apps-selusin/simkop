@@ -66,6 +66,12 @@ class ct04_angsuran_edit extends ct04_angsuran {
 		if ($this->UseTokenInUrl) $PageUrl .= "t=" . $this->TableVar . "&"; // Add page token
 		return $PageUrl;
 	}
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -329,10 +335,6 @@ class ct04_angsuran_edit extends ct04_angsuran {
 
 		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
-		$this->pinjaman_id->SetVisibility();
 		$this->AngsuranKe->SetVisibility();
 		$this->AngsuranTanggal->SetVisibility();
 		$this->AngsuranPokok->SetVisibility();
@@ -582,11 +584,6 @@ class ct04_angsuran_edit extends ct04_angsuran {
 
 		// Load from form
 		global $objForm;
-		if (!$this->id->FldIsDetailKey)
-			$this->id->setFormValue($objForm->GetValue("x_id"));
-		if (!$this->pinjaman_id->FldIsDetailKey) {
-			$this->pinjaman_id->setFormValue($objForm->GetValue("x_pinjaman_id"));
-		}
 		if (!$this->AngsuranKe->FldIsDetailKey) {
 			$this->AngsuranKe->setFormValue($objForm->GetValue("x_AngsuranKe"));
 		}
@@ -619,13 +616,14 @@ class ct04_angsuran_edit extends ct04_angsuran {
 		if (!$this->Keterangan->FldIsDetailKey) {
 			$this->Keterangan->setFormValue($objForm->GetValue("x_Keterangan"));
 		}
+		if (!$this->id->FldIsDetailKey)
+			$this->id->setFormValue($objForm->GetValue("x_id"));
 	}
 
 	// Restore form values
 	function RestoreFormValues() {
 		global $objForm;
 		$this->id->CurrentValue = $this->id->FormValue;
-		$this->pinjaman_id->CurrentValue = $this->pinjaman_id->FormValue;
 		$this->AngsuranKe->CurrentValue = $this->AngsuranKe->FormValue;
 		$this->AngsuranTanggal->CurrentValue = $this->AngsuranTanggal->FormValue;
 		$this->AngsuranTanggal->CurrentValue = ew_UnFormatDateTime($this->AngsuranTanggal->CurrentValue, 7);
@@ -853,16 +851,6 @@ class ct04_angsuran_edit extends ct04_angsuran {
 		$this->Keterangan->ViewValue = $this->Keterangan->CurrentValue;
 		$this->Keterangan->ViewCustomAttributes = "";
 
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-			$this->pinjaman_id->TooltipValue = "";
-
 			// AngsuranKe
 			$this->AngsuranKe->LinkCustomAttributes = "";
 			$this->AngsuranKe->HrefValue = "";
@@ -913,24 +901,6 @@ class ct04_angsuran_edit extends ct04_angsuran {
 			$this->Keterangan->HrefValue = "";
 			$this->Keterangan->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
-
-			// id
-			$this->id->EditAttrs["class"] = "form-control";
-			$this->id->EditCustomAttributes = "";
-			$this->id->EditValue = $this->id->CurrentValue;
-			$this->id->ViewCustomAttributes = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->EditAttrs["class"] = "form-control";
-			$this->pinjaman_id->EditCustomAttributes = "";
-			if ($this->pinjaman_id->getSessionValue() <> "") {
-				$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
-			$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewCustomAttributes = "";
-			} else {
-			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
-			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
-			}
 
 			// AngsuranKe
 			$this->AngsuranKe->EditAttrs["class"] = "form-control";
@@ -998,16 +968,8 @@ class ct04_angsuran_edit extends ct04_angsuran {
 			$this->Keterangan->PlaceHolder = ew_RemoveHtml($this->Keterangan->FldCaption());
 
 			// Edit refer script
-			// id
-
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-
 			// AngsuranKe
+
 			$this->AngsuranKe->LinkCustomAttributes = "";
 			$this->AngsuranKe->HrefValue = "";
 
@@ -1065,12 +1027,6 @@ class ct04_angsuran_edit extends ct04_angsuran {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
-		if (!$this->pinjaman_id->FldIsDetailKey && !is_null($this->pinjaman_id->FormValue) && $this->pinjaman_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->pinjaman_id->FldCaption(), $this->pinjaman_id->ReqErrMsg));
-		}
-		if (!ew_CheckInteger($this->pinjaman_id->FormValue)) {
-			ew_AddMessage($gsFormError, $this->pinjaman_id->FldErrMsg());
-		}
 		if (!$this->AngsuranKe->FldIsDetailKey && !is_null($this->AngsuranKe->FormValue) && $this->AngsuranKe->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->AngsuranKe->FldCaption(), $this->AngsuranKe->ReqErrMsg));
 		}
@@ -1154,9 +1110,6 @@ class ct04_angsuran_edit extends ct04_angsuran {
 			$rsold = &$rs->fields;
 			$this->LoadDbValues($rsold);
 			$rsnew = array();
-
-			// pinjaman_id
-			$this->pinjaman_id->SetDbValueDef($rsnew, $this->pinjaman_id->CurrentValue, 0, $this->pinjaman_id->ReadOnly);
 
 			// AngsuranKe
 			$this->AngsuranKe->SetDbValueDef($rsnew, $this->AngsuranKe->CurrentValue, 0, $this->AngsuranKe->ReadOnly);
@@ -1417,12 +1370,6 @@ ft04_angsuranedit.Validate = function() {
 	for (var i = startcnt; i <= rowcnt; i++) {
 		var infix = ($k[0]) ? String(i) : "";
 		$fobj.data("rowindex", infix);
-			elm = this.GetElements("x" + infix + "_pinjaman_id");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t04_angsuran->pinjaman_id->FldCaption(), $t04_angsuran->pinjaman_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_pinjaman_id");
-			if (elm && !ew_CheckInteger(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t04_angsuran->pinjaman_id->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_AngsuranKe");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t04_angsuran->AngsuranKe->FldCaption(), $t04_angsuran->AngsuranKe->ReqErrMsg)) ?>");
@@ -1523,36 +1470,6 @@ $t04_angsuran_edit->ShowMessage();
 <input type="hidden" name="fk_id" value="<?php echo $t04_angsuran->pinjaman_id->getSessionValue() ?>">
 <?php } ?>
 <div class="ewEditDiv"><!-- page* -->
-<?php if ($t04_angsuran->id->Visible) { // id ?>
-	<div id="r_id" class="form-group">
-		<label id="elh_t04_angsuran_id" class="<?php echo $t04_angsuran_edit->LeftColumnClass ?>"><?php echo $t04_angsuran->id->FldCaption() ?></label>
-		<div class="<?php echo $t04_angsuran_edit->RightColumnClass ?>"><div<?php echo $t04_angsuran->id->CellAttributes() ?>>
-<span id="el_t04_angsuran_id">
-<span<?php echo $t04_angsuran->id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t04_angsuran->id->EditValue ?></p></span>
-</span>
-<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="x_id" id="x_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->CurrentValue) ?>">
-<?php echo $t04_angsuran->id->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t04_angsuran->pinjaman_id->Visible) { // pinjaman_id ?>
-	<div id="r_pinjaman_id" class="form-group">
-		<label id="elh_t04_angsuran_pinjaman_id" for="x_pinjaman_id" class="<?php echo $t04_angsuran_edit->LeftColumnClass ?>"><?php echo $t04_angsuran->pinjaman_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="<?php echo $t04_angsuran_edit->RightColumnClass ?>"><div<?php echo $t04_angsuran->pinjaman_id->CellAttributes() ?>>
-<?php if ($t04_angsuran->pinjaman_id->getSessionValue() <> "") { ?>
-<span id="el_t04_angsuran_pinjaman_id">
-<span<?php echo $t04_angsuran->pinjaman_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t04_angsuran->pinjaman_id->ViewValue ?></p></span>
-</span>
-<input type="hidden" id="x_pinjaman_id" name="x_pinjaman_id" value="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->CurrentValue) ?>">
-<?php } else { ?>
-<span id="el_t04_angsuran_pinjaman_id">
-<input type="text" data-table="t04_angsuran" data-field="x_pinjaman_id" name="x_pinjaman_id" id="x_pinjaman_id" size="30" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->pinjaman_id->EditValue ?>"<?php echo $t04_angsuran->pinjaman_id->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php echo $t04_angsuran->pinjaman_id->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
 <?php if ($t04_angsuran->AngsuranKe->Visible) { // AngsuranKe ?>
 	<div id="r_AngsuranKe" class="form-group">
 		<label id="elh_t04_angsuran_AngsuranKe" for="x_AngsuranKe" class="<?php echo $t04_angsuran_edit->LeftColumnClass ?>"><?php echo $t04_angsuran->AngsuranKe->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
@@ -1664,6 +1581,7 @@ ew_CreateDateTimePicker("ft04_angsuranedit", "x_TanggalBayar", {"ignoreReadonly"
 	</div>
 <?php } ?>
 </div><!-- /page* -->
+<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="x_id" id="x_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->CurrentValue) ?>">
 <?php if (!$t04_angsuran_edit->IsModal) { ?>
 <div class="form-group"><!-- buttons .form-group -->
 	<div class="<?php echo $t04_angsuran_edit->OffsetColumnClass ?>"><!-- buttons offset -->

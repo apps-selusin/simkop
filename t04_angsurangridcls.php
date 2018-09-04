@@ -73,6 +73,12 @@ class ct04_angsuran_grid extends ct04_angsuran {
 	var $DeleteUrl;
 	var $ViewUrl;
 	var $ListUrl;
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -349,10 +355,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 
 		// Set up list options
 		$this->SetupListOptions();
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
-		$this->pinjaman_id->SetVisibility();
 		$this->AngsuranKe->SetVisibility();
 		$this->AngsuranTanggal->SetVisibility();
 		$this->AngsuranPokok->SetVisibility();
@@ -655,6 +657,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 				$this->setFailureMessage($Language->Phrase("GridEditCancelled")); // Set grid edit cancelled message
 			return FALSE;
 		}
+		if ($this->AuditTrailOnEdit) $this->WriteAuditTrailDummy($Language->Phrase("BatchUpdateBegin")); // Batch update begin
 		$sKey = "";
 
 		// Update row index and get row key
@@ -720,8 +723,10 @@ class ct04_angsuran_grid extends ct04_angsuran {
 
 			// Call Grid_Updated event
 			$this->Grid_Updated($rsold, $rsnew);
+			if ($this->AuditTrailOnEdit) $this->WriteAuditTrailDummy($Language->Phrase("BatchUpdateSuccess")); // Batch update success
 			$this->ClearInlineMode(); // Clear inline edit mode
 		} else {
+			if ($this->AuditTrailOnEdit) $this->WriteAuditTrailDummy($Language->Phrase("BatchUpdateRollback")); // Batch update rollback
 			if ($this->getFailureMessage() == "")
 				$this->setFailureMessage($Language->Phrase("UpdateFailed")); // Set update failed message
 		}
@@ -784,6 +789,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		// Init key filter
 		$sWrkFilter = "";
 		$addcnt = 0;
+		if ($this->AuditTrailOnAdd) $this->WriteAuditTrailDummy($Language->Phrase("BatchInsertBegin")); // Batch insert begin
 		$sKey = "";
 
 		// Get row count
@@ -845,8 +851,10 @@ class ct04_angsuran_grid extends ct04_angsuran {
 
 			// Call Grid_Inserted event
 			$this->Grid_Inserted($rsnew);
+			if ($this->AuditTrailOnAdd) $this->WriteAuditTrailDummy($Language->Phrase("BatchInsertSuccess")); // Batch insert success
 			$this->ClearInlineMode(); // Clear grid add mode
 		} else {
+			if ($this->AuditTrailOnAdd) $this->WriteAuditTrailDummy($Language->Phrase("BatchInsertRollback")); // Batch insert rollback
 			if ($this->getFailureMessage() == "") {
 				$this->setFailureMessage($Language->Phrase("InsertFailed")); // Set insert failed message
 			}
@@ -857,8 +865,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 	// Check if empty row
 	function EmptyRow() {
 		global $objForm;
-		if ($objForm->HasValue("x_pinjaman_id") && $objForm->HasValue("o_pinjaman_id") && $this->pinjaman_id->CurrentValue <> $this->pinjaman_id->OldValue)
-			return FALSE;
 		if ($objForm->HasValue("x_AngsuranKe") && $objForm->HasValue("o_AngsuranKe") && $this->AngsuranKe->CurrentValue <> $this->AngsuranKe->OldValue)
 			return FALSE;
 		if ($objForm->HasValue("x_AngsuranTanggal") && $objForm->HasValue("o_AngsuranTanggal") && $this->AngsuranTanggal->CurrentValue <> $this->AngsuranTanggal->OldValue)
@@ -1019,28 +1025,10 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		$item->OnLeft = TRUE;
 		$item->Visible = FALSE;
 
-		// "view"
-		$item = &$this->ListOptions->Add("view");
-		$item->CssClass = "text-nowrap";
-		$item->Visible = $Security->CanView();
-		$item->OnLeft = TRUE;
-
 		// "edit"
 		$item = &$this->ListOptions->Add("edit");
 		$item->CssClass = "text-nowrap";
 		$item->Visible = $Security->CanEdit();
-		$item->OnLeft = TRUE;
-
-		// "copy"
-		$item = &$this->ListOptions->Add("copy");
-		$item->CssClass = "text-nowrap";
-		$item->Visible = $Security->CanAdd();
-		$item->OnLeft = TRUE;
-
-		// "delete"
-		$item = &$this->ListOptions->Add("delete");
-		$item->CssClass = "text-nowrap";
-		$item->Visible = $Security->CanDelete();
 		$item->OnLeft = TRUE;
 
 		// Drop down button for ListOptions
@@ -1088,7 +1076,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 				$option->UseButtonGroup = TRUE; // Use button group for grid delete button
 				$option->UseImageAndText = TRUE; // Use image and text for grid delete button
 				$oListOpt = &$option->Items["griddelete"];
-				if (!$Security->CanDelete() && is_numeric($this->RowIndex) && ($this->RowAction == "" || $this->RowAction == "edit")) { // Do not allow delete existing record
+				if (is_numeric($this->RowIndex) && ($this->RowAction == "" || $this->RowAction == "edit")) { // Do not allow delete existing record
 					$oListOpt->Body = "&nbsp;";
 				} else {
 					$oListOpt->Body = "<a class=\"ewGridLink ewGridDelete\" title=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" onclick=\"return ew_DeleteGridRow(this, " . $this->RowIndex . ");\">" . $Language->Phrase("DeleteLink") . "</a>";
@@ -1096,15 +1084,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			}
 		}
 		if ($this->CurrentMode == "view") { // View mode
-
-		// "view"
-		$oListOpt = &$this->ListOptions->Items["view"];
-		$viewcaption = ew_HtmlTitle($Language->Phrase("ViewLink"));
-		if ($Security->CanView()) {
-			$oListOpt->Body = "<a class=\"ewRowLink ewView\" title=\"" . $viewcaption . "\" data-caption=\"" . $viewcaption . "\" href=\"" . ew_HtmlEncode($this->ViewUrl) . "\">" . $Language->Phrase("ViewLink") . "</a>";
-		} else {
-			$oListOpt->Body = "";
-		}
 
 		// "edit"
 		$oListOpt = &$this->ListOptions->Items["edit"];
@@ -1114,22 +1093,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		} else {
 			$oListOpt->Body = "";
 		}
-
-		// "copy"
-		$oListOpt = &$this->ListOptions->Items["copy"];
-		$copycaption = ew_HtmlTitle($Language->Phrase("CopyLink"));
-		if ($Security->CanAdd()) {
-			$oListOpt->Body = "<a class=\"ewRowLink ewCopy\" title=\"" . $copycaption . "\" data-caption=\"" . $copycaption . "\" href=\"" . ew_HtmlEncode($this->CopyUrl) . "\">" . $Language->Phrase("CopyLink") . "</a>";
-		} else {
-			$oListOpt->Body = "";
-		}
-
-		// "delete"
-		$oListOpt = &$this->ListOptions->Items["delete"];
-		if ($Security->CanDelete())
-			$oListOpt->Body = "<a class=\"ewRowLink ewDelete\"" . "" . " title=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" href=\"" . ew_HtmlEncode($this->DeleteUrl) . "\">" . $Language->Phrase("DeleteLink") . "</a>";
-		else
-			$oListOpt->Body = "";
 		} // End View mode
 		if ($this->CurrentMode == "edit" && is_numeric($this->RowIndex)) {
 			$this->MultiSelectKey .= "<input type=\"hidden\" name=\"" . $KeyName . "\" id=\"" . $KeyName . "\" value=\"" . $this->id->CurrentValue . "\">";
@@ -1155,15 +1118,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		$item = &$option->Add($option->GroupOptionName);
 		$item->Body = "";
 		$item->Visible = FALSE;
-
-		// Add
-		if ($this->CurrentMode == "view") { // Check view mode
-			$item = &$option->Add("add");
-			$addcaption = ew_HtmlTitle($Language->Phrase("AddLink"));
-			$this->AddUrl = $this->GetAddUrl();
-			$item->Body = "<a class=\"ewAddEdit ewAdd\" title=\"" . $addcaption . "\" data-caption=\"" . $addcaption . "\" href=\"" . ew_HtmlEncode($this->AddUrl) . "\">" . $Language->Phrase("AddLink") . "</a>";
-			$item->Visible = ($this->AddUrl <> "" && $Security->CanAdd());
-		}
 	}
 
 	// Render other options
@@ -1177,7 +1131,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 				$option->UseImageAndText = TRUE;
 				$item = &$option->Add("addblankrow");
 				$item->Body = "<a class=\"ewAddEdit ewAddBlankRow\" title=\"" . ew_HtmlTitle($Language->Phrase("AddBlankRow")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("AddBlankRow")) . "\" href=\"javascript:void(0);\" onclick=\"ew_AddGridRow(this);\">" . $Language->Phrase("AddBlankRow") . "</a>";
-				$item->Visible = $Security->CanAdd();
+				$item->Visible = FALSE;
 				$this->ShowOtherOptions = $item->Visible;
 			}
 		}
@@ -1269,12 +1223,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		// Load from form
 		global $objForm;
 		$objForm->FormName = $this->FormName;
-		if (!$this->id->FldIsDetailKey && $this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
-			$this->id->setFormValue($objForm->GetValue("x_id"));
-		if (!$this->pinjaman_id->FldIsDetailKey) {
-			$this->pinjaman_id->setFormValue($objForm->GetValue("x_pinjaman_id"));
-		}
-		$this->pinjaman_id->setOldValue($objForm->GetValue("o_pinjaman_id"));
 		if (!$this->AngsuranKe->FldIsDetailKey) {
 			$this->AngsuranKe->setFormValue($objForm->GetValue("x_AngsuranKe"));
 		}
@@ -1317,6 +1265,8 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->Keterangan->setFormValue($objForm->GetValue("x_Keterangan"));
 		}
 		$this->Keterangan->setOldValue($objForm->GetValue("o_Keterangan"));
+		if (!$this->id->FldIsDetailKey && $this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
+			$this->id->setFormValue($objForm->GetValue("x_id"));
 	}
 
 	// Restore form values
@@ -1324,7 +1274,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		global $objForm;
 		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
 			$this->id->CurrentValue = $this->id->FormValue;
-		$this->pinjaman_id->CurrentValue = $this->pinjaman_id->FormValue;
 		$this->AngsuranKe->CurrentValue = $this->AngsuranKe->FormValue;
 		$this->AngsuranTanggal->CurrentValue = $this->AngsuranTanggal->FormValue;
 		$this->AngsuranTanggal->CurrentValue = ew_UnFormatDateTime($this->AngsuranTanggal->CurrentValue, 7);
@@ -1589,16 +1538,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		$this->Keterangan->ViewValue = $this->Keterangan->CurrentValue;
 		$this->Keterangan->ViewCustomAttributes = "";
 
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-			$this->pinjaman_id->TooltipValue = "";
-
 			// AngsuranKe
 			$this->AngsuranKe->LinkCustomAttributes = "";
 			$this->AngsuranKe->HrefValue = "";
@@ -1649,21 +1588,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->Keterangan->HrefValue = "";
 			$this->Keterangan->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
-
-			// id
-			// pinjaman_id
-
-			$this->pinjaman_id->EditAttrs["class"] = "form-control";
-			$this->pinjaman_id->EditCustomAttributes = "";
-			if ($this->pinjaman_id->getSessionValue() <> "") {
-				$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
-				$this->pinjaman_id->OldValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewCustomAttributes = "";
-			} else {
-			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
-			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
-			}
 
 			// AngsuranKe
 			$this->AngsuranKe->EditAttrs["class"] = "form-control";
@@ -1746,16 +1670,8 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->Keterangan->PlaceHolder = ew_RemoveHtml($this->Keterangan->FldCaption());
 
 			// Add refer script
-			// id
-
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-
 			// AngsuranKe
+
 			$this->AngsuranKe->LinkCustomAttributes = "";
 			$this->AngsuranKe->HrefValue = "";
 
@@ -1795,25 +1711,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->Keterangan->LinkCustomAttributes = "";
 			$this->Keterangan->HrefValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
-
-			// id
-			$this->id->EditAttrs["class"] = "form-control";
-			$this->id->EditCustomAttributes = "";
-			$this->id->EditValue = $this->id->CurrentValue;
-			$this->id->ViewCustomAttributes = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->EditAttrs["class"] = "form-control";
-			$this->pinjaman_id->EditCustomAttributes = "";
-			if ($this->pinjaman_id->getSessionValue() <> "") {
-				$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
-				$this->pinjaman_id->OldValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewCustomAttributes = "";
-			} else {
-			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
-			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
-			}
 
 			// AngsuranKe
 			$this->AngsuranKe->EditAttrs["class"] = "form-control";
@@ -1896,16 +1793,8 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->Keterangan->PlaceHolder = ew_RemoveHtml($this->Keterangan->FldCaption());
 
 			// Edit refer script
-			// id
-
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-
 			// AngsuranKe
+
 			$this->AngsuranKe->LinkCustomAttributes = "";
 			$this->AngsuranKe->HrefValue = "";
 
@@ -1960,12 +1849,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
-		if (!$this->pinjaman_id->FldIsDetailKey && !is_null($this->pinjaman_id->FormValue) && $this->pinjaman_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->pinjaman_id->FldCaption(), $this->pinjaman_id->ReqErrMsg));
-		}
-		if (!ew_CheckInteger($this->pinjaman_id->FormValue)) {
-			ew_AddMessage($gsFormError, $this->pinjaman_id->FldErrMsg());
-		}
 		if (!$this->AngsuranKe->FldIsDetailKey && !is_null($this->AngsuranKe->FormValue) && $this->AngsuranKe->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->AngsuranKe->FldCaption(), $this->AngsuranKe->ReqErrMsg));
 		}
@@ -2050,6 +1933,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			return FALSE;
 		}
 		$rows = ($rs) ? $rs->GetRows() : array();
+		if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteBegin")); // Batch delete begin
 
 		// Clone old rows
 		$rsold = $rows;
@@ -2092,6 +1976,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			}
 		}
 		if ($DeleteRows) {
+			if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteSuccess")); // Batch delete success
 		} else {
 		}
 
@@ -2126,9 +2011,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$rsold = &$rs->fields;
 			$this->LoadDbValues($rsold);
 			$rsnew = array();
-
-			// pinjaman_id
-			$this->pinjaman_id->SetDbValueDef($rsnew, $this->pinjaman_id->CurrentValue, 0, $this->pinjaman_id->ReadOnly);
 
 			// AngsuranKe
 			$this->AngsuranKe->SetDbValueDef($rsnew, $this->AngsuranKe->CurrentValue, 0, $this->AngsuranKe->ReadOnly);
@@ -2208,9 +2090,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		}
 		$rsnew = array();
 
-		// pinjaman_id
-		$this->pinjaman_id->SetDbValueDef($rsnew, $this->pinjaman_id->CurrentValue, 0, FALSE);
-
 		// AngsuranKe
 		$this->AngsuranKe->SetDbValueDef($rsnew, $this->AngsuranKe->CurrentValue, 0, FALSE);
 
@@ -2240,6 +2119,11 @@ class ct04_angsuran_grid extends ct04_angsuran {
 
 		// Keterangan
 		$this->Keterangan->SetDbValueDef($rsnew, $this->Keterangan->CurrentValue, NULL, FALSE);
+
+		// pinjaman_id
+		if ($this->pinjaman_id->getSessionValue() <> "") {
+			$rsnew['pinjaman_id'] = $this->pinjaman_id->getSessionValue();
+		}
 
 		// Call Row Inserting event
 		$rs = ($rsold == NULL) ? NULL : $rsold->fields;

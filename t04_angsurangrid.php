@@ -42,12 +42,6 @@ ft04_angsurangrid.Validate = function() {
 		var checkrow = (gridinsert) ? !this.EmptyRow(infix) : true;
 		if (checkrow) {
 			addcnt++;
-			elm = this.GetElements("x" + infix + "_pinjaman_id");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t04_angsuran->pinjaman_id->FldCaption(), $t04_angsuran->pinjaman_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_pinjaman_id");
-			if (elm && !ew_CheckInteger(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t04_angsuran->pinjaman_id->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_AngsuranKe");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t04_angsuran->AngsuranKe->FldCaption(), $t04_angsuran->AngsuranKe->ReqErrMsg)) ?>");
@@ -108,7 +102,6 @@ ft04_angsurangrid.Validate = function() {
 // Check empty row
 ft04_angsurangrid.EmptyRow = function(infix) {
 	var fobj = this.Form;
-	if (ew_ValueChanged(fobj, infix, "pinjaman_id", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "AngsuranKe", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "AngsuranTanggal", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "AngsuranPokok", false)) return false;
@@ -206,24 +199,6 @@ $t04_angsuran_grid->RenderListOptions();
 // Render list options (header, left)
 $t04_angsuran_grid->ListOptions->Render("header", "left");
 ?>
-<?php if ($t04_angsuran->id->Visible) { // id ?>
-	<?php if ($t04_angsuran->SortUrl($t04_angsuran->id) == "") { ?>
-		<th data-name="id" class="<?php echo $t04_angsuran->id->HeaderCellClass() ?>"><div id="elh_t04_angsuran_id" class="t04_angsuran_id"><div class="ewTableHeaderCaption"><?php echo $t04_angsuran->id->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="id" class="<?php echo $t04_angsuran->id->HeaderCellClass() ?>"><div><div id="elh_t04_angsuran_id" class="t04_angsuran_id">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t04_angsuran->id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t04_angsuran->id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t04_angsuran->id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
-<?php if ($t04_angsuran->pinjaman_id->Visible) { // pinjaman_id ?>
-	<?php if ($t04_angsuran->SortUrl($t04_angsuran->pinjaman_id) == "") { ?>
-		<th data-name="pinjaman_id" class="<?php echo $t04_angsuran->pinjaman_id->HeaderCellClass() ?>"><div id="elh_t04_angsuran_pinjaman_id" class="t04_angsuran_pinjaman_id"><div class="ewTableHeaderCaption"><?php echo $t04_angsuran->pinjaman_id->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="pinjaman_id" class="<?php echo $t04_angsuran->pinjaman_id->HeaderCellClass() ?>"><div><div id="elh_t04_angsuran_pinjaman_id" class="t04_angsuran_pinjaman_id">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t04_angsuran->pinjaman_id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t04_angsuran->pinjaman_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t04_angsuran->pinjaman_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
 <?php if ($t04_angsuran->AngsuranKe->Visible) { // AngsuranKe ?>
 	<?php if ($t04_angsuran->SortUrl($t04_angsuran->AngsuranKe) == "") { ?>
 		<th data-name="AngsuranKe" class="<?php echo $t04_angsuran->AngsuranKe->HeaderCellClass() ?>"><div id="elh_t04_angsuran_AngsuranKe" class="t04_angsuran_AngsuranKe"><div class="ewTableHeaderCaption"><?php echo $t04_angsuran->AngsuranKe->FldCaption() ?></div></div></th>
@@ -423,77 +398,6 @@ while ($t04_angsuran_grid->RecCnt < $t04_angsuran_grid->StopRec) {
 // Render list options (body, left)
 $t04_angsuran_grid->ListOptions->Render("body", "left", $t04_angsuran_grid->RowCnt);
 ?>
-	<?php if ($t04_angsuran->id->Visible) { // id ?>
-		<td data-name="id"<?php echo $t04_angsuran->id->CellAttributes() ?>>
-<?php if ($t04_angsuran->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="o<?php echo $t04_angsuran_grid->RowIndex ?>_id" id="o<?php echo $t04_angsuran_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->OldValue) ?>">
-<?php } ?>
-<?php if ($t04_angsuran->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t04_angsuran_grid->RowCnt ?>_t04_angsuran_id" class="form-group t04_angsuran_id">
-<span<?php echo $t04_angsuran->id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t04_angsuran->id->EditValue ?></p></span>
-</span>
-<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_id" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->CurrentValue) ?>">
-<?php } ?>
-<?php if ($t04_angsuran->RowType == EW_ROWTYPE_VIEW) { // View record ?>
-<span id="el<?php echo $t04_angsuran_grid->RowCnt ?>_t04_angsuran_id" class="t04_angsuran_id">
-<span<?php echo $t04_angsuran->id->ViewAttributes() ?>>
-<?php echo $t04_angsuran->id->ListViewValue() ?></span>
-</span>
-<?php if ($t04_angsuran->CurrentAction <> "F") { ?>
-<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_id" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->FormValue) ?>">
-<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="o<?php echo $t04_angsuran_grid->RowIndex ?>_id" id="o<?php echo $t04_angsuran_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->OldValue) ?>">
-<?php } else { ?>
-<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="ft04_angsurangrid$x<?php echo $t04_angsuran_grid->RowIndex ?>_id" id="ft04_angsurangrid$x<?php echo $t04_angsuran_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->FormValue) ?>">
-<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="ft04_angsurangrid$o<?php echo $t04_angsuran_grid->RowIndex ?>_id" id="ft04_angsurangrid$o<?php echo $t04_angsuran_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->OldValue) ?>">
-<?php } ?>
-<?php } ?>
-</td>
-	<?php } ?>
-	<?php if ($t04_angsuran->pinjaman_id->Visible) { // pinjaman_id ?>
-		<td data-name="pinjaman_id"<?php echo $t04_angsuran->pinjaman_id->CellAttributes() ?>>
-<?php if ($t04_angsuran->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<?php if ($t04_angsuran->pinjaman_id->getSessionValue() <> "") { ?>
-<span id="el<?php echo $t04_angsuran_grid->RowCnt ?>_t04_angsuran_pinjaman_id" class="form-group t04_angsuran_pinjaman_id">
-<span<?php echo $t04_angsuran->pinjaman_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t04_angsuran->pinjaman_id->ViewValue ?></p></span>
-</span>
-<input type="hidden" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" value="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->CurrentValue) ?>">
-<?php } else { ?>
-<span id="el<?php echo $t04_angsuran_grid->RowCnt ?>_t04_angsuran_pinjaman_id" class="form-group t04_angsuran_pinjaman_id">
-<input type="text" data-table="t04_angsuran" data-field="x_pinjaman_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" size="30" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->pinjaman_id->EditValue ?>"<?php echo $t04_angsuran->pinjaman_id->EditAttributes() ?>>
-</span>
-<?php } ?>
-<input type="hidden" data-table="t04_angsuran" data-field="x_pinjaman_id" name="o<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" id="o<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" value="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->OldValue) ?>">
-<?php } ?>
-<?php if ($t04_angsuran->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<?php if ($t04_angsuran->pinjaman_id->getSessionValue() <> "") { ?>
-<span id="el<?php echo $t04_angsuran_grid->RowCnt ?>_t04_angsuran_pinjaman_id" class="form-group t04_angsuran_pinjaman_id">
-<span<?php echo $t04_angsuran->pinjaman_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t04_angsuran->pinjaman_id->ViewValue ?></p></span>
-</span>
-<input type="hidden" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" value="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->CurrentValue) ?>">
-<?php } else { ?>
-<span id="el<?php echo $t04_angsuran_grid->RowCnt ?>_t04_angsuran_pinjaman_id" class="form-group t04_angsuran_pinjaman_id">
-<input type="text" data-table="t04_angsuran" data-field="x_pinjaman_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" size="30" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->pinjaman_id->EditValue ?>"<?php echo $t04_angsuran->pinjaman_id->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php } ?>
-<?php if ($t04_angsuran->RowType == EW_ROWTYPE_VIEW) { // View record ?>
-<span id="el<?php echo $t04_angsuran_grid->RowCnt ?>_t04_angsuran_pinjaman_id" class="t04_angsuran_pinjaman_id">
-<span<?php echo $t04_angsuran->pinjaman_id->ViewAttributes() ?>>
-<?php echo $t04_angsuran->pinjaman_id->ListViewValue() ?></span>
-</span>
-<?php if ($t04_angsuran->CurrentAction <> "F") { ?>
-<input type="hidden" data-table="t04_angsuran" data-field="x_pinjaman_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" value="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->FormValue) ?>">
-<input type="hidden" data-table="t04_angsuran" data-field="x_pinjaman_id" name="o<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" id="o<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" value="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->OldValue) ?>">
-<?php } else { ?>
-<input type="hidden" data-table="t04_angsuran" data-field="x_pinjaman_id" name="ft04_angsurangrid$x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" id="ft04_angsurangrid$x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" value="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->FormValue) ?>">
-<input type="hidden" data-table="t04_angsuran" data-field="x_pinjaman_id" name="ft04_angsurangrid$o<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" id="ft04_angsurangrid$o<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" value="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->OldValue) ?>">
-<?php } ?>
-<?php } ?>
-</td>
-	<?php } ?>
 	<?php if ($t04_angsuran->AngsuranKe->Visible) { // AngsuranKe ?>
 		<td data-name="AngsuranKe"<?php echo $t04_angsuran->AngsuranKe->CellAttributes() ?>>
 <?php if ($t04_angsuran->RowType == EW_ROWTYPE_ADD) { // Add record ?>
@@ -522,6 +426,13 @@ $t04_angsuran_grid->ListOptions->Render("body", "left", $t04_angsuran_grid->RowC
 <?php } ?>
 </td>
 	<?php } ?>
+<?php if ($t04_angsuran->RowType == EW_ROWTYPE_ADD) { // Add record ?>
+<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_id" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->CurrentValue) ?>">
+<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="o<?php echo $t04_angsuran_grid->RowIndex ?>_id" id="o<?php echo $t04_angsuran_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->OldValue) ?>">
+<?php } ?>
+<?php if ($t04_angsuran->RowType == EW_ROWTYPE_EDIT || $t04_angsuran->CurrentMode == "edit") { ?>
+<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_id" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->CurrentValue) ?>">
+<?php } ?>
 	<?php if ($t04_angsuran->AngsuranTanggal->Visible) { // AngsuranTanggal ?>
 		<td data-name="AngsuranTanggal"<?php echo $t04_angsuran->AngsuranTanggal->CellAttributes() ?>>
 <?php if ($t04_angsuran->RowType == EW_ROWTYPE_ADD) { // Add record ?>
@@ -836,43 +747,6 @@ ft04_angsurangrid.UpdateOpts(<?php echo $t04_angsuran_grid->RowIndex ?>);
 // Render list options (body, left)
 $t04_angsuran_grid->ListOptions->Render("body", "left", $t04_angsuran_grid->RowIndex);
 ?>
-	<?php if ($t04_angsuran->id->Visible) { // id ?>
-		<td data-name="id">
-<?php if ($t04_angsuran->CurrentAction <> "F") { ?>
-<?php } else { ?>
-<span id="el$rowindex$_t04_angsuran_id" class="form-group t04_angsuran_id">
-<span<?php echo $t04_angsuran->id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t04_angsuran->id->ViewValue ?></p></span>
-</span>
-<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_id" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->FormValue) ?>">
-<?php } ?>
-<input type="hidden" data-table="t04_angsuran" data-field="x_id" name="o<?php echo $t04_angsuran_grid->RowIndex ?>_id" id="o<?php echo $t04_angsuran_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_angsuran->id->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t04_angsuran->pinjaman_id->Visible) { // pinjaman_id ?>
-		<td data-name="pinjaman_id">
-<?php if ($t04_angsuran->CurrentAction <> "F") { ?>
-<?php if ($t04_angsuran->pinjaman_id->getSessionValue() <> "") { ?>
-<span id="el$rowindex$_t04_angsuran_pinjaman_id" class="form-group t04_angsuran_pinjaman_id">
-<span<?php echo $t04_angsuran->pinjaman_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t04_angsuran->pinjaman_id->ViewValue ?></p></span>
-</span>
-<input type="hidden" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" value="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->CurrentValue) ?>">
-<?php } else { ?>
-<span id="el$rowindex$_t04_angsuran_pinjaman_id" class="form-group t04_angsuran_pinjaman_id">
-<input type="text" data-table="t04_angsuran" data-field="x_pinjaman_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" size="30" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->pinjaman_id->EditValue ?>"<?php echo $t04_angsuran->pinjaman_id->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php } else { ?>
-<span id="el$rowindex$_t04_angsuran_pinjaman_id" class="form-group t04_angsuran_pinjaman_id">
-<span<?php echo $t04_angsuran->pinjaman_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t04_angsuran->pinjaman_id->ViewValue ?></p></span>
-</span>
-<input type="hidden" data-table="t04_angsuran" data-field="x_pinjaman_id" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" value="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->FormValue) ?>">
-<?php } ?>
-<input type="hidden" data-table="t04_angsuran" data-field="x_pinjaman_id" name="o<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" id="o<?php echo $t04_angsuran_grid->RowIndex ?>_pinjaman_id" value="<?php echo ew_HtmlEncode($t04_angsuran->pinjaman_id->OldValue) ?>">
-</td>
-	<?php } ?>
 	<?php if ($t04_angsuran->AngsuranKe->Visible) { // AngsuranKe ?>
 		<td data-name="AngsuranKe">
 <?php if ($t04_angsuran->CurrentAction <> "F") { ?>
