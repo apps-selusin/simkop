@@ -1361,6 +1361,50 @@ class ct03_pinjaman extends cTable {
 	function Row_Inserted($rsold, &$rsnew) {
 
 		//echo "Row Inserted"
+		// create data rincian angsuran
+
+		$pinjaman_id     = $rsnew["id"];
+		$AngsuranTanggal = $rsnew["TglKontrak"]; //$_GET["TglKontrak"]; //$rsnew["TglKontrak"];
+		$AngsuranTgl     = substr($AngsuranTanggal, -2); //substr($rsnew["TglKontrak"], -2);
+		$AngsuranPokok   = round($rsnew["Pinjaman"] / $rsnew["LamaAngsuran"], -3);
+		$AngsuranBunga   = $rsnew["JumlahAngsuran"] - $AngsuranPokok;
+		$AngsuranTotal   = $AngsuranPokok + $AngsuranBunga;
+		$SisaHutang      = $rsnew["Pinjaman"]; // - $AngsuranTotal;
+		$AngsuranPokokTotal = 0;
+		$AngsuranBungaTotal = 0;
+		$AngsuranTotalGrand = 0;
+
+		//for ($i; $i <= 12; $i++) {
+		for ($AngsuranKe = 1; $AngsuranKe <= $rsnew["LamaAngsuran"]; $AngsuranKe++) {
+			$AngsuranTanggal     = f_TanggalAngsuran($AngsuranTanggal, $AngsuranTgl);
+			$AngsuranPokokTotal += $AngsuranPokok;
+			if ($AngsuranPokokTotal >= $rsnew["Pinjaman"]) {
+				$AngsuranPokok      = $AngsuranPokok - ($AngsuranPokokTotal - $rsnew["Pinjaman"]);
+				$AngsuranPokokTotal = $AngsuranPokokTotal - ($AngsuranPokokTotal - $rsnew["Pinjaman"]);
+			}
+			$SisaHutang         -= $AngsuranPokok;
+			$AngsuranBunga       = $AngsuranTotal - $AngsuranPokok;
+			$AngsuranBungaTotal += $AngsuranBunga;
+			$AngsuranTotalGrand += $AngsuranTotal;
+			$q = "insert into t04_angsuran (
+				pinjaman_id,
+				AngsuranKe,
+				AngsuranTanggal,
+				AngsuranPokok,
+				AngsuranBunga,
+				AngsuranTotal,
+				SisaHutang
+				) values (
+				'".$pinjaman_id."',
+				'".$AngsuranKe."',
+				'".$AngsuranTanggal."',
+				".$AngsuranPokok.",
+				".$AngsuranBunga.",
+				".$AngsuranTotal.",
+				".$SisaHutang."
+				)";
+			ew_Execute($q);
+		}
 	}
 
 	// Row Updating event
@@ -1369,6 +1413,12 @@ class ct03_pinjaman extends cTable {
 		// Enter your code here
 		// To cancel, set return value to FALSE
 
+		$q = "select count(id) from t02_angsuran where nasabah_id = ".$rsold->fields["id"]."";
+		$t02_reccount = ew_ExecuteScalar($q);
+		if ($t02_reccount > 0) {
+			$this->setFailureMessage("Data Rincian Angsuran sudah terbentuk, Data Lama Angsuran tidak bisa diubah !");
+			return FALSE;
+		}
 		return TRUE;
 	}
 

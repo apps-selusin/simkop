@@ -1026,36 +1026,6 @@ class ct01_nasabah extends cTable {
 	function Row_Inserted($rsold, &$rsnew) {
 
 		//echo "Row Inserted"
-		// create data rincian nasabah
-
-		$i = 1;
-		$NoKontrak = $rsnew["NoKontrak"];
-		$dTanggal = $rsnew["TglKontrak"];
-		$AngsuranPokok = $rsnew["Pinjaman"] / $rsnew["LamaAngsuran"];
-		$AngsuranBunga = $rsnew["JumlahAngsuran"] - $AngsuranPokok;
-		$AngsuranTotal = $rsnew["JumlahAngsuran"];
-		$SisaHutang = $rsnew["Pinjaman"];
-		for ($i; $i <= 12; $i++) {
-			$dTanggal = "";
-			$q = "insert into t02_angsuran (
-				NoKontrak,
-				Tanggal,
-				AngsuranPokok,
-				AngsuranBunga,
-				AngsuranTotal,
-				SisaHutang
-				) values (
-				'".$NoKontrak."',
-				'".$dTanggal."',
-				".$AngsuranPokok.",
-				".$AngsuranBunga.",
-				".$AngsuranTotal.",
-				".$SisaHutang."
-				)";
-			ew_Execute($q);
-			$dTanggal = "";
-			$SisaHutang -= $AngsuranPokok;
-		}
 	}
 
 	// Row Updating event
@@ -1064,12 +1034,6 @@ class ct01_nasabah extends cTable {
 		// Enter your code here
 		// To cancel, set return value to FALSE
 
-		$q = "select count(id) from t02_angsuran where nasabah_id = ".$rsold->fields["id"]."";
-		$t02_reccount = ew_ExecuteScalar($q);
-		if ($t02_reccount > 0) {
-			$this->setFailureMessage("Data Rincian Angsuran sudah terbentuk, Data Lama Angsuran tidak bisa diubah !");
-			return FALSE;
-		}
 		return TRUE;
 	}
 

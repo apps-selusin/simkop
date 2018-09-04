@@ -416,6 +416,7 @@ class ct04_angsuran_list extends ct04_angsuran {
 		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
 			$this->id->Visible = FALSE;
 		$this->pinjaman_id->SetVisibility();
+		$this->AngsuranKe->SetVisibility();
 		$this->AngsuranTanggal->SetVisibility();
 		$this->AngsuranPokok->SetVisibility();
 		$this->AngsuranBunga->SetVisibility();
@@ -795,6 +796,7 @@ class ct04_angsuran_list extends ct04_angsuran {
 		$sSavedFilterList = "";
 		$sFilterList = ew_Concat($sFilterList, $this->id->AdvancedSearch->ToJson(), ","); // Field id
 		$sFilterList = ew_Concat($sFilterList, $this->pinjaman_id->AdvancedSearch->ToJson(), ","); // Field pinjaman_id
+		$sFilterList = ew_Concat($sFilterList, $this->AngsuranKe->AdvancedSearch->ToJson(), ","); // Field AngsuranKe
 		$sFilterList = ew_Concat($sFilterList, $this->AngsuranTanggal->AdvancedSearch->ToJson(), ","); // Field AngsuranTanggal
 		$sFilterList = ew_Concat($sFilterList, $this->AngsuranPokok->AdvancedSearch->ToJson(), ","); // Field AngsuranPokok
 		$sFilterList = ew_Concat($sFilterList, $this->AngsuranBunga->AdvancedSearch->ToJson(), ","); // Field AngsuranBunga
@@ -863,6 +865,14 @@ class ct04_angsuran_list extends ct04_angsuran {
 		$this->pinjaman_id->AdvancedSearch->SearchValue2 = @$filter["y_pinjaman_id"];
 		$this->pinjaman_id->AdvancedSearch->SearchOperator2 = @$filter["w_pinjaman_id"];
 		$this->pinjaman_id->AdvancedSearch->Save();
+
+		// Field AngsuranKe
+		$this->AngsuranKe->AdvancedSearch->SearchValue = @$filter["x_AngsuranKe"];
+		$this->AngsuranKe->AdvancedSearch->SearchOperator = @$filter["z_AngsuranKe"];
+		$this->AngsuranKe->AdvancedSearch->SearchCondition = @$filter["v_AngsuranKe"];
+		$this->AngsuranKe->AdvancedSearch->SearchValue2 = @$filter["y_AngsuranKe"];
+		$this->AngsuranKe->AdvancedSearch->SearchOperator2 = @$filter["w_AngsuranKe"];
+		$this->AngsuranKe->AdvancedSearch->Save();
 
 		// Field AngsuranTanggal
 		$this->AngsuranTanggal->AdvancedSearch->SearchValue = @$filter["x_AngsuranTanggal"];
@@ -1094,6 +1104,7 @@ class ct04_angsuran_list extends ct04_angsuran {
 			$this->CurrentOrderType = @$_GET["ordertype"];
 			$this->UpdateSort($this->id, $bCtrl); // id
 			$this->UpdateSort($this->pinjaman_id, $bCtrl); // pinjaman_id
+			$this->UpdateSort($this->AngsuranKe, $bCtrl); // AngsuranKe
 			$this->UpdateSort($this->AngsuranTanggal, $bCtrl); // AngsuranTanggal
 			$this->UpdateSort($this->AngsuranPokok, $bCtrl); // AngsuranPokok
 			$this->UpdateSort($this->AngsuranBunga, $bCtrl); // AngsuranBunga
@@ -1145,6 +1156,7 @@ class ct04_angsuran_list extends ct04_angsuran {
 				$this->setSessionOrderBy($sOrderBy);
 				$this->id->setSort("");
 				$this->pinjaman_id->setSort("");
+				$this->AngsuranKe->setSort("");
 				$this->AngsuranTanggal->setSort("");
 				$this->AngsuranPokok->setSort("");
 				$this->AngsuranBunga->setSort("");
@@ -1610,6 +1622,7 @@ class ct04_angsuran_list extends ct04_angsuran {
 			return;
 		$this->id->setDbValue($row['id']);
 		$this->pinjaman_id->setDbValue($row['pinjaman_id']);
+		$this->AngsuranKe->setDbValue($row['AngsuranKe']);
 		$this->AngsuranTanggal->setDbValue($row['AngsuranTanggal']);
 		$this->AngsuranPokok->setDbValue($row['AngsuranPokok']);
 		$this->AngsuranBunga->setDbValue($row['AngsuranBunga']);
@@ -1626,6 +1639,7 @@ class ct04_angsuran_list extends ct04_angsuran {
 		$row = array();
 		$row['id'] = NULL;
 		$row['pinjaman_id'] = NULL;
+		$row['AngsuranKe'] = NULL;
 		$row['AngsuranTanggal'] = NULL;
 		$row['AngsuranPokok'] = NULL;
 		$row['AngsuranBunga'] = NULL;
@@ -1645,6 +1659,7 @@ class ct04_angsuran_list extends ct04_angsuran {
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
 		$this->pinjaman_id->DbValue = $row['pinjaman_id'];
+		$this->AngsuranKe->DbValue = $row['AngsuranKe'];
 		$this->AngsuranTanggal->DbValue = $row['AngsuranTanggal'];
 		$this->AngsuranPokok->DbValue = $row['AngsuranPokok'];
 		$this->AngsuranBunga->DbValue = $row['AngsuranBunga'];
@@ -1716,6 +1731,7 @@ class ct04_angsuran_list extends ct04_angsuran {
 		// Common render codes for all row types
 		// id
 		// pinjaman_id
+		// AngsuranKe
 		// AngsuranTanggal
 		// AngsuranPokok
 		// AngsuranBunga
@@ -1735,6 +1751,10 @@ class ct04_angsuran_list extends ct04_angsuran {
 		// pinjaman_id
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
 		$this->pinjaman_id->ViewCustomAttributes = "";
+
+		// AngsuranKe
+		$this->AngsuranKe->ViewValue = $this->AngsuranKe->CurrentValue;
+		$this->AngsuranKe->ViewCustomAttributes = "";
 
 		// AngsuranTanggal
 		$this->AngsuranTanggal->ViewValue = $this->AngsuranTanggal->CurrentValue;
@@ -1795,6 +1815,11 @@ class ct04_angsuran_list extends ct04_angsuran {
 			$this->pinjaman_id->LinkCustomAttributes = "";
 			$this->pinjaman_id->HrefValue = "";
 			$this->pinjaman_id->TooltipValue = "";
+
+			// AngsuranKe
+			$this->AngsuranKe->LinkCustomAttributes = "";
+			$this->AngsuranKe->HrefValue = "";
+			$this->AngsuranKe->TooltipValue = "";
 
 			// AngsuranTanggal
 			$this->AngsuranTanggal->LinkCustomAttributes = "";
@@ -2244,6 +2269,15 @@ $t04_angsuran_list->ListOptions->Render("header", "left");
 		</div></div></th>
 	<?php } ?>
 <?php } ?>
+<?php if ($t04_angsuran->AngsuranKe->Visible) { // AngsuranKe ?>
+	<?php if ($t04_angsuran->SortUrl($t04_angsuran->AngsuranKe) == "") { ?>
+		<th data-name="AngsuranKe" class="<?php echo $t04_angsuran->AngsuranKe->HeaderCellClass() ?>"><div id="elh_t04_angsuran_AngsuranKe" class="t04_angsuran_AngsuranKe"><div class="ewTableHeaderCaption"><?php echo $t04_angsuran->AngsuranKe->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="AngsuranKe" class="<?php echo $t04_angsuran->AngsuranKe->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t04_angsuran->SortUrl($t04_angsuran->AngsuranKe) ?>',2);"><div id="elh_t04_angsuran_AngsuranKe" class="t04_angsuran_AngsuranKe">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t04_angsuran->AngsuranKe->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t04_angsuran->AngsuranKe->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t04_angsuran->AngsuranKe->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+		</div></div></th>
+	<?php } ?>
+<?php } ?>
 <?php if ($t04_angsuran->AngsuranTanggal->Visible) { // AngsuranTanggal ?>
 	<?php if ($t04_angsuran->SortUrl($t04_angsuran->AngsuranTanggal) == "") { ?>
 		<th data-name="AngsuranTanggal" class="<?php echo $t04_angsuran->AngsuranTanggal->HeaderCellClass() ?>"><div id="elh_t04_angsuran_AngsuranTanggal" class="t04_angsuran_AngsuranTanggal"><div class="ewTableHeaderCaption"><?php echo $t04_angsuran->AngsuranTanggal->FldCaption() ?></div></div></th>
@@ -2403,6 +2437,14 @@ $t04_angsuran_list->ListOptions->Render("body", "left", $t04_angsuran_list->RowC
 <span id="el<?php echo $t04_angsuran_list->RowCnt ?>_t04_angsuran_pinjaman_id" class="t04_angsuran_pinjaman_id">
 <span<?php echo $t04_angsuran->pinjaman_id->ViewAttributes() ?>>
 <?php echo $t04_angsuran->pinjaman_id->ListViewValue() ?></span>
+</span>
+</td>
+	<?php } ?>
+	<?php if ($t04_angsuran->AngsuranKe->Visible) { // AngsuranKe ?>
+		<td data-name="AngsuranKe"<?php echo $t04_angsuran->AngsuranKe->CellAttributes() ?>>
+<span id="el<?php echo $t04_angsuran_list->RowCnt ?>_t04_angsuran_AngsuranKe" class="t04_angsuran_AngsuranKe">
+<span<?php echo $t04_angsuran->AngsuranKe->ViewAttributes() ?>>
+<?php echo $t04_angsuran->AngsuranKe->ListViewValue() ?></span>
 </span>
 </td>
 	<?php } ?>

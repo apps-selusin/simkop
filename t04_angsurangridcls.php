@@ -353,6 +353,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
 			$this->id->Visible = FALSE;
 		$this->pinjaman_id->SetVisibility();
+		$this->AngsuranKe->SetVisibility();
 		$this->AngsuranTanggal->SetVisibility();
 		$this->AngsuranPokok->SetVisibility();
 		$this->AngsuranBunga->SetVisibility();
@@ -858,6 +859,8 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		global $objForm;
 		if ($objForm->HasValue("x_pinjaman_id") && $objForm->HasValue("o_pinjaman_id") && $this->pinjaman_id->CurrentValue <> $this->pinjaman_id->OldValue)
 			return FALSE;
+		if ($objForm->HasValue("x_AngsuranKe") && $objForm->HasValue("o_AngsuranKe") && $this->AngsuranKe->CurrentValue <> $this->AngsuranKe->OldValue)
+			return FALSE;
 		if ($objForm->HasValue("x_AngsuranTanggal") && $objForm->HasValue("o_AngsuranTanggal") && $this->AngsuranTanggal->CurrentValue <> $this->AngsuranTanggal->OldValue)
 			return FALSE;
 		if ($objForm->HasValue("x_AngsuranPokok") && $objForm->HasValue("o_AngsuranPokok") && $this->AngsuranPokok->CurrentValue <> $this->AngsuranPokok->OldValue)
@@ -1238,6 +1241,8 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		$this->id->OldValue = $this->id->CurrentValue;
 		$this->pinjaman_id->CurrentValue = NULL;
 		$this->pinjaman_id->OldValue = $this->pinjaman_id->CurrentValue;
+		$this->AngsuranKe->CurrentValue = NULL;
+		$this->AngsuranKe->OldValue = $this->AngsuranKe->CurrentValue;
 		$this->AngsuranTanggal->CurrentValue = NULL;
 		$this->AngsuranTanggal->OldValue = $this->AngsuranTanggal->CurrentValue;
 		$this->AngsuranPokok->CurrentValue = NULL;
@@ -1270,6 +1275,10 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->pinjaman_id->setFormValue($objForm->GetValue("x_pinjaman_id"));
 		}
 		$this->pinjaman_id->setOldValue($objForm->GetValue("o_pinjaman_id"));
+		if (!$this->AngsuranKe->FldIsDetailKey) {
+			$this->AngsuranKe->setFormValue($objForm->GetValue("x_AngsuranKe"));
+		}
+		$this->AngsuranKe->setOldValue($objForm->GetValue("o_AngsuranKe"));
 		if (!$this->AngsuranTanggal->FldIsDetailKey) {
 			$this->AngsuranTanggal->setFormValue($objForm->GetValue("x_AngsuranTanggal"));
 			$this->AngsuranTanggal->CurrentValue = ew_UnFormatDateTime($this->AngsuranTanggal->CurrentValue, 7);
@@ -1316,6 +1325,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
 			$this->id->CurrentValue = $this->id->FormValue;
 		$this->pinjaman_id->CurrentValue = $this->pinjaman_id->FormValue;
+		$this->AngsuranKe->CurrentValue = $this->AngsuranKe->FormValue;
 		$this->AngsuranTanggal->CurrentValue = $this->AngsuranTanggal->FormValue;
 		$this->AngsuranTanggal->CurrentValue = ew_UnFormatDateTime($this->AngsuranTanggal->CurrentValue, 7);
 		$this->AngsuranPokok->CurrentValue = $this->AngsuranPokok->FormValue;
@@ -1390,6 +1400,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			return;
 		$this->id->setDbValue($row['id']);
 		$this->pinjaman_id->setDbValue($row['pinjaman_id']);
+		$this->AngsuranKe->setDbValue($row['AngsuranKe']);
 		$this->AngsuranTanggal->setDbValue($row['AngsuranTanggal']);
 		$this->AngsuranPokok->setDbValue($row['AngsuranPokok']);
 		$this->AngsuranBunga->setDbValue($row['AngsuranBunga']);
@@ -1407,6 +1418,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		$row = array();
 		$row['id'] = $this->id->CurrentValue;
 		$row['pinjaman_id'] = $this->pinjaman_id->CurrentValue;
+		$row['AngsuranKe'] = $this->AngsuranKe->CurrentValue;
 		$row['AngsuranTanggal'] = $this->AngsuranTanggal->CurrentValue;
 		$row['AngsuranPokok'] = $this->AngsuranPokok->CurrentValue;
 		$row['AngsuranBunga'] = $this->AngsuranBunga->CurrentValue;
@@ -1426,6 +1438,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
 		$this->pinjaman_id->DbValue = $row['pinjaman_id'];
+		$this->AngsuranKe->DbValue = $row['AngsuranKe'];
 		$this->AngsuranTanggal->DbValue = $row['AngsuranTanggal'];
 		$this->AngsuranPokok->DbValue = $row['AngsuranPokok'];
 		$this->AngsuranBunga->DbValue = $row['AngsuranBunga'];
@@ -1501,6 +1514,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		// Common render codes for all row types
 		// id
 		// pinjaman_id
+		// AngsuranKe
 		// AngsuranTanggal
 		// AngsuranPokok
 		// AngsuranBunga
@@ -1520,6 +1534,10 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		// pinjaman_id
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
 		$this->pinjaman_id->ViewCustomAttributes = "";
+
+		// AngsuranKe
+		$this->AngsuranKe->ViewValue = $this->AngsuranKe->CurrentValue;
+		$this->AngsuranKe->ViewCustomAttributes = "";
 
 		// AngsuranTanggal
 		$this->AngsuranTanggal->ViewValue = $this->AngsuranTanggal->CurrentValue;
@@ -1581,6 +1599,11 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->pinjaman_id->HrefValue = "";
 			$this->pinjaman_id->TooltipValue = "";
 
+			// AngsuranKe
+			$this->AngsuranKe->LinkCustomAttributes = "";
+			$this->AngsuranKe->HrefValue = "";
+			$this->AngsuranKe->TooltipValue = "";
+
 			// AngsuranTanggal
 			$this->AngsuranTanggal->LinkCustomAttributes = "";
 			$this->AngsuranTanggal->HrefValue = "";
@@ -1641,6 +1664,12 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
 			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
 			}
+
+			// AngsuranKe
+			$this->AngsuranKe->EditAttrs["class"] = "form-control";
+			$this->AngsuranKe->EditCustomAttributes = "";
+			$this->AngsuranKe->EditValue = ew_HtmlEncode($this->AngsuranKe->CurrentValue);
+			$this->AngsuranKe->PlaceHolder = ew_RemoveHtml($this->AngsuranKe->FldCaption());
 
 			// AngsuranTanggal
 			$this->AngsuranTanggal->EditAttrs["class"] = "form-control";
@@ -1726,6 +1755,10 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->pinjaman_id->LinkCustomAttributes = "";
 			$this->pinjaman_id->HrefValue = "";
 
+			// AngsuranKe
+			$this->AngsuranKe->LinkCustomAttributes = "";
+			$this->AngsuranKe->HrefValue = "";
+
 			// AngsuranTanggal
 			$this->AngsuranTanggal->LinkCustomAttributes = "";
 			$this->AngsuranTanggal->HrefValue = "";
@@ -1781,6 +1814,12 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
 			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
 			}
+
+			// AngsuranKe
+			$this->AngsuranKe->EditAttrs["class"] = "form-control";
+			$this->AngsuranKe->EditCustomAttributes = "";
+			$this->AngsuranKe->EditValue = ew_HtmlEncode($this->AngsuranKe->CurrentValue);
+			$this->AngsuranKe->PlaceHolder = ew_RemoveHtml($this->AngsuranKe->FldCaption());
 
 			// AngsuranTanggal
 			$this->AngsuranTanggal->EditAttrs["class"] = "form-control";
@@ -1866,6 +1905,10 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->pinjaman_id->LinkCustomAttributes = "";
 			$this->pinjaman_id->HrefValue = "";
 
+			// AngsuranKe
+			$this->AngsuranKe->LinkCustomAttributes = "";
+			$this->AngsuranKe->HrefValue = "";
+
 			// AngsuranTanggal
 			$this->AngsuranTanggal->LinkCustomAttributes = "";
 			$this->AngsuranTanggal->HrefValue = "";
@@ -1922,6 +1965,12 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		}
 		if (!ew_CheckInteger($this->pinjaman_id->FormValue)) {
 			ew_AddMessage($gsFormError, $this->pinjaman_id->FldErrMsg());
+		}
+		if (!$this->AngsuranKe->FldIsDetailKey && !is_null($this->AngsuranKe->FormValue) && $this->AngsuranKe->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->AngsuranKe->FldCaption(), $this->AngsuranKe->ReqErrMsg));
+		}
+		if (!ew_CheckInteger($this->AngsuranKe->FormValue)) {
+			ew_AddMessage($gsFormError, $this->AngsuranKe->FldErrMsg());
 		}
 		if (!$this->AngsuranTanggal->FldIsDetailKey && !is_null($this->AngsuranTanggal->FormValue) && $this->AngsuranTanggal->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->AngsuranTanggal->FldCaption(), $this->AngsuranTanggal->ReqErrMsg));
@@ -2081,6 +2130,9 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			// pinjaman_id
 			$this->pinjaman_id->SetDbValueDef($rsnew, $this->pinjaman_id->CurrentValue, 0, $this->pinjaman_id->ReadOnly);
 
+			// AngsuranKe
+			$this->AngsuranKe->SetDbValueDef($rsnew, $this->AngsuranKe->CurrentValue, 0, $this->AngsuranKe->ReadOnly);
+
 			// AngsuranTanggal
 			$this->AngsuranTanggal->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->AngsuranTanggal->CurrentValue, 7), ew_CurrentDate(), $this->AngsuranTanggal->ReadOnly);
 
@@ -2158,6 +2210,9 @@ class ct04_angsuran_grid extends ct04_angsuran {
 
 		// pinjaman_id
 		$this->pinjaman_id->SetDbValueDef($rsnew, $this->pinjaman_id->CurrentValue, 0, FALSE);
+
+		// AngsuranKe
+		$this->AngsuranKe->SetDbValueDef($rsnew, $this->AngsuranKe->CurrentValue, 0, FALSE);
 
 		// AngsuranTanggal
 		$this->AngsuranTanggal->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->AngsuranTanggal->CurrentValue, 7), ew_CurrentDate(), FALSE);

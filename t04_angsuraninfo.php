@@ -9,6 +9,7 @@ $t04_angsuran = NULL;
 class ct04_angsuran extends cTable {
 	var $id;
 	var $pinjaman_id;
+	var $AngsuranKe;
 	var $AngsuranTanggal;
 	var $AngsuranPokok;
 	var $AngsuranBunga;
@@ -62,6 +63,12 @@ class ct04_angsuran extends cTable {
 		$this->pinjaman_id->Sortable = TRUE; // Allow sort
 		$this->pinjaman_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['pinjaman_id'] = &$this->pinjaman_id;
+
+		// AngsuranKe
+		$this->AngsuranKe = new cField('t04_angsuran', 't04_angsuran', 'x_AngsuranKe', 'AngsuranKe', '`AngsuranKe`', '`AngsuranKe`', 16, -1, FALSE, '`AngsuranKe`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->AngsuranKe->Sortable = TRUE; // Allow sort
+		$this->AngsuranKe->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['AngsuranKe'] = &$this->AngsuranKe;
 
 		// AngsuranTanggal
 		$this->AngsuranTanggal = new cField('t04_angsuran', 't04_angsuran', 'x_AngsuranTanggal', 'AngsuranTanggal', '`AngsuranTanggal`', ew_CastDateFieldForLike('`AngsuranTanggal`', 7, "DB"), 133, 7, FALSE, '`AngsuranTanggal`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
@@ -706,6 +713,7 @@ class ct04_angsuran extends cTable {
 	function LoadListRowValues(&$rs) {
 		$this->id->setDbValue($rs->fields('id'));
 		$this->pinjaman_id->setDbValue($rs->fields('pinjaman_id'));
+		$this->AngsuranKe->setDbValue($rs->fields('AngsuranKe'));
 		$this->AngsuranTanggal->setDbValue($rs->fields('AngsuranTanggal'));
 		$this->AngsuranPokok->setDbValue($rs->fields('AngsuranPokok'));
 		$this->AngsuranBunga->setDbValue($rs->fields('AngsuranBunga'));
@@ -727,6 +735,7 @@ class ct04_angsuran extends cTable {
 	// Common render codes
 		// id
 		// pinjaman_id
+		// AngsuranKe
 		// AngsuranTanggal
 		// AngsuranPokok
 		// AngsuranBunga
@@ -744,6 +753,10 @@ class ct04_angsuran extends cTable {
 		// pinjaman_id
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
 		$this->pinjaman_id->ViewCustomAttributes = "";
+
+		// AngsuranKe
+		$this->AngsuranKe->ViewValue = $this->AngsuranKe->CurrentValue;
+		$this->AngsuranKe->ViewCustomAttributes = "";
 
 		// AngsuranTanggal
 		$this->AngsuranTanggal->ViewValue = $this->AngsuranTanggal->CurrentValue;
@@ -804,6 +817,11 @@ class ct04_angsuran extends cTable {
 		$this->pinjaman_id->LinkCustomAttributes = "";
 		$this->pinjaman_id->HrefValue = "";
 		$this->pinjaman_id->TooltipValue = "";
+
+		// AngsuranKe
+		$this->AngsuranKe->LinkCustomAttributes = "";
+		$this->AngsuranKe->HrefValue = "";
+		$this->AngsuranKe->TooltipValue = "";
 
 		// AngsuranTanggal
 		$this->AngsuranTanggal->LinkCustomAttributes = "";
@@ -881,6 +899,12 @@ class ct04_angsuran extends cTable {
 		$this->pinjaman_id->EditValue = $this->pinjaman_id->CurrentValue;
 		$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
 		}
+
+		// AngsuranKe
+		$this->AngsuranKe->EditAttrs["class"] = "form-control";
+		$this->AngsuranKe->EditCustomAttributes = "";
+		$this->AngsuranKe->EditValue = $this->AngsuranKe->CurrentValue;
+		$this->AngsuranKe->PlaceHolder = ew_RemoveHtml($this->AngsuranKe->FldCaption());
 
 		// AngsuranTanggal
 		$this->AngsuranTanggal->EditAttrs["class"] = "form-control";
@@ -970,6 +994,7 @@ class ct04_angsuran extends cTable {
 				if ($ExportPageType == "view") {
 					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
 					if ($this->pinjaman_id->Exportable) $Doc->ExportCaption($this->pinjaman_id);
+					if ($this->AngsuranKe->Exportable) $Doc->ExportCaption($this->AngsuranKe);
 					if ($this->AngsuranTanggal->Exportable) $Doc->ExportCaption($this->AngsuranTanggal);
 					if ($this->AngsuranPokok->Exportable) $Doc->ExportCaption($this->AngsuranPokok);
 					if ($this->AngsuranBunga->Exportable) $Doc->ExportCaption($this->AngsuranBunga);
@@ -982,6 +1007,7 @@ class ct04_angsuran extends cTable {
 				} else {
 					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
 					if ($this->pinjaman_id->Exportable) $Doc->ExportCaption($this->pinjaman_id);
+					if ($this->AngsuranKe->Exportable) $Doc->ExportCaption($this->AngsuranKe);
 					if ($this->AngsuranTanggal->Exportable) $Doc->ExportCaption($this->AngsuranTanggal);
 					if ($this->AngsuranPokok->Exportable) $Doc->ExportCaption($this->AngsuranPokok);
 					if ($this->AngsuranBunga->Exportable) $Doc->ExportCaption($this->AngsuranBunga);
@@ -1024,6 +1050,7 @@ class ct04_angsuran extends cTable {
 					if ($ExportPageType == "view") {
 						if ($this->id->Exportable) $Doc->ExportField($this->id);
 						if ($this->pinjaman_id->Exportable) $Doc->ExportField($this->pinjaman_id);
+						if ($this->AngsuranKe->Exportable) $Doc->ExportField($this->AngsuranKe);
 						if ($this->AngsuranTanggal->Exportable) $Doc->ExportField($this->AngsuranTanggal);
 						if ($this->AngsuranPokok->Exportable) $Doc->ExportField($this->AngsuranPokok);
 						if ($this->AngsuranBunga->Exportable) $Doc->ExportField($this->AngsuranBunga);
@@ -1036,6 +1063,7 @@ class ct04_angsuran extends cTable {
 					} else {
 						if ($this->id->Exportable) $Doc->ExportField($this->id);
 						if ($this->pinjaman_id->Exportable) $Doc->ExportField($this->pinjaman_id);
+						if ($this->AngsuranKe->Exportable) $Doc->ExportField($this->AngsuranKe);
 						if ($this->AngsuranTanggal->Exportable) $Doc->ExportField($this->AngsuranTanggal);
 						if ($this->AngsuranPokok->Exportable) $Doc->ExportField($this->AngsuranPokok);
 						if ($this->AngsuranBunga->Exportable) $Doc->ExportField($this->AngsuranBunga);

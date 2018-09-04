@@ -388,6 +388,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
 			$this->id->Visible = FALSE;
 		$this->pinjaman_id->SetVisibility();
+		$this->AngsuranKe->SetVisibility();
 		$this->AngsuranTanggal->SetVisibility();
 		$this->AngsuranPokok->SetVisibility();
 		$this->AngsuranBunga->SetVisibility();
@@ -663,6 +664,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 			return;
 		$this->id->setDbValue($row['id']);
 		$this->pinjaman_id->setDbValue($row['pinjaman_id']);
+		$this->AngsuranKe->setDbValue($row['AngsuranKe']);
 		$this->AngsuranTanggal->setDbValue($row['AngsuranTanggal']);
 		$this->AngsuranPokok->setDbValue($row['AngsuranPokok']);
 		$this->AngsuranBunga->setDbValue($row['AngsuranBunga']);
@@ -679,6 +681,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 		$row = array();
 		$row['id'] = NULL;
 		$row['pinjaman_id'] = NULL;
+		$row['AngsuranKe'] = NULL;
 		$row['AngsuranTanggal'] = NULL;
 		$row['AngsuranPokok'] = NULL;
 		$row['AngsuranBunga'] = NULL;
@@ -698,6 +701,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
 		$this->pinjaman_id->DbValue = $row['pinjaman_id'];
+		$this->AngsuranKe->DbValue = $row['AngsuranKe'];
 		$this->AngsuranTanggal->DbValue = $row['AngsuranTanggal'];
 		$this->AngsuranPokok->DbValue = $row['AngsuranPokok'];
 		$this->AngsuranBunga->DbValue = $row['AngsuranBunga'];
@@ -747,6 +751,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 		// Common render codes for all row types
 		// id
 		// pinjaman_id
+		// AngsuranKe
 		// AngsuranTanggal
 		// AngsuranPokok
 		// AngsuranBunga
@@ -766,6 +771,10 @@ class ct04_angsuran_view extends ct04_angsuran {
 		// pinjaman_id
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
 		$this->pinjaman_id->ViewCustomAttributes = "";
+
+		// AngsuranKe
+		$this->AngsuranKe->ViewValue = $this->AngsuranKe->CurrentValue;
+		$this->AngsuranKe->ViewCustomAttributes = "";
 
 		// AngsuranTanggal
 		$this->AngsuranTanggal->ViewValue = $this->AngsuranTanggal->CurrentValue;
@@ -826,6 +835,11 @@ class ct04_angsuran_view extends ct04_angsuran {
 			$this->pinjaman_id->LinkCustomAttributes = "";
 			$this->pinjaman_id->HrefValue = "";
 			$this->pinjaman_id->TooltipValue = "";
+
+			// AngsuranKe
+			$this->AngsuranKe->LinkCustomAttributes = "";
+			$this->AngsuranKe->HrefValue = "";
+			$this->AngsuranKe->TooltipValue = "";
 
 			// AngsuranTanggal
 			$this->AngsuranTanggal->LinkCustomAttributes = "";
@@ -1135,6 +1149,17 @@ $t04_angsuran_view->ShowMessage();
 <span id="el_t04_angsuran_pinjaman_id">
 <span<?php echo $t04_angsuran->pinjaman_id->ViewAttributes() ?>>
 <?php echo $t04_angsuran->pinjaman_id->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t04_angsuran->AngsuranKe->Visible) { // AngsuranKe ?>
+	<tr id="r_AngsuranKe">
+		<td class="col-sm-2"><span id="elh_t04_angsuran_AngsuranKe"><?php echo $t04_angsuran->AngsuranKe->FldCaption() ?></span></td>
+		<td data-name="AngsuranKe"<?php echo $t04_angsuran->AngsuranKe->CellAttributes() ?>>
+<span id="el_t04_angsuran_AngsuranKe">
+<span<?php echo $t04_angsuran->AngsuranKe->ViewAttributes() ?>>
+<?php echo $t04_angsuran->AngsuranKe->ViewValue ?></span>
 </span>
 </td>
 	</tr>
