@@ -8,7 +8,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "t03_pinjamaninfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
 <?php include_once "t04_angsurangridcls.php" ?>
-<?php include_once "t02_jaminangridcls.php" ?>
+<?php include_once "t05_pinjamanjaminangridcls.php" ?>
 <?php include_once "userfn14.php" ?>
 <?php
 
@@ -376,12 +376,12 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 						exit();
 					}
 				}
-				if (in_array("t02_jaminan", $DetailTblVar)) {
+				if (in_array("t05_pinjamanjaminan", $DetailTblVar)) {
 
-					// Process auto fill for detail table 't02_jaminan'
-					if (preg_match('/^ft02_jaminan(grid|add|addopt|edit|update|search)$/', @$_POST["form"])) {
-						if (!isset($GLOBALS["t02_jaminan_grid"])) $GLOBALS["t02_jaminan_grid"] = new ct02_jaminan_grid;
-						$GLOBALS["t02_jaminan_grid"]->Page_Init();
+					// Process auto fill for detail table 't05_pinjamanjaminan'
+					if (preg_match('/^ft05_pinjamanjaminan(grid|add|addopt|edit|update|search)$/', @$_POST["form"])) {
+						if (!isset($GLOBALS["t05_pinjamanjaminan_grid"])) $GLOBALS["t05_pinjamanjaminan_grid"] = new ct05_pinjamanjaminan_grid;
+						$GLOBALS["t05_pinjamanjaminan_grid"]->Page_Init();
 						$this->Page_Terminate();
 						exit();
 					}
@@ -1104,9 +1104,9 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 			if (!isset($GLOBALS["t04_angsuran_grid"])) $GLOBALS["t04_angsuran_grid"] = new ct04_angsuran_grid(); // get detail page object
 			$GLOBALS["t04_angsuran_grid"]->ValidateGridForm();
 		}
-		if (in_array("t02_jaminan", $DetailTblVar) && $GLOBALS["t02_jaminan"]->DetailAdd) {
-			if (!isset($GLOBALS["t02_jaminan_grid"])) $GLOBALS["t02_jaminan_grid"] = new ct02_jaminan_grid(); // get detail page object
-			$GLOBALS["t02_jaminan_grid"]->ValidateGridForm();
+		if (in_array("t05_pinjamanjaminan", $DetailTblVar) && $GLOBALS["t05_pinjamanjaminan"]->DetailAdd) {
+			if (!isset($GLOBALS["t05_pinjamanjaminan_grid"])) $GLOBALS["t05_pinjamanjaminan_grid"] = new ct05_pinjamanjaminan_grid(); // get detail page object
+			$GLOBALS["t05_pinjamanjaminan_grid"]->ValidateGridForm();
 		}
 
 		// Return validate result
@@ -1197,14 +1197,14 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 				if (!$AddRow)
 					$GLOBALS["t04_angsuran"]->pinjaman_id->setSessionValue(""); // Clear master key if insert failed
 			}
-			if (in_array("t02_jaminan", $DetailTblVar) && $GLOBALS["t02_jaminan"]->DetailAdd) {
-				$GLOBALS["t02_jaminan"]->nasabah_id->setSessionValue($this->nasabah_id->CurrentValue); // Set master key
-				if (!isset($GLOBALS["t02_jaminan_grid"])) $GLOBALS["t02_jaminan_grid"] = new ct02_jaminan_grid(); // Get detail page object
-				$Security->LoadCurrentUserLevel($this->ProjectID . "t02_jaminan"); // Load user level of detail table
-				$AddRow = $GLOBALS["t02_jaminan_grid"]->GridInsert();
+			if (in_array("t05_pinjamanjaminan", $DetailTblVar) && $GLOBALS["t05_pinjamanjaminan"]->DetailAdd) {
+				$GLOBALS["t05_pinjamanjaminan"]->pinjaman_id->setSessionValue($this->id->CurrentValue); // Set master key
+				if (!isset($GLOBALS["t05_pinjamanjaminan_grid"])) $GLOBALS["t05_pinjamanjaminan_grid"] = new ct05_pinjamanjaminan_grid(); // Get detail page object
+				$Security->LoadCurrentUserLevel($this->ProjectID . "t05_pinjamanjaminan"); // Load user level of detail table
+				$AddRow = $GLOBALS["t05_pinjamanjaminan_grid"]->GridInsert();
 				$Security->LoadCurrentUserLevel($this->ProjectID . $this->TableName); // Restore user level of master table
 				if (!$AddRow)
-					$GLOBALS["t02_jaminan"]->nasabah_id->setSessionValue(""); // Clear master key if insert failed
+					$GLOBALS["t05_pinjamanjaminan"]->pinjaman_id->setSessionValue(""); // Clear master key if insert failed
 			}
 		}
 
@@ -1255,22 +1255,22 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 					$GLOBALS["t04_angsuran_grid"]->pinjaman_id->setSessionValue($GLOBALS["t04_angsuran_grid"]->pinjaman_id->CurrentValue);
 				}
 			}
-			if (in_array("t02_jaminan", $DetailTblVar)) {
-				if (!isset($GLOBALS["t02_jaminan_grid"]))
-					$GLOBALS["t02_jaminan_grid"] = new ct02_jaminan_grid;
-				if ($GLOBALS["t02_jaminan_grid"]->DetailAdd) {
+			if (in_array("t05_pinjamanjaminan", $DetailTblVar)) {
+				if (!isset($GLOBALS["t05_pinjamanjaminan_grid"]))
+					$GLOBALS["t05_pinjamanjaminan_grid"] = new ct05_pinjamanjaminan_grid;
+				if ($GLOBALS["t05_pinjamanjaminan_grid"]->DetailAdd) {
 					if ($this->CopyRecord)
-						$GLOBALS["t02_jaminan_grid"]->CurrentMode = "copy";
+						$GLOBALS["t05_pinjamanjaminan_grid"]->CurrentMode = "copy";
 					else
-						$GLOBALS["t02_jaminan_grid"]->CurrentMode = "add";
-					$GLOBALS["t02_jaminan_grid"]->CurrentAction = "gridadd";
+						$GLOBALS["t05_pinjamanjaminan_grid"]->CurrentMode = "add";
+					$GLOBALS["t05_pinjamanjaminan_grid"]->CurrentAction = "gridadd";
 
 					// Save current master table to detail table
-					$GLOBALS["t02_jaminan_grid"]->setCurrentMasterTable($this->TableVar);
-					$GLOBALS["t02_jaminan_grid"]->setStartRecordNumber(1);
-					$GLOBALS["t02_jaminan_grid"]->nasabah_id->FldIsDetailKey = TRUE;
-					$GLOBALS["t02_jaminan_grid"]->nasabah_id->CurrentValue = $this->nasabah_id->CurrentValue;
-					$GLOBALS["t02_jaminan_grid"]->nasabah_id->setSessionValue($GLOBALS["t02_jaminan_grid"]->nasabah_id->CurrentValue);
+					$GLOBALS["t05_pinjamanjaminan_grid"]->setCurrentMasterTable($this->TableVar);
+					$GLOBALS["t05_pinjamanjaminan_grid"]->setStartRecordNumber(1);
+					$GLOBALS["t05_pinjamanjaminan_grid"]->pinjaman_id->FldIsDetailKey = TRUE;
+					$GLOBALS["t05_pinjamanjaminan_grid"]->pinjaman_id->CurrentValue = $this->id->CurrentValue;
+					$GLOBALS["t05_pinjamanjaminan_grid"]->pinjaman_id->setSessionValue($GLOBALS["t05_pinjamanjaminan_grid"]->pinjaman_id->CurrentValue);
 				}
 			}
 		}
@@ -1289,9 +1289,9 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 	// Set up detail pages
 	function SetupDetailPages() {
 		$pages = new cSubPages();
-		$pages->Style = "tabs";
+		$pages->Style = "pills";
 		$pages->Add('t04_angsuran');
-		$pages->Add('t02_jaminan');
+		$pages->Add('t05_pinjamanjaminan');
 		$this->DetailPages = $pages;
 	}
 
@@ -1373,16 +1373,6 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		// Example:
 		//$header = "your header";
 
-		$header = "
-			<button class='btn ewButton' name='myFirstBtn' id='myFirstBtn' type='submit'>
-			My First Button @ add
-			</button>&nbsp;
-			<button class='btn ewButton' name='mySecondBtn' id='mySecondtBtn' type='submit'>
-			My Second Button @ add
-			</button>&nbsp;
-			<button class='btn ewButton' name='myThirdBtn' id='myThirdBtn' type='submit'>
-			My Third Button @ add
-			</button>";
 	}
 
 	// Page Data Rendered event
@@ -1525,7 +1515,7 @@ ft03_pinjamanadd.Form_CustomValidate =
 ft03_pinjamanadd.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
 
 // Dynamic selection lists
-ft03_pinjamanadd.Lists["x_nasabah_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Customer","x_NoTelpHp","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t01_nasabah"};
+ft03_pinjamanadd.Lists["x_nasabah_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Customer","x_NoTelpHp","",""],"ParentFields":[],"ChildFields":["t05_pinjamanjaminan x_jaminan_id"],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t01_nasabah"};
 ft03_pinjamanadd.Lists["x_nasabah_id"].Data = "<?php echo $t03_pinjaman_add->nasabah_id->LookupFilterQuery(FALSE, "add") ?>";
 
 // Form object for search
@@ -1576,6 +1566,7 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 		<label id="elh_t03_pinjaman_nasabah_id" for="x_nasabah_id" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->nasabah_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->nasabah_id->CellAttributes() ?>>
 <span id="el_t03_pinjaman_nasabah_id">
+<?php $t03_pinjaman->nasabah_id->EditAttrs["onchange"] = "ew_UpdateOpt.call(this); " . @$t03_pinjaman->nasabah_id->EditAttrs["onchange"]; ?>
 <span class="ewLookupList">
 	<span onclick="jQuery(this).parent().next(":not([disabled])").click();" tabindex="-1" class="form-control ewLookupText" id="lu_x_nasabah_id"><?php echo (strval($t03_pinjaman->nasabah_id->ViewValue) == "" ? $Language->Phrase("PleaseSelect") : $t03_pinjaman->nasabah_id->ViewValue); ?></span>
 </span>
@@ -1668,12 +1659,12 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 	}
 ?>
 <?php
-	if (in_array("t02_jaminan", explode(",", $t03_pinjaman->getCurrentDetailTable())) && $t02_jaminan->DetailAdd) {
-		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t02_jaminan") {
-			$FirstActiveDetailTable = "t02_jaminan";
+	if (in_array("t05_pinjamanjaminan", explode(",", $t03_pinjaman->getCurrentDetailTable())) && $t05_pinjamanjaminan->DetailAdd) {
+		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t05_pinjamanjaminan") {
+			$FirstActiveDetailTable = "t05_pinjamanjaminan";
 		}
 ?>
-		<li<?php echo $t03_pinjaman_add->DetailPages->TabStyle("t02_jaminan") ?>><a href="#tab_t02_jaminan" data-toggle="tab"><?php echo $Language->TablePhrase("t02_jaminan", "TblCaption") ?></a></li>
+		<li<?php echo $t03_pinjaman_add->DetailPages->TabStyle("t05_pinjamanjaminan") ?>><a href="#tab_t05_pinjamanjaminan" data-toggle="tab"><?php echo $Language->TablePhrase("t05_pinjamanjaminan", "TblCaption") ?></a></li>
 <?php
 	}
 ?>
@@ -1690,13 +1681,13 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 		</div><!-- /page* -->
 <?php } ?>
 <?php
-	if (in_array("t02_jaminan", explode(",", $t03_pinjaman->getCurrentDetailTable())) && $t02_jaminan->DetailAdd) {
-		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t02_jaminan") {
-			$FirstActiveDetailTable = "t02_jaminan";
+	if (in_array("t05_pinjamanjaminan", explode(",", $t03_pinjaman->getCurrentDetailTable())) && $t05_pinjamanjaminan->DetailAdd) {
+		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t05_pinjamanjaminan") {
+			$FirstActiveDetailTable = "t05_pinjamanjaminan";
 		}
 ?>
-		<div class="tab-pane<?php echo $t03_pinjaman_add->DetailPages->PageStyle("t02_jaminan") ?>" id="tab_t02_jaminan"><!-- page* -->
-<?php include_once "t02_jaminangrid.php" ?>
+		<div class="tab-pane<?php echo $t03_pinjaman_add->DetailPages->PageStyle("t05_pinjamanjaminan") ?>" id="tab_t05_pinjamanjaminan"><!-- page* -->
+<?php include_once "t05_pinjamanjaminangrid.php" ?>
 		</div><!-- /page* -->
 <?php } ?>
 	</div><!-- /.tab-content -->

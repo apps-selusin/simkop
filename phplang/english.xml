@@ -618,6 +618,9 @@
   <project>
     <phrase id="bodytitle" value="SIM Koperasi" />
     <phrase id="footertext" value="&amp;copy;2018 Selaras Solusindo. All rights reserved." />
+    <menu id="16">
+      <phrase id="menutext" value="Jaminan" />
+    </menu>
     <menu id="5">
       <phrase id="menutext" value="Home" />
     </menu>
@@ -775,6 +778,18 @@
       </field>
       <field id="keterangan">
         <phrase id="fldcaption" value="Keterangan" />
+      </field>
+    </table>
+    <table id="t05_pinjamanjaminan">
+      <phrase id="tblcaption" value="Jaminan" />
+      <field id="id">
+        <phrase id="fldcaption" value="id" />
+      </field>
+      <field id="pinjaman_id">
+        <phrase id="fldcaption" value="pinjaman id" />
+      </field>
+      <field id="jaminan_id">
+        <phrase id="fldcaption" value="jaminan id" />
       </field>
     </table>
     <table id="t96_employees">

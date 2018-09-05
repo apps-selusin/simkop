@@ -5,8 +5,8 @@ ob_start(); // Turn on output buffering
 <?php include_once "ewcfg14.php" ?>
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql14.php") ?>
 <?php include_once "phpfn14.php" ?>
-<?php include_once "t02_jaminaninfo.php" ?>
-<?php include_once "t01_nasabahinfo.php" ?>
+<?php include_once "t05_pinjamanjaminaninfo.php" ?>
+<?php include_once "t03_pinjamaninfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
 <?php include_once "userfn14.php" ?>
 <?php
@@ -15,9 +15,9 @@ ob_start(); // Turn on output buffering
 // Page class
 //
 
-$t02_jaminan_add = NULL; // Initialize page object first
+$t05_pinjamanjaminan_add = NULL; // Initialize page object first
 
-class ct02_jaminan_add extends ct02_jaminan {
+class ct05_pinjamanjaminan_add extends ct05_pinjamanjaminan {
 
 	// Page ID
 	var $PageID = 'add';
@@ -26,10 +26,10 @@ class ct02_jaminan_add extends ct02_jaminan {
 	var $ProjectID = '{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}';
 
 	// Table name
-	var $TableName = 't02_jaminan';
+	var $TableName = 't05_pinjamanjaminan';
 
 	// Page object name
-	var $PageObjName = 't02_jaminan_add';
+	var $PageObjName = 't05_pinjamanjaminan_add';
 
 	// Page headings
 	var $Heading = '';
@@ -257,14 +257,14 @@ class ct02_jaminan_add extends ct02_jaminan {
 		// Parent constuctor
 		parent::__construct();
 
-		// Table object (t02_jaminan)
-		if (!isset($GLOBALS["t02_jaminan"]) || get_class($GLOBALS["t02_jaminan"]) == "ct02_jaminan") {
-			$GLOBALS["t02_jaminan"] = &$this;
-			$GLOBALS["Table"] = &$GLOBALS["t02_jaminan"];
+		// Table object (t05_pinjamanjaminan)
+		if (!isset($GLOBALS["t05_pinjamanjaminan"]) || get_class($GLOBALS["t05_pinjamanjaminan"]) == "ct05_pinjamanjaminan") {
+			$GLOBALS["t05_pinjamanjaminan"] = &$this;
+			$GLOBALS["Table"] = &$GLOBALS["t05_pinjamanjaminan"];
 		}
 
-		// Table object (t01_nasabah)
-		if (!isset($GLOBALS['t01_nasabah'])) $GLOBALS['t01_nasabah'] = new ct01_nasabah();
+		// Table object (t03_pinjaman)
+		if (!isset($GLOBALS['t03_pinjaman'])) $GLOBALS['t03_pinjaman'] = new ct03_pinjaman();
 
 		// Table object (t96_employees)
 		if (!isset($GLOBALS['t96_employees'])) $GLOBALS['t96_employees'] = new ct96_employees();
@@ -275,7 +275,7 @@ class ct02_jaminan_add extends ct02_jaminan {
 
 		// Table name (for backward compatibility)
 		if (!defined("EW_TABLE_NAME"))
-			define("EW_TABLE_NAME", 't02_jaminan', TRUE);
+			define("EW_TABLE_NAME", 't05_pinjamanjaminan', TRUE);
 
 		// Start timer
 		if (!isset($GLOBALS["gTimer"]))
@@ -317,7 +317,7 @@ class ct02_jaminan_add extends ct02_jaminan {
 			$Security->SaveLastUrl();
 			$this->setFailureMessage(ew_DeniedMsg()); // Set no permission
 			if ($Security->CanList())
-				$this->Page_Terminate(ew_GetUrl("t02_jaminanlist.php"));
+				$this->Page_Terminate(ew_GetUrl("t05_pinjamanjaminanlist.php"));
 			else
 				$this->Page_Terminate(ew_GetUrl("login.php"));
 		}
@@ -335,14 +335,8 @@ class ct02_jaminan_add extends ct02_jaminan {
 
 		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->nasabah_id->SetVisibility();
-		$this->MerkType->SetVisibility();
-		$this->NoRangka->SetVisibility();
-		$this->NoMesin->SetVisibility();
-		$this->Warna->SetVisibility();
-		$this->NoPol->SetVisibility();
-		$this->Keterangan->SetVisibility();
-		$this->AtasNama->SetVisibility();
+		$this->pinjaman_id->SetVisibility();
+		$this->jaminan_id->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -388,13 +382,13 @@ class ct02_jaminan_add extends ct02_jaminan {
 		Page_Unloaded();
 
 		// Export
-		global $EW_EXPORT, $t02_jaminan;
+		global $EW_EXPORT, $t05_pinjamanjaminan;
 		if ($this->CustomExport <> "" && $this->CustomExport == $this->Export && array_key_exists($this->CustomExport, $EW_EXPORT)) {
 				$sContent = ob_get_contents();
 			if ($gsExportFile == "") $gsExportFile = $this->TableVar;
 			$class = $EW_EXPORT[$this->CustomExport];
 			if (class_exists($class)) {
-				$doc = new $class($t02_jaminan);
+				$doc = new $class($t05_pinjamanjaminan);
 				$doc->Text = $sContent;
 				if ($this->Export == "email")
 					echo $this->ExportEmail($doc->Text);
@@ -420,7 +414,7 @@ class ct02_jaminan_add extends ct02_jaminan {
 				$pageName = ew_GetPageName($url);
 				if ($pageName != $this->GetListUrl()) { // Not List page
 					$row["caption"] = $this->GetModalCaption($pageName);
-					if ($pageName == "t02_jaminanview.php")
+					if ($pageName == "t05_pinjamanjaminanview.php")
 						$row["view"] = "1";
 				} else { // List page should not be shown as modal => error
 					$row["error"] = $this->getFailureMessage();
@@ -507,7 +501,7 @@ class ct02_jaminan_add extends ct02_jaminan {
 			case "C": // Copy an existing record
 				if (!$loaded) { // Record not loaded
 					if ($this->getFailureMessage() == "") $this->setFailureMessage($Language->Phrase("NoRecord")); // No record found
-					$this->Page_Terminate("t02_jaminanlist.php"); // No matching record, return to list
+					$this->Page_Terminate("t05_pinjamanjaminanlist.php"); // No matching record, return to list
 				}
 				break;
 			case "A": // Add new record
@@ -516,9 +510,9 @@ class ct02_jaminan_add extends ct02_jaminan {
 					if ($this->getSuccessMessage() == "")
 						$this->setSuccessMessage($Language->Phrase("AddSuccess")); // Set up success message
 					$sReturnUrl = $this->getReturnUrl();
-					if (ew_GetPageName($sReturnUrl) == "t02_jaminanlist.php")
+					if (ew_GetPageName($sReturnUrl) == "t05_pinjamanjaminanlist.php")
 						$sReturnUrl = $this->AddMasterUrl($sReturnUrl); // List page, return to List page with correct master key if necessary
-					elseif (ew_GetPageName($sReturnUrl) == "t02_jaminanview.php")
+					elseif (ew_GetPageName($sReturnUrl) == "t05_pinjamanjaminanview.php")
 						$sReturnUrl = $this->GetViewUrl(); // View page, return to View page with keyurl directly
 					$this->Page_Terminate($sReturnUrl); // Clean up and return
 				} else {
@@ -549,22 +543,10 @@ class ct02_jaminan_add extends ct02_jaminan {
 	function LoadDefaultValues() {
 		$this->id->CurrentValue = NULL;
 		$this->id->OldValue = $this->id->CurrentValue;
-		$this->nasabah_id->CurrentValue = NULL;
-		$this->nasabah_id->OldValue = $this->nasabah_id->CurrentValue;
-		$this->MerkType->CurrentValue = NULL;
-		$this->MerkType->OldValue = $this->MerkType->CurrentValue;
-		$this->NoRangka->CurrentValue = NULL;
-		$this->NoRangka->OldValue = $this->NoRangka->CurrentValue;
-		$this->NoMesin->CurrentValue = NULL;
-		$this->NoMesin->OldValue = $this->NoMesin->CurrentValue;
-		$this->Warna->CurrentValue = NULL;
-		$this->Warna->OldValue = $this->Warna->CurrentValue;
-		$this->NoPol->CurrentValue = NULL;
-		$this->NoPol->OldValue = $this->NoPol->CurrentValue;
-		$this->Keterangan->CurrentValue = NULL;
-		$this->Keterangan->OldValue = $this->Keterangan->CurrentValue;
-		$this->AtasNama->CurrentValue = NULL;
-		$this->AtasNama->OldValue = $this->AtasNama->CurrentValue;
+		$this->pinjaman_id->CurrentValue = NULL;
+		$this->pinjaman_id->OldValue = $this->pinjaman_id->CurrentValue;
+		$this->jaminan_id->CurrentValue = NULL;
+		$this->jaminan_id->OldValue = $this->jaminan_id->CurrentValue;
 	}
 
 	// Load form values
@@ -572,43 +554,19 @@ class ct02_jaminan_add extends ct02_jaminan {
 
 		// Load from form
 		global $objForm;
-		if (!$this->nasabah_id->FldIsDetailKey) {
-			$this->nasabah_id->setFormValue($objForm->GetValue("x_nasabah_id"));
+		if (!$this->pinjaman_id->FldIsDetailKey) {
+			$this->pinjaman_id->setFormValue($objForm->GetValue("x_pinjaman_id"));
 		}
-		if (!$this->MerkType->FldIsDetailKey) {
-			$this->MerkType->setFormValue($objForm->GetValue("x_MerkType"));
-		}
-		if (!$this->NoRangka->FldIsDetailKey) {
-			$this->NoRangka->setFormValue($objForm->GetValue("x_NoRangka"));
-		}
-		if (!$this->NoMesin->FldIsDetailKey) {
-			$this->NoMesin->setFormValue($objForm->GetValue("x_NoMesin"));
-		}
-		if (!$this->Warna->FldIsDetailKey) {
-			$this->Warna->setFormValue($objForm->GetValue("x_Warna"));
-		}
-		if (!$this->NoPol->FldIsDetailKey) {
-			$this->NoPol->setFormValue($objForm->GetValue("x_NoPol"));
-		}
-		if (!$this->Keterangan->FldIsDetailKey) {
-			$this->Keterangan->setFormValue($objForm->GetValue("x_Keterangan"));
-		}
-		if (!$this->AtasNama->FldIsDetailKey) {
-			$this->AtasNama->setFormValue($objForm->GetValue("x_AtasNama"));
+		if (!$this->jaminan_id->FldIsDetailKey) {
+			$this->jaminan_id->setFormValue($objForm->GetValue("x_jaminan_id"));
 		}
 	}
 
 	// Restore form values
 	function RestoreFormValues() {
 		global $objForm;
-		$this->nasabah_id->CurrentValue = $this->nasabah_id->FormValue;
-		$this->MerkType->CurrentValue = $this->MerkType->FormValue;
-		$this->NoRangka->CurrentValue = $this->NoRangka->FormValue;
-		$this->NoMesin->CurrentValue = $this->NoMesin->FormValue;
-		$this->Warna->CurrentValue = $this->Warna->FormValue;
-		$this->NoPol->CurrentValue = $this->NoPol->FormValue;
-		$this->Keterangan->CurrentValue = $this->Keterangan->FormValue;
-		$this->AtasNama->CurrentValue = $this->AtasNama->FormValue;
+		$this->pinjaman_id->CurrentValue = $this->pinjaman_id->FormValue;
+		$this->jaminan_id->CurrentValue = $this->jaminan_id->FormValue;
 	}
 
 	// Load row based on key values
@@ -645,14 +603,13 @@ class ct02_jaminan_add extends ct02_jaminan {
 		if (!$rs || $rs->EOF)
 			return;
 		$this->id->setDbValue($row['id']);
-		$this->nasabah_id->setDbValue($row['nasabah_id']);
-		$this->MerkType->setDbValue($row['MerkType']);
-		$this->NoRangka->setDbValue($row['NoRangka']);
-		$this->NoMesin->setDbValue($row['NoMesin']);
-		$this->Warna->setDbValue($row['Warna']);
-		$this->NoPol->setDbValue($row['NoPol']);
-		$this->Keterangan->setDbValue($row['Keterangan']);
-		$this->AtasNama->setDbValue($row['AtasNama']);
+		$this->pinjaman_id->setDbValue($row['pinjaman_id']);
+		$this->jaminan_id->setDbValue($row['jaminan_id']);
+		if (array_key_exists('EV__jaminan_id', $rs->fields)) {
+			$this->jaminan_id->VirtualValue = $rs->fields('EV__jaminan_id'); // Set up virtual field value
+		} else {
+			$this->jaminan_id->VirtualValue = ""; // Clear value
+		}
 	}
 
 	// Return a row with default values
@@ -660,14 +617,8 @@ class ct02_jaminan_add extends ct02_jaminan {
 		$this->LoadDefaultValues();
 		$row = array();
 		$row['id'] = $this->id->CurrentValue;
-		$row['nasabah_id'] = $this->nasabah_id->CurrentValue;
-		$row['MerkType'] = $this->MerkType->CurrentValue;
-		$row['NoRangka'] = $this->NoRangka->CurrentValue;
-		$row['NoMesin'] = $this->NoMesin->CurrentValue;
-		$row['Warna'] = $this->Warna->CurrentValue;
-		$row['NoPol'] = $this->NoPol->CurrentValue;
-		$row['Keterangan'] = $this->Keterangan->CurrentValue;
-		$row['AtasNama'] = $this->AtasNama->CurrentValue;
+		$row['pinjaman_id'] = $this->pinjaman_id->CurrentValue;
+		$row['jaminan_id'] = $this->jaminan_id->CurrentValue;
 		return $row;
 	}
 
@@ -677,14 +628,8 @@ class ct02_jaminan_add extends ct02_jaminan {
 			return;
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
-		$this->nasabah_id->DbValue = $row['nasabah_id'];
-		$this->MerkType->DbValue = $row['MerkType'];
-		$this->NoRangka->DbValue = $row['NoRangka'];
-		$this->NoMesin->DbValue = $row['NoMesin'];
-		$this->Warna->DbValue = $row['Warna'];
-		$this->NoPol->DbValue = $row['NoPol'];
-		$this->Keterangan->DbValue = $row['Keterangan'];
-		$this->AtasNama->DbValue = $row['AtasNama'];
+		$this->pinjaman_id->DbValue = $row['pinjaman_id'];
+		$this->jaminan_id->DbValue = $row['jaminan_id'];
 	}
 
 	// Load old record
@@ -720,14 +665,8 @@ class ct02_jaminan_add extends ct02_jaminan {
 
 		// Common render codes for all row types
 		// id
-		// nasabah_id
-		// MerkType
-		// NoRangka
-		// NoMesin
-		// Warna
-		// NoPol
-		// Keterangan
-		// AtasNama
+		// pinjaman_id
+		// jaminan_id
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -735,166 +674,94 @@ class ct02_jaminan_add extends ct02_jaminan {
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// nasabah_id
-		$this->nasabah_id->ViewValue = $this->nasabah_id->CurrentValue;
-		$this->nasabah_id->ViewCustomAttributes = "";
+		// pinjaman_id
+		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+		$this->pinjaman_id->ViewCustomAttributes = "";
 
-		// MerkType
-		$this->MerkType->ViewValue = $this->MerkType->CurrentValue;
-		$this->MerkType->ViewCustomAttributes = "";
+		// jaminan_id
+		if ($this->jaminan_id->VirtualValue <> "") {
+			$this->jaminan_id->ViewValue = $this->jaminan_id->VirtualValue;
+		} else {
+		if (strval($this->jaminan_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->jaminan_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `MerkType` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t02_jaminan`";
+		$sWhereWrk = "";
+		$this->jaminan_id->LookupFilters = array("dx1" => '`MerkType`');
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->jaminan_id, $sWhereWrk); // Call Lookup Selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$this->jaminan_id->ViewValue = $this->jaminan_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->jaminan_id->ViewValue = $this->jaminan_id->CurrentValue;
+			}
+		} else {
+			$this->jaminan_id->ViewValue = NULL;
+		}
+		}
+		$this->jaminan_id->ViewCustomAttributes = "";
 
-		// NoRangka
-		$this->NoRangka->ViewValue = $this->NoRangka->CurrentValue;
-		$this->NoRangka->ViewCustomAttributes = "";
+			// pinjaman_id
+			$this->pinjaman_id->LinkCustomAttributes = "";
+			$this->pinjaman_id->HrefValue = "";
+			$this->pinjaman_id->TooltipValue = "";
 
-		// NoMesin
-		$this->NoMesin->ViewValue = $this->NoMesin->CurrentValue;
-		$this->NoMesin->ViewCustomAttributes = "";
-
-		// Warna
-		$this->Warna->ViewValue = $this->Warna->CurrentValue;
-		$this->Warna->ViewCustomAttributes = "";
-
-		// NoPol
-		$this->NoPol->ViewValue = $this->NoPol->CurrentValue;
-		$this->NoPol->ViewCustomAttributes = "";
-
-		// Keterangan
-		$this->Keterangan->ViewValue = $this->Keterangan->CurrentValue;
-		$this->Keterangan->ViewCustomAttributes = "";
-
-		// AtasNama
-		$this->AtasNama->ViewValue = $this->AtasNama->CurrentValue;
-		$this->AtasNama->ViewCustomAttributes = "";
-
-			// nasabah_id
-			$this->nasabah_id->LinkCustomAttributes = "";
-			$this->nasabah_id->HrefValue = "";
-			$this->nasabah_id->TooltipValue = "";
-
-			// MerkType
-			$this->MerkType->LinkCustomAttributes = "";
-			$this->MerkType->HrefValue = "";
-			$this->MerkType->TooltipValue = "";
-
-			// NoRangka
-			$this->NoRangka->LinkCustomAttributes = "";
-			$this->NoRangka->HrefValue = "";
-			$this->NoRangka->TooltipValue = "";
-
-			// NoMesin
-			$this->NoMesin->LinkCustomAttributes = "";
-			$this->NoMesin->HrefValue = "";
-			$this->NoMesin->TooltipValue = "";
-
-			// Warna
-			$this->Warna->LinkCustomAttributes = "";
-			$this->Warna->HrefValue = "";
-			$this->Warna->TooltipValue = "";
-
-			// NoPol
-			$this->NoPol->LinkCustomAttributes = "";
-			$this->NoPol->HrefValue = "";
-			$this->NoPol->TooltipValue = "";
-
-			// Keterangan
-			$this->Keterangan->LinkCustomAttributes = "";
-			$this->Keterangan->HrefValue = "";
-			$this->Keterangan->TooltipValue = "";
-
-			// AtasNama
-			$this->AtasNama->LinkCustomAttributes = "";
-			$this->AtasNama->HrefValue = "";
-			$this->AtasNama->TooltipValue = "";
+			// jaminan_id
+			$this->jaminan_id->LinkCustomAttributes = "";
+			$this->jaminan_id->HrefValue = "";
+			$this->jaminan_id->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
 
-			// nasabah_id
-			$this->nasabah_id->EditAttrs["class"] = "form-control";
-			$this->nasabah_id->EditCustomAttributes = "";
-			if ($this->nasabah_id->getSessionValue() <> "") {
-				$this->nasabah_id->CurrentValue = $this->nasabah_id->getSessionValue();
-			$this->nasabah_id->ViewValue = $this->nasabah_id->CurrentValue;
-			$this->nasabah_id->ViewCustomAttributes = "";
+			// pinjaman_id
+			$this->pinjaman_id->EditAttrs["class"] = "form-control";
+			$this->pinjaman_id->EditCustomAttributes = "";
+			if ($this->pinjaman_id->getSessionValue() <> "") {
+				$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
+			$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+			$this->pinjaman_id->ViewCustomAttributes = "";
 			} else {
-			$this->nasabah_id->EditValue = ew_HtmlEncode($this->nasabah_id->CurrentValue);
-			$this->nasabah_id->PlaceHolder = ew_RemoveHtml($this->nasabah_id->FldCaption());
+			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
+			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
 			}
 
-			// MerkType
-			$this->MerkType->EditAttrs["class"] = "form-control";
-			$this->MerkType->EditCustomAttributes = "";
-			$this->MerkType->EditValue = ew_HtmlEncode($this->MerkType->CurrentValue);
-			$this->MerkType->PlaceHolder = ew_RemoveHtml($this->MerkType->FldCaption());
-
-			// NoRangka
-			$this->NoRangka->EditAttrs["class"] = "form-control";
-			$this->NoRangka->EditCustomAttributes = "";
-			$this->NoRangka->EditValue = ew_HtmlEncode($this->NoRangka->CurrentValue);
-			$this->NoRangka->PlaceHolder = ew_RemoveHtml($this->NoRangka->FldCaption());
-
-			// NoMesin
-			$this->NoMesin->EditAttrs["class"] = "form-control";
-			$this->NoMesin->EditCustomAttributes = "";
-			$this->NoMesin->EditValue = ew_HtmlEncode($this->NoMesin->CurrentValue);
-			$this->NoMesin->PlaceHolder = ew_RemoveHtml($this->NoMesin->FldCaption());
-
-			// Warna
-			$this->Warna->EditAttrs["class"] = "form-control";
-			$this->Warna->EditCustomAttributes = "";
-			$this->Warna->EditValue = ew_HtmlEncode($this->Warna->CurrentValue);
-			$this->Warna->PlaceHolder = ew_RemoveHtml($this->Warna->FldCaption());
-
-			// NoPol
-			$this->NoPol->EditAttrs["class"] = "form-control";
-			$this->NoPol->EditCustomAttributes = "";
-			$this->NoPol->EditValue = ew_HtmlEncode($this->NoPol->CurrentValue);
-			$this->NoPol->PlaceHolder = ew_RemoveHtml($this->NoPol->FldCaption());
-
-			// Keterangan
-			$this->Keterangan->EditAttrs["class"] = "form-control";
-			$this->Keterangan->EditCustomAttributes = "";
-			$this->Keterangan->EditValue = ew_HtmlEncode($this->Keterangan->CurrentValue);
-			$this->Keterangan->PlaceHolder = ew_RemoveHtml($this->Keterangan->FldCaption());
-
-			// AtasNama
-			$this->AtasNama->EditAttrs["class"] = "form-control";
-			$this->AtasNama->EditCustomAttributes = "";
-			$this->AtasNama->EditValue = ew_HtmlEncode($this->AtasNama->CurrentValue);
-			$this->AtasNama->PlaceHolder = ew_RemoveHtml($this->AtasNama->FldCaption());
+			// jaminan_id
+			$this->jaminan_id->EditCustomAttributes = "";
+			if (trim(strval($this->jaminan_id->CurrentValue)) == "") {
+				$sFilterWrk = "0=1";
+			} else {
+				$sFilterWrk = "`id`" . ew_SearchString("=", $this->jaminan_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+			}
+			$sSqlWrk = "SELECT `id`, `MerkType` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld`, `nasabah_id` AS `SelectFilterFld`, '' AS `SelectFilterFld2`, '' AS `SelectFilterFld3`, '' AS `SelectFilterFld4` FROM `t02_jaminan`";
+			$sWhereWrk = "";
+			$this->jaminan_id->LookupFilters = array("dx1" => '`MerkType`');
+			ew_AddFilter($sWhereWrk, $sFilterWrk);
+			$this->Lookup_Selecting($this->jaminan_id, $sWhereWrk); // Call Lookup Selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = ew_HtmlEncode($rswrk->fields('DispFld'));
+				$this->jaminan_id->ViewValue = $this->jaminan_id->DisplayValue($arwrk);
+			} else {
+				$this->jaminan_id->ViewValue = $Language->Phrase("PleaseSelect");
+			}
+			$arwrk = ($rswrk) ? $rswrk->GetRows() : array();
+			if ($rswrk) $rswrk->Close();
+			$this->jaminan_id->EditValue = $arwrk;
 
 			// Add refer script
-			// nasabah_id
+			// pinjaman_id
 
-			$this->nasabah_id->LinkCustomAttributes = "";
-			$this->nasabah_id->HrefValue = "";
+			$this->pinjaman_id->LinkCustomAttributes = "";
+			$this->pinjaman_id->HrefValue = "";
 
-			// MerkType
-			$this->MerkType->LinkCustomAttributes = "";
-			$this->MerkType->HrefValue = "";
-
-			// NoRangka
-			$this->NoRangka->LinkCustomAttributes = "";
-			$this->NoRangka->HrefValue = "";
-
-			// NoMesin
-			$this->NoMesin->LinkCustomAttributes = "";
-			$this->NoMesin->HrefValue = "";
-
-			// Warna
-			$this->Warna->LinkCustomAttributes = "";
-			$this->Warna->HrefValue = "";
-
-			// NoPol
-			$this->NoPol->LinkCustomAttributes = "";
-			$this->NoPol->HrefValue = "";
-
-			// Keterangan
-			$this->Keterangan->LinkCustomAttributes = "";
-			$this->Keterangan->HrefValue = "";
-
-			// AtasNama
-			$this->AtasNama->LinkCustomAttributes = "";
-			$this->AtasNama->HrefValue = "";
+			// jaminan_id
+			$this->jaminan_id->LinkCustomAttributes = "";
+			$this->jaminan_id->HrefValue = "";
 		}
 		if ($this->RowType == EW_ROWTYPE_ADD || $this->RowType == EW_ROWTYPE_EDIT || $this->RowType == EW_ROWTYPE_SEARCH) // Add/Edit/Search row
 			$this->SetupFieldTitles();
@@ -914,14 +781,14 @@ class ct02_jaminan_add extends ct02_jaminan {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
-		if (!$this->nasabah_id->FldIsDetailKey && !is_null($this->nasabah_id->FormValue) && $this->nasabah_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->nasabah_id->FldCaption(), $this->nasabah_id->ReqErrMsg));
+		if (!$this->pinjaman_id->FldIsDetailKey && !is_null($this->pinjaman_id->FormValue) && $this->pinjaman_id->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->pinjaman_id->FldCaption(), $this->pinjaman_id->ReqErrMsg));
 		}
-		if (!ew_CheckInteger($this->nasabah_id->FormValue)) {
-			ew_AddMessage($gsFormError, $this->nasabah_id->FldErrMsg());
+		if (!ew_CheckInteger($this->pinjaman_id->FormValue)) {
+			ew_AddMessage($gsFormError, $this->pinjaman_id->FldErrMsg());
 		}
-		if (!$this->MerkType->FldIsDetailKey && !is_null($this->MerkType->FormValue) && $this->MerkType->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->MerkType->FldCaption(), $this->MerkType->ReqErrMsg));
+		if (!$this->jaminan_id->FldIsDetailKey && !is_null($this->jaminan_id->FormValue) && $this->jaminan_id->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->jaminan_id->FldCaption(), $this->jaminan_id->ReqErrMsg));
 		}
 
 		// Return validate result
@@ -947,29 +814,11 @@ class ct02_jaminan_add extends ct02_jaminan {
 		}
 		$rsnew = array();
 
-		// nasabah_id
-		$this->nasabah_id->SetDbValueDef($rsnew, $this->nasabah_id->CurrentValue, 0, FALSE);
+		// pinjaman_id
+		$this->pinjaman_id->SetDbValueDef($rsnew, $this->pinjaman_id->CurrentValue, 0, FALSE);
 
-		// MerkType
-		$this->MerkType->SetDbValueDef($rsnew, $this->MerkType->CurrentValue, "", FALSE);
-
-		// NoRangka
-		$this->NoRangka->SetDbValueDef($rsnew, $this->NoRangka->CurrentValue, NULL, FALSE);
-
-		// NoMesin
-		$this->NoMesin->SetDbValueDef($rsnew, $this->NoMesin->CurrentValue, NULL, FALSE);
-
-		// Warna
-		$this->Warna->SetDbValueDef($rsnew, $this->Warna->CurrentValue, NULL, FALSE);
-
-		// NoPol
-		$this->NoPol->SetDbValueDef($rsnew, $this->NoPol->CurrentValue, NULL, FALSE);
-
-		// Keterangan
-		$this->Keterangan->SetDbValueDef($rsnew, $this->Keterangan->CurrentValue, NULL, FALSE);
-
-		// AtasNama
-		$this->AtasNama->SetDbValueDef($rsnew, $this->AtasNama->CurrentValue, NULL, FALSE);
+		// jaminan_id
+		$this->jaminan_id->SetDbValueDef($rsnew, $this->jaminan_id->CurrentValue, 0, FALSE);
 
 		// Call Row Inserting event
 		$rs = ($rsold == NULL) ? NULL : $rsold->fields;
@@ -1013,13 +862,13 @@ class ct02_jaminan_add extends ct02_jaminan {
 				$this->DbMasterFilter = "";
 				$this->DbDetailFilter = "";
 			}
-			if ($sMasterTblVar == "t01_nasabah") {
+			if ($sMasterTblVar == "t03_pinjaman") {
 				$bValidMaster = TRUE;
 				if (@$_GET["fk_id"] <> "") {
-					$GLOBALS["t01_nasabah"]->id->setQueryStringValue($_GET["fk_id"]);
-					$this->nasabah_id->setQueryStringValue($GLOBALS["t01_nasabah"]->id->QueryStringValue);
-					$this->nasabah_id->setSessionValue($this->nasabah_id->QueryStringValue);
-					if (!is_numeric($GLOBALS["t01_nasabah"]->id->QueryStringValue)) $bValidMaster = FALSE;
+					$GLOBALS["t03_pinjaman"]->id->setQueryStringValue($_GET["fk_id"]);
+					$this->pinjaman_id->setQueryStringValue($GLOBALS["t03_pinjaman"]->id->QueryStringValue);
+					$this->pinjaman_id->setSessionValue($this->pinjaman_id->QueryStringValue);
+					if (!is_numeric($GLOBALS["t03_pinjaman"]->id->QueryStringValue)) $bValidMaster = FALSE;
 				} else {
 					$bValidMaster = FALSE;
 				}
@@ -1031,13 +880,13 @@ class ct02_jaminan_add extends ct02_jaminan {
 				$this->DbMasterFilter = "";
 				$this->DbDetailFilter = "";
 			}
-			if ($sMasterTblVar == "t01_nasabah") {
+			if ($sMasterTblVar == "t03_pinjaman") {
 				$bValidMaster = TRUE;
 				if (@$_POST["fk_id"] <> "") {
-					$GLOBALS["t01_nasabah"]->id->setFormValue($_POST["fk_id"]);
-					$this->nasabah_id->setFormValue($GLOBALS["t01_nasabah"]->id->FormValue);
-					$this->nasabah_id->setSessionValue($this->nasabah_id->FormValue);
-					if (!is_numeric($GLOBALS["t01_nasabah"]->id->FormValue)) $bValidMaster = FALSE;
+					$GLOBALS["t03_pinjaman"]->id->setFormValue($_POST["fk_id"]);
+					$this->pinjaman_id->setFormValue($GLOBALS["t03_pinjaman"]->id->FormValue);
+					$this->pinjaman_id->setSessionValue($this->pinjaman_id->FormValue);
+					if (!is_numeric($GLOBALS["t03_pinjaman"]->id->FormValue)) $bValidMaster = FALSE;
 				} else {
 					$bValidMaster = FALSE;
 				}
@@ -1055,8 +904,8 @@ class ct02_jaminan_add extends ct02_jaminan {
 			}
 
 			// Clear previous master key from Session
-			if ($sMasterTblVar <> "t01_nasabah") {
-				if ($this->nasabah_id->CurrentValue == "") $this->nasabah_id->setSessionValue("");
+			if ($sMasterTblVar <> "t03_pinjaman") {
+				if ($this->pinjaman_id->CurrentValue == "") $this->pinjaman_id->setSessionValue("");
 			}
 		}
 		$this->DbMasterFilter = $this->GetMasterFilter(); // Get master filter
@@ -1068,7 +917,7 @@ class ct02_jaminan_add extends ct02_jaminan {
 		global $Breadcrumb, $Language;
 		$Breadcrumb = new cBreadcrumb();
 		$url = substr(ew_CurrentUrl(), strrpos(ew_CurrentUrl(), "/")+1);
-		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t02_jaminanlist.php"), "", $this->TableVar, TRUE);
+		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t05_pinjamanjaminanlist.php"), "", $this->TableVar, TRUE);
 		$PageId = ($this->CurrentAction == "C") ? "Copy" : "Add";
 		$Breadcrumb->Add("add", $PageId, $url);
 	}
@@ -1078,6 +927,18 @@ class ct02_jaminan_add extends ct02_jaminan {
 		global $gsLanguage;
 		$pageId = $pageId ?: $this->PageID;
 		switch ($fld->FldVar) {
+		case "x_jaminan_id":
+			$sSqlWrk = "";
+			$sSqlWrk = "SELECT `id` AS `LinkFld`, `MerkType` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t02_jaminan`";
+			$sWhereWrk = "{filter}";
+			$fld->LookupFilters = array("dx1" => '`MerkType`');
+			$fld->LookupFilters += array("s" => $sSqlWrk, "d" => "", "f0" => '`id` IN ({filter_value})', "t0" => "3", "fn0" => "");
+			$sSqlWrk = "";
+			$this->Lookup_Selecting($this->jaminan_id, $sWhereWrk); // Call Lookup Selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			if ($sSqlWrk <> "")
+				$fld->LookupFilters["s"] .= $sSqlWrk;
+			break;
 		}
 	}
 
@@ -1161,29 +1022,29 @@ class ct02_jaminan_add extends ct02_jaminan {
 <?php
 
 // Create page object
-if (!isset($t02_jaminan_add)) $t02_jaminan_add = new ct02_jaminan_add();
+if (!isset($t05_pinjamanjaminan_add)) $t05_pinjamanjaminan_add = new ct05_pinjamanjaminan_add();
 
 // Page init
-$t02_jaminan_add->Page_Init();
+$t05_pinjamanjaminan_add->Page_Init();
 
 // Page main
-$t02_jaminan_add->Page_Main();
+$t05_pinjamanjaminan_add->Page_Main();
 
 // Global Page Rendering event (in userfn*.php)
 Page_Rendering();
 
 // Page Rendering event
-$t02_jaminan_add->Page_Render();
+$t05_pinjamanjaminan_add->Page_Render();
 ?>
 <?php include_once "header.php" ?>
 <script type="text/javascript">
 
 // Form object
 var CurrentPageID = EW_PAGE_ID = "add";
-var CurrentForm = ft02_jaminanadd = new ew_Form("ft02_jaminanadd", "add");
+var CurrentForm = ft05_pinjamanjaminanadd = new ew_Form("ft05_pinjamanjaminanadd", "add");
 
 // Validate form
-ft02_jaminanadd.Validate = function() {
+ft05_pinjamanjaminanadd.Validate = function() {
 	if (!this.ValidateRequired)
 		return true; // Ignore validation
 	var $ = jQuery, fobj = this.GetForm(), $fobj = $(fobj);
@@ -1197,15 +1058,15 @@ ft02_jaminanadd.Validate = function() {
 	for (var i = startcnt; i <= rowcnt; i++) {
 		var infix = ($k[0]) ? String(i) : "";
 		$fobj.data("rowindex", infix);
-			elm = this.GetElements("x" + infix + "_nasabah_id");
+			elm = this.GetElements("x" + infix + "_pinjaman_id");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t02_jaminan->nasabah_id->FldCaption(), $t02_jaminan->nasabah_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_nasabah_id");
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t05_pinjamanjaminan->pinjaman_id->FldCaption(), $t05_pinjamanjaminan->pinjaman_id->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_pinjaman_id");
 			if (elm && !ew_CheckInteger(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t02_jaminan->nasabah_id->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_MerkType");
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t05_pinjamanjaminan->pinjaman_id->FldErrMsg()) ?>");
+			elm = this.GetElements("x" + infix + "_jaminan_id");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t02_jaminan->MerkType->FldCaption(), $t02_jaminan->MerkType->ReqErrMsg)) ?>");
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t05_pinjamanjaminan->jaminan_id->FldCaption(), $t05_pinjamanjaminan->jaminan_id->ReqErrMsg)) ?>");
 
 			// Fire Form_CustomValidate event
 			if (!this.Form_CustomValidate(fobj))
@@ -1224,7 +1085,7 @@ ft02_jaminanadd.Validate = function() {
 }
 
 // Form_CustomValidate event
-ft02_jaminanadd.Form_CustomValidate = 
+ft05_pinjamanjaminanadd.Form_CustomValidate = 
  function(fobj) { // DO NOT CHANGE THIS LINE!
 
  	// Your custom validation code here, return false if invalid.
@@ -1232,135 +1093,84 @@ ft02_jaminanadd.Form_CustomValidate =
  }
 
 // Use JavaScript validation or not
-ft02_jaminanadd.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
+ft05_pinjamanjaminanadd.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
 
 // Dynamic selection lists
-// Form object for search
+ft05_pinjamanjaminanadd.Lists["x_jaminan_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_MerkType","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t02_jaminan"};
+ft05_pinjamanjaminanadd.Lists["x_jaminan_id"].Data = "<?php echo $t05_pinjamanjaminan_add->jaminan_id->LookupFilterQuery(FALSE, "add") ?>";
 
+// Form object for search
 </script>
 <script type="text/javascript">
 
 // Write your client script here, no need to add script tags.
 </script>
-<?php $t02_jaminan_add->ShowPageHeader(); ?>
+<?php $t05_pinjamanjaminan_add->ShowPageHeader(); ?>
 <?php
-$t02_jaminan_add->ShowMessage();
+$t05_pinjamanjaminan_add->ShowMessage();
 ?>
-<form name="ft02_jaminanadd" id="ft02_jaminanadd" class="<?php echo $t02_jaminan_add->FormClassName ?>" action="<?php echo ew_CurrentPage() ?>" method="post">
-<?php if ($t02_jaminan_add->CheckToken) { ?>
-<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t02_jaminan_add->Token ?>">
+<form name="ft05_pinjamanjaminanadd" id="ft05_pinjamanjaminanadd" class="<?php echo $t05_pinjamanjaminan_add->FormClassName ?>" action="<?php echo ew_CurrentPage() ?>" method="post">
+<?php if ($t05_pinjamanjaminan_add->CheckToken) { ?>
+<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t05_pinjamanjaminan_add->Token ?>">
 <?php } ?>
-<input type="hidden" name="t" value="t02_jaminan">
+<input type="hidden" name="t" value="t05_pinjamanjaminan">
 <input type="hidden" name="a_add" id="a_add" value="A">
-<input type="hidden" name="modal" value="<?php echo intval($t02_jaminan_add->IsModal) ?>">
-<?php if ($t02_jaminan->getCurrentMasterTable() == "t01_nasabah") { ?>
-<input type="hidden" name="<?php echo EW_TABLE_SHOW_MASTER ?>" value="t01_nasabah">
-<input type="hidden" name="fk_id" value="<?php echo $t02_jaminan->nasabah_id->getSessionValue() ?>">
+<input type="hidden" name="modal" value="<?php echo intval($t05_pinjamanjaminan_add->IsModal) ?>">
+<?php if ($t05_pinjamanjaminan->getCurrentMasterTable() == "t03_pinjaman") { ?>
+<input type="hidden" name="<?php echo EW_TABLE_SHOW_MASTER ?>" value="t03_pinjaman">
+<input type="hidden" name="fk_id" value="<?php echo $t05_pinjamanjaminan->pinjaman_id->getSessionValue() ?>">
 <?php } ?>
 <div class="ewAddDiv"><!-- page* -->
-<?php if ($t02_jaminan->nasabah_id->Visible) { // nasabah_id ?>
-	<div id="r_nasabah_id" class="form-group">
-		<label id="elh_t02_jaminan_nasabah_id" for="x_nasabah_id" class="<?php echo $t02_jaminan_add->LeftColumnClass ?>"><?php echo $t02_jaminan->nasabah_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="<?php echo $t02_jaminan_add->RightColumnClass ?>"><div<?php echo $t02_jaminan->nasabah_id->CellAttributes() ?>>
-<?php if ($t02_jaminan->nasabah_id->getSessionValue() <> "") { ?>
-<span id="el_t02_jaminan_nasabah_id">
-<span<?php echo $t02_jaminan->nasabah_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t02_jaminan->nasabah_id->ViewValue ?></p></span>
+<?php if ($t05_pinjamanjaminan->pinjaman_id->Visible) { // pinjaman_id ?>
+	<div id="r_pinjaman_id" class="form-group">
+		<label id="elh_t05_pinjamanjaminan_pinjaman_id" for="x_pinjaman_id" class="<?php echo $t05_pinjamanjaminan_add->LeftColumnClass ?>"><?php echo $t05_pinjamanjaminan->pinjaman_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="<?php echo $t05_pinjamanjaminan_add->RightColumnClass ?>"><div<?php echo $t05_pinjamanjaminan->pinjaman_id->CellAttributes() ?>>
+<?php if ($t05_pinjamanjaminan->pinjaman_id->getSessionValue() <> "") { ?>
+<span id="el_t05_pinjamanjaminan_pinjaman_id">
+<span<?php echo $t05_pinjamanjaminan->pinjaman_id->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t05_pinjamanjaminan->pinjaman_id->ViewValue ?></p></span>
 </span>
-<input type="hidden" id="x_nasabah_id" name="x_nasabah_id" value="<?php echo ew_HtmlEncode($t02_jaminan->nasabah_id->CurrentValue) ?>">
+<input type="hidden" id="x_pinjaman_id" name="x_pinjaman_id" value="<?php echo ew_HtmlEncode($t05_pinjamanjaminan->pinjaman_id->CurrentValue) ?>">
 <?php } else { ?>
-<span id="el_t02_jaminan_nasabah_id">
-<input type="text" data-table="t02_jaminan" data-field="x_nasabah_id" name="x_nasabah_id" id="x_nasabah_id" size="30" placeholder="<?php echo ew_HtmlEncode($t02_jaminan->nasabah_id->getPlaceHolder()) ?>" value="<?php echo $t02_jaminan->nasabah_id->EditValue ?>"<?php echo $t02_jaminan->nasabah_id->EditAttributes() ?>>
+<span id="el_t05_pinjamanjaminan_pinjaman_id">
+<input type="text" data-table="t05_pinjamanjaminan" data-field="x_pinjaman_id" name="x_pinjaman_id" id="x_pinjaman_id" size="30" placeholder="<?php echo ew_HtmlEncode($t05_pinjamanjaminan->pinjaman_id->getPlaceHolder()) ?>" value="<?php echo $t05_pinjamanjaminan->pinjaman_id->EditValue ?>"<?php echo $t05_pinjamanjaminan->pinjaman_id->EditAttributes() ?>>
 </span>
 <?php } ?>
-<?php echo $t02_jaminan->nasabah_id->CustomMsg ?></div></div>
+<?php echo $t05_pinjamanjaminan->pinjaman_id->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
-<?php if ($t02_jaminan->MerkType->Visible) { // MerkType ?>
-	<div id="r_MerkType" class="form-group">
-		<label id="elh_t02_jaminan_MerkType" for="x_MerkType" class="<?php echo $t02_jaminan_add->LeftColumnClass ?>"><?php echo $t02_jaminan->MerkType->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="<?php echo $t02_jaminan_add->RightColumnClass ?>"><div<?php echo $t02_jaminan->MerkType->CellAttributes() ?>>
-<span id="el_t02_jaminan_MerkType">
-<input type="text" data-table="t02_jaminan" data-field="x_MerkType" name="x_MerkType" id="x_MerkType" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t02_jaminan->MerkType->getPlaceHolder()) ?>" value="<?php echo $t02_jaminan->MerkType->EditValue ?>"<?php echo $t02_jaminan->MerkType->EditAttributes() ?>>
+<?php if ($t05_pinjamanjaminan->jaminan_id->Visible) { // jaminan_id ?>
+	<div id="r_jaminan_id" class="form-group">
+		<label id="elh_t05_pinjamanjaminan_jaminan_id" for="x_jaminan_id" class="<?php echo $t05_pinjamanjaminan_add->LeftColumnClass ?>"><?php echo $t05_pinjamanjaminan->jaminan_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="<?php echo $t05_pinjamanjaminan_add->RightColumnClass ?>"><div<?php echo $t05_pinjamanjaminan->jaminan_id->CellAttributes() ?>>
+<span id="el_t05_pinjamanjaminan_jaminan_id">
+<span class="ewLookupList">
+	<span onclick="jQuery(this).parent().next(":not([disabled])").click();" tabindex="-1" class="form-control ewLookupText" id="lu_x_jaminan_id"><?php echo (strval($t05_pinjamanjaminan->jaminan_id->ViewValue) == "" ? $Language->Phrase("PleaseSelect") : $t05_pinjamanjaminan->jaminan_id->ViewValue); ?></span>
 </span>
-<?php echo $t02_jaminan->MerkType->CustomMsg ?></div></div>
-	</div>
+<button type="button" title="<?php echo ew_HtmlEncode(str_replace("%s", ew_RemoveHtml($t05_pinjamanjaminan->jaminan_id->FldCaption()), $Language->Phrase("LookupLink", TRUE))) ?>" onclick="ew_ModalLookupShow({lnk:this,el:'x_jaminan_id',m:0,n:10});" class="ewLookupBtn btn btn-default btn-sm"<?php echo (($t05_pinjamanjaminan->jaminan_id->ReadOnly || $t05_pinjamanjaminan->jaminan_id->Disabled) ? " disabled" : "")?>><span class="glyphicon glyphicon-search ewIcon"></span></button>
+<input type="hidden" data-table="t05_pinjamanjaminan" data-field="x_jaminan_id" data-multiple="0" data-lookup="1" data-value-separator="<?php echo $t05_pinjamanjaminan->jaminan_id->DisplayValueSeparatorAttribute() ?>" name="x_jaminan_id" id="x_jaminan_id" value="<?php echo $t05_pinjamanjaminan->jaminan_id->CurrentValue ?>"<?php echo $t05_pinjamanjaminan->jaminan_id->EditAttributes() ?>>
+<?php if (AllowAdd(CurrentProjectID() . "t02_jaminan") && !$t05_pinjamanjaminan->jaminan_id->ReadOnly) { ?>
+<button type="button" title="<?php echo ew_HtmlTitle($Language->Phrase("AddLink")) . "&nbsp;" . $t05_pinjamanjaminan->jaminan_id->FldCaption() ?>" onclick="ew_AddOptDialogShow({lnk:this,el:'x_jaminan_id',url:'t02_jaminanaddopt.php'});" class="ewAddOptBtn btn btn-default btn-sm" id="aol_x_jaminan_id"><span class="glyphicon glyphicon-plus ewIcon"></span><span class="hide"><?php echo $Language->Phrase("AddLink") ?>&nbsp;<?php echo $t05_pinjamanjaminan->jaminan_id->FldCaption() ?></span></button>
 <?php } ?>
-<?php if ($t02_jaminan->NoRangka->Visible) { // NoRangka ?>
-	<div id="r_NoRangka" class="form-group">
-		<label id="elh_t02_jaminan_NoRangka" for="x_NoRangka" class="<?php echo $t02_jaminan_add->LeftColumnClass ?>"><?php echo $t02_jaminan->NoRangka->FldCaption() ?></label>
-		<div class="<?php echo $t02_jaminan_add->RightColumnClass ?>"><div<?php echo $t02_jaminan->NoRangka->CellAttributes() ?>>
-<span id="el_t02_jaminan_NoRangka">
-<input type="text" data-table="t02_jaminan" data-field="x_NoRangka" name="x_NoRangka" id="x_NoRangka" size="30" maxlength="50" placeholder="<?php echo ew_HtmlEncode($t02_jaminan->NoRangka->getPlaceHolder()) ?>" value="<?php echo $t02_jaminan->NoRangka->EditValue ?>"<?php echo $t02_jaminan->NoRangka->EditAttributes() ?>>
 </span>
-<?php echo $t02_jaminan->NoRangka->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t02_jaminan->NoMesin->Visible) { // NoMesin ?>
-	<div id="r_NoMesin" class="form-group">
-		<label id="elh_t02_jaminan_NoMesin" for="x_NoMesin" class="<?php echo $t02_jaminan_add->LeftColumnClass ?>"><?php echo $t02_jaminan->NoMesin->FldCaption() ?></label>
-		<div class="<?php echo $t02_jaminan_add->RightColumnClass ?>"><div<?php echo $t02_jaminan->NoMesin->CellAttributes() ?>>
-<span id="el_t02_jaminan_NoMesin">
-<input type="text" data-table="t02_jaminan" data-field="x_NoMesin" name="x_NoMesin" id="x_NoMesin" size="30" maxlength="50" placeholder="<?php echo ew_HtmlEncode($t02_jaminan->NoMesin->getPlaceHolder()) ?>" value="<?php echo $t02_jaminan->NoMesin->EditValue ?>"<?php echo $t02_jaminan->NoMesin->EditAttributes() ?>>
-</span>
-<?php echo $t02_jaminan->NoMesin->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t02_jaminan->Warna->Visible) { // Warna ?>
-	<div id="r_Warna" class="form-group">
-		<label id="elh_t02_jaminan_Warna" for="x_Warna" class="<?php echo $t02_jaminan_add->LeftColumnClass ?>"><?php echo $t02_jaminan->Warna->FldCaption() ?></label>
-		<div class="<?php echo $t02_jaminan_add->RightColumnClass ?>"><div<?php echo $t02_jaminan->Warna->CellAttributes() ?>>
-<span id="el_t02_jaminan_Warna">
-<input type="text" data-table="t02_jaminan" data-field="x_Warna" name="x_Warna" id="x_Warna" size="30" maxlength="15" placeholder="<?php echo ew_HtmlEncode($t02_jaminan->Warna->getPlaceHolder()) ?>" value="<?php echo $t02_jaminan->Warna->EditValue ?>"<?php echo $t02_jaminan->Warna->EditAttributes() ?>>
-</span>
-<?php echo $t02_jaminan->Warna->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t02_jaminan->NoPol->Visible) { // NoPol ?>
-	<div id="r_NoPol" class="form-group">
-		<label id="elh_t02_jaminan_NoPol" for="x_NoPol" class="<?php echo $t02_jaminan_add->LeftColumnClass ?>"><?php echo $t02_jaminan->NoPol->FldCaption() ?></label>
-		<div class="<?php echo $t02_jaminan_add->RightColumnClass ?>"><div<?php echo $t02_jaminan->NoPol->CellAttributes() ?>>
-<span id="el_t02_jaminan_NoPol">
-<input type="text" data-table="t02_jaminan" data-field="x_NoPol" name="x_NoPol" id="x_NoPol" size="30" maxlength="15" placeholder="<?php echo ew_HtmlEncode($t02_jaminan->NoPol->getPlaceHolder()) ?>" value="<?php echo $t02_jaminan->NoPol->EditValue ?>"<?php echo $t02_jaminan->NoPol->EditAttributes() ?>>
-</span>
-<?php echo $t02_jaminan->NoPol->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t02_jaminan->Keterangan->Visible) { // Keterangan ?>
-	<div id="r_Keterangan" class="form-group">
-		<label id="elh_t02_jaminan_Keterangan" for="x_Keterangan" class="<?php echo $t02_jaminan_add->LeftColumnClass ?>"><?php echo $t02_jaminan->Keterangan->FldCaption() ?></label>
-		<div class="<?php echo $t02_jaminan_add->RightColumnClass ?>"><div<?php echo $t02_jaminan->Keterangan->CellAttributes() ?>>
-<span id="el_t02_jaminan_Keterangan">
-<textarea data-table="t02_jaminan" data-field="x_Keterangan" name="x_Keterangan" id="x_Keterangan" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($t02_jaminan->Keterangan->getPlaceHolder()) ?>"<?php echo $t02_jaminan->Keterangan->EditAttributes() ?>><?php echo $t02_jaminan->Keterangan->EditValue ?></textarea>
-</span>
-<?php echo $t02_jaminan->Keterangan->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t02_jaminan->AtasNama->Visible) { // AtasNama ?>
-	<div id="r_AtasNama" class="form-group">
-		<label id="elh_t02_jaminan_AtasNama" for="x_AtasNama" class="<?php echo $t02_jaminan_add->LeftColumnClass ?>"><?php echo $t02_jaminan->AtasNama->FldCaption() ?></label>
-		<div class="<?php echo $t02_jaminan_add->RightColumnClass ?>"><div<?php echo $t02_jaminan->AtasNama->CellAttributes() ?>>
-<span id="el_t02_jaminan_AtasNama">
-<input type="text" data-table="t02_jaminan" data-field="x_AtasNama" name="x_AtasNama" id="x_AtasNama" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t02_jaminan->AtasNama->getPlaceHolder()) ?>" value="<?php echo $t02_jaminan->AtasNama->EditValue ?>"<?php echo $t02_jaminan->AtasNama->EditAttributes() ?>>
-</span>
-<?php echo $t02_jaminan->AtasNama->CustomMsg ?></div></div>
+<?php echo $t05_pinjamanjaminan->jaminan_id->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
 </div><!-- /page* -->
-<?php if (!$t02_jaminan_add->IsModal) { ?>
+<?php if (!$t05_pinjamanjaminan_add->IsModal) { ?>
 <div class="form-group"><!-- buttons .form-group -->
-	<div class="<?php echo $t02_jaminan_add->OffsetColumnClass ?>"><!-- buttons offset -->
+	<div class="<?php echo $t05_pinjamanjaminan_add->OffsetColumnClass ?>"><!-- buttons offset -->
 <button class="btn btn-primary ewButton" name="btnAction" id="btnAction" type="submit"><?php echo $Language->Phrase("AddBtn") ?></button>
-<button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $t02_jaminan_add->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
+<button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $t05_pinjamanjaminan_add->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
 	</div><!-- /buttons offset -->
 </div><!-- /buttons .form-group -->
 <?php } ?>
 </form>
 <script type="text/javascript">
-ft02_jaminanadd.Init();
+ft05_pinjamanjaminanadd.Init();
 </script>
 <?php
-$t02_jaminan_add->ShowPageFooter();
+$t05_pinjamanjaminan_add->ShowPageFooter();
 if (EW_DEBUG_ENABLED)
 	echo ew_DebugMsg();
 ?>
@@ -1372,5 +1182,5 @@ if (EW_DEBUG_ENABLED)
 </script>
 <?php include_once "footer.php" ?>
 <?php
-$t02_jaminan_add->Page_Terminate();
+$t05_pinjamanjaminan_add->Page_Terminate();
 ?>

@@ -569,22 +569,6 @@ class ct02_jaminan_grid extends ct02_jaminan {
 			}
 		}
 
-		// Load master record
-		if ($this->CurrentMode <> "add" && $this->GetMasterFilter() <> "" && $this->getCurrentMasterTable() == "t03_pinjaman") {
-			global $t03_pinjaman;
-			$rsmaster = $t03_pinjaman->LoadRs($this->DbMasterFilter);
-			$this->MasterRecordExists = ($rsmaster && !$rsmaster->EOF);
-			if (!$this->MasterRecordExists) {
-				$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record found
-				$this->Page_Terminate("t03_pinjamanlist.php"); // Return to master page
-			} else {
-				$t03_pinjaman->LoadListRowValues($rsmaster);
-				$t03_pinjaman->RowType = EW_ROWTYPE_MASTER; // Master row
-				$t03_pinjaman->RenderListRow();
-				$rsmaster->Close();
-			}
-		}
-
 		// Set up filter
 		if ($this->Command == "json") {
 			$this->UseSessionForListSQL = FALSE; // Do not use session for ListSQL
@@ -997,7 +981,6 @@ class ct02_jaminan_grid extends ct02_jaminan {
 				$this->setCurrentMasterTable(""); // Clear master table
 				$this->DbMasterFilter = "";
 				$this->DbDetailFilter = "";
-				$this->nasabah_id->setSessionValue("");
 				$this->nasabah_id->setSessionValue("");
 			}
 
@@ -1913,50 +1896,6 @@ class ct02_jaminan_grid extends ct02_jaminan {
 			// AtasNama
 			$this->AtasNama->SetDbValueDef($rsnew, $this->AtasNama->CurrentValue, NULL, $this->AtasNama->ReadOnly);
 
-			// Check referential integrity for master table 't01_nasabah'
-			$bValidMasterRecord = TRUE;
-			$sMasterFilter = $this->SqlMasterFilter_t01_nasabah();
-			$KeyValue = isset($rsnew['nasabah_id']) ? $rsnew['nasabah_id'] : $rsold['nasabah_id'];
-			if (strval($KeyValue) <> "") {
-				$sMasterFilter = str_replace("@id@", ew_AdjustSql($KeyValue), $sMasterFilter);
-			} else {
-				$bValidMasterRecord = FALSE;
-			}
-			if ($bValidMasterRecord) {
-				if (!isset($GLOBALS["t01_nasabah"])) $GLOBALS["t01_nasabah"] = new ct01_nasabah();
-				$rsmaster = $GLOBALS["t01_nasabah"]->LoadRs($sMasterFilter);
-				$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
-				$rsmaster->Close();
-			}
-			if (!$bValidMasterRecord) {
-				$sRelatedRecordMsg = str_replace("%t", "t01_nasabah", $Language->Phrase("RelatedRecordRequired"));
-				$this->setFailureMessage($sRelatedRecordMsg);
-				$rs->Close();
-				return FALSE;
-			}
-
-			// Check referential integrity for master table 't03_pinjaman'
-			$bValidMasterRecord = TRUE;
-			$sMasterFilter = $this->SqlMasterFilter_t03_pinjaman();
-			$KeyValue = isset($rsnew['nasabah_id']) ? $rsnew['nasabah_id'] : $rsold['nasabah_id'];
-			if (strval($KeyValue) <> "") {
-				$sMasterFilter = str_replace("@nasabah_id@", ew_AdjustSql($KeyValue), $sMasterFilter);
-			} else {
-				$bValidMasterRecord = FALSE;
-			}
-			if ($bValidMasterRecord) {
-				if (!isset($GLOBALS["t03_pinjaman"])) $GLOBALS["t03_pinjaman"] = new ct03_pinjaman();
-				$rsmaster = $GLOBALS["t03_pinjaman"]->LoadRs($sMasterFilter);
-				$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
-				$rsmaster->Close();
-			}
-			if (!$bValidMasterRecord) {
-				$sRelatedRecordMsg = str_replace("%t", "t03_pinjaman", $Language->Phrase("RelatedRecordRequired"));
-				$this->setFailureMessage($sRelatedRecordMsg);
-				$rs->Close();
-				return FALSE;
-			}
-
 			// Call Row Updating event
 			$bUpdateRow = $this->Row_Updating($rsold, $rsnew);
 			if ($bUpdateRow) {
@@ -1997,49 +1936,6 @@ class ct02_jaminan_grid extends ct02_jaminan {
 			if ($this->getCurrentMasterTable() == "t01_nasabah") {
 				$this->nasabah_id->CurrentValue = $this->nasabah_id->getSessionValue();
 			}
-			if ($this->getCurrentMasterTable() == "t03_pinjaman") {
-				$this->nasabah_id->CurrentValue = $this->nasabah_id->getSessionValue();
-			}
-
-		// Check referential integrity for master table 't01_nasabah'
-		$bValidMasterRecord = TRUE;
-		$sMasterFilter = $this->SqlMasterFilter_t01_nasabah();
-		if (strval($this->nasabah_id->CurrentValue) <> "") {
-			$sMasterFilter = str_replace("@id@", ew_AdjustSql($this->nasabah_id->CurrentValue, "DB"), $sMasterFilter);
-		} else {
-			$bValidMasterRecord = FALSE;
-		}
-		if ($bValidMasterRecord) {
-			if (!isset($GLOBALS["t01_nasabah"])) $GLOBALS["t01_nasabah"] = new ct01_nasabah();
-			$rsmaster = $GLOBALS["t01_nasabah"]->LoadRs($sMasterFilter);
-			$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
-			$rsmaster->Close();
-		}
-		if (!$bValidMasterRecord) {
-			$sRelatedRecordMsg = str_replace("%t", "t01_nasabah", $Language->Phrase("RelatedRecordRequired"));
-			$this->setFailureMessage($sRelatedRecordMsg);
-			return FALSE;
-		}
-
-		// Check referential integrity for master table 't03_pinjaman'
-		$bValidMasterRecord = TRUE;
-		$sMasterFilter = $this->SqlMasterFilter_t03_pinjaman();
-		if (strval($this->nasabah_id->CurrentValue) <> "") {
-			$sMasterFilter = str_replace("@nasabah_id@", ew_AdjustSql($this->nasabah_id->CurrentValue, "DB"), $sMasterFilter);
-		} else {
-			$bValidMasterRecord = FALSE;
-		}
-		if ($bValidMasterRecord) {
-			if (!isset($GLOBALS["t03_pinjaman"])) $GLOBALS["t03_pinjaman"] = new ct03_pinjaman();
-			$rsmaster = $GLOBALS["t03_pinjaman"]->LoadRs($sMasterFilter);
-			$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
-			$rsmaster->Close();
-		}
-		if (!$bValidMasterRecord) {
-			$sRelatedRecordMsg = str_replace("%t", "t03_pinjaman", $Language->Phrase("RelatedRecordRequired"));
-			$this->setFailureMessage($sRelatedRecordMsg);
-			return FALSE;
-		}
 		$conn = &$this->Connection();
 
 		// Load db values from rsold
@@ -2110,10 +2006,6 @@ class ct02_jaminan_grid extends ct02_jaminan {
 		if ($sMasterTblVar == "t01_nasabah") {
 			$this->nasabah_id->Visible = FALSE;
 			if ($GLOBALS["t01_nasabah"]->EventCancelled) $this->EventCancelled = TRUE;
-		}
-		if ($sMasterTblVar == "t03_pinjaman") {
-			$this->nasabah_id->Visible = FALSE;
-			if ($GLOBALS["t03_pinjaman"]->EventCancelled) $this->EventCancelled = TRUE;
 		}
 		$this->DbMasterFilter = $this->GetMasterFilter(); // Get master filter
 		$this->DbDetailFilter = $this->GetDetailFilter(); // Get detail filter

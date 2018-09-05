@@ -143,6 +143,15 @@ $t02_jaminan_grid->ShowMessage();
 <?php if ($t02_jaminan_grid->TotalRecs > 0 || $t02_jaminan->CurrentAction <> "") { ?>
 <div class="box ewBox ewGrid<?php if ($t02_jaminan_grid->IsAddOrEdit()) { ?> ewGridAddEdit<?php } ?> t02_jaminan">
 <div id="ft02_jaminangrid" class="ewForm ewListForm form-inline">
+<?php if ($t02_jaminan_grid->ShowOtherOptions) { ?>
+<div class="box-header ewGridUpperPanel">
+<?php
+	foreach ($t02_jaminan_grid->OtherOptions as &$option)
+		$option->Render("body");
+?>
+</div>
+<div class="clearfix"></div>
+<?php } ?>
 <div id="gmp_t02_jaminan" class="<?php if (ew_IsResponsiveLayout()) { ?>table-responsive <?php } ?>ewGridMiddlePanel">
 <table id="tbl_t02_jaminangrid" class="table ewTable">
 <thead>

@@ -7,7 +7,6 @@ ob_start(); // Turn on output buffering
 <?php include_once "phpfn14.php" ?>
 <?php include_once "t02_jaminaninfo.php" ?>
 <?php include_once "t01_nasabahinfo.php" ?>
-<?php include_once "t03_pinjamaninfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
 <?php include_once "userfn14.php" ?>
 <?php
@@ -321,9 +320,6 @@ class ct02_jaminan_list extends ct02_jaminan {
 
 		// Table object (t01_nasabah)
 		if (!isset($GLOBALS['t01_nasabah'])) $GLOBALS['t01_nasabah'] = new ct01_nasabah();
-
-		// Table object (t03_pinjaman)
-		if (!isset($GLOBALS['t03_pinjaman'])) $GLOBALS['t03_pinjaman'] = new ct03_pinjaman();
 
 		// Table object (t96_employees)
 		if (!isset($GLOBALS['t96_employees'])) $GLOBALS['t96_employees'] = new ct96_employees();
@@ -663,22 +659,6 @@ class ct02_jaminan_list extends ct02_jaminan {
 			}
 		}
 
-		// Load master record
-		if ($this->CurrentMode <> "add" && $this->GetMasterFilter() <> "" && $this->getCurrentMasterTable() == "t03_pinjaman") {
-			global $t03_pinjaman;
-			$rsmaster = $t03_pinjaman->LoadRs($this->DbMasterFilter);
-			$this->MasterRecordExists = ($rsmaster && !$rsmaster->EOF);
-			if (!$this->MasterRecordExists) {
-				$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record found
-				$this->Page_Terminate("t03_pinjamanlist.php"); // Return to master page
-			} else {
-				$t03_pinjaman->LoadListRowValues($rsmaster);
-				$t03_pinjaman->RowType = EW_ROWTYPE_MASTER; // Master row
-				$t03_pinjaman->RenderListRow();
-				$rsmaster->Close();
-			}
-		}
-
 		// Set up filter
 		if ($this->Command == "json") {
 			$this->UseSessionForListSQL = FALSE; // Do not use session for ListSQL
@@ -809,7 +789,6 @@ class ct02_jaminan_list extends ct02_jaminan {
 				$this->setCurrentMasterTable(""); // Clear master table
 				$this->DbMasterFilter = "";
 				$this->DbDetailFilter = "";
-				$this->nasabah_id->setSessionValue("");
 				$this->nasabah_id->setSessionValue("");
 			}
 
@@ -1470,17 +1449,6 @@ class ct02_jaminan_list extends ct02_jaminan {
 					$bValidMaster = FALSE;
 				}
 			}
-			if ($sMasterTblVar == "t03_pinjaman") {
-				$bValidMaster = TRUE;
-				if (@$_GET["fk_nasabah_id"] <> "") {
-					$GLOBALS["t03_pinjaman"]->nasabah_id->setQueryStringValue($_GET["fk_nasabah_id"]);
-					$this->nasabah_id->setQueryStringValue($GLOBALS["t03_pinjaman"]->nasabah_id->QueryStringValue);
-					$this->nasabah_id->setSessionValue($this->nasabah_id->QueryStringValue);
-					if (!is_numeric($GLOBALS["t03_pinjaman"]->nasabah_id->QueryStringValue)) $bValidMaster = FALSE;
-				} else {
-					$bValidMaster = FALSE;
-				}
-			}
 		} elseif (isset($_POST[EW_TABLE_SHOW_MASTER])) {
 			$sMasterTblVar = $_POST[EW_TABLE_SHOW_MASTER];
 			if ($sMasterTblVar == "") {
@@ -1495,17 +1463,6 @@ class ct02_jaminan_list extends ct02_jaminan {
 					$this->nasabah_id->setFormValue($GLOBALS["t01_nasabah"]->id->FormValue);
 					$this->nasabah_id->setSessionValue($this->nasabah_id->FormValue);
 					if (!is_numeric($GLOBALS["t01_nasabah"]->id->FormValue)) $bValidMaster = FALSE;
-				} else {
-					$bValidMaster = FALSE;
-				}
-			}
-			if ($sMasterTblVar == "t03_pinjaman") {
-				$bValidMaster = TRUE;
-				if (@$_POST["fk_nasabah_id"] <> "") {
-					$GLOBALS["t03_pinjaman"]->nasabah_id->setFormValue($_POST["fk_nasabah_id"]);
-					$this->nasabah_id->setFormValue($GLOBALS["t03_pinjaman"]->nasabah_id->FormValue);
-					$this->nasabah_id->setSessionValue($this->nasabah_id->FormValue);
-					if (!is_numeric($GLOBALS["t03_pinjaman"]->nasabah_id->FormValue)) $bValidMaster = FALSE;
 				} else {
 					$bValidMaster = FALSE;
 				}
@@ -1530,9 +1487,6 @@ class ct02_jaminan_list extends ct02_jaminan {
 
 			// Clear previous master key from Session
 			if ($sMasterTblVar <> "t01_nasabah") {
-				if ($this->nasabah_id->CurrentValue == "") $this->nasabah_id->setSessionValue("");
-			}
-			if ($sMasterTblVar <> "t03_pinjaman") {
 				if ($this->nasabah_id->CurrentValue == "") $this->nasabah_id->setSessionValue("");
 			}
 		}
@@ -1755,15 +1709,6 @@ if ($t02_jaminan_list->DbMasterFilter <> "" && $t02_jaminan->getCurrentMasterTab
 	}
 }
 ?>
-<?php
-if ($t02_jaminan_list->DbMasterFilter <> "" && $t02_jaminan->getCurrentMasterTable() == "t03_pinjaman") {
-	if ($t02_jaminan_list->MasterRecordExists) {
-?>
-<?php include_once "t03_pinjamanmaster.php" ?>
-<?php
-	}
-}
-?>
 <?php } ?>
 <?php
 	$bSelectLimit = $t02_jaminan_list->UseSelectLimit;
@@ -1799,6 +1744,77 @@ $t02_jaminan_list->ShowMessage();
 ?>
 <?php if ($t02_jaminan_list->TotalRecs > 0 || $t02_jaminan->CurrentAction <> "") { ?>
 <div class="box ewBox ewGrid<?php if ($t02_jaminan_list->IsAddOrEdit()) { ?> ewGridAddEdit<?php } ?> t02_jaminan">
+<div class="box-header ewGridUpperPanel">
+<?php if ($t02_jaminan->CurrentAction <> "gridadd" && $t02_jaminan->CurrentAction <> "gridedit") { ?>
+<form name="ewPagerForm" class="form-inline ewForm ewPagerForm" action="<?php echo ew_CurrentPage() ?>">
+<?php if (!isset($t02_jaminan_list->Pager)) $t02_jaminan_list->Pager = new cPrevNextPager($t02_jaminan_list->StartRec, $t02_jaminan_list->DisplayRecs, $t02_jaminan_list->TotalRecs, $t02_jaminan_list->AutoHidePager) ?>
+<?php if ($t02_jaminan_list->Pager->RecordCount > 0 && $t02_jaminan_list->Pager->Visible) { ?>
+<div class="ewPager">
+<span><?php echo $Language->Phrase("Page") ?>&nbsp;</span>
+<div class="ewPrevNext"><div class="input-group">
+<div class="input-group-btn">
+<!--first page button-->
+	<?php if ($t02_jaminan_list->Pager->FirstButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $t02_jaminan_list->PageUrl() ?>start=<?php echo $t02_jaminan_list->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerFirst") ?>"><span class="icon-first ewIcon"></span></a>
+	<?php } ?>
+<!--previous page button-->
+	<?php if ($t02_jaminan_list->Pager->PrevButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $t02_jaminan_list->PageUrl() ?>start=<?php echo $t02_jaminan_list->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerPrevious") ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php } ?>
+</div>
+<!--current page number-->
+	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $t02_jaminan_list->Pager->CurrentPage ?>">
+<div class="input-group-btn">
+<!--next page button-->
+	<?php if ($t02_jaminan_list->Pager->NextButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $t02_jaminan_list->PageUrl() ?>start=<?php echo $t02_jaminan_list->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerNext") ?>"><span class="icon-next ewIcon"></span></a>
+	<?php } ?>
+<!--last page button-->
+	<?php if ($t02_jaminan_list->Pager->LastButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $t02_jaminan_list->PageUrl() ?>start=<?php echo $t02_jaminan_list->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerLast") ?>"><span class="icon-last ewIcon"></span></a>
+	<?php } ?>
+</div>
+</div>
+</div>
+<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $t02_jaminan_list->Pager->PageCount ?></span>
+</div>
+<?php } ?>
+<?php if ($t02_jaminan_list->Pager->RecordCount > 0) { ?>
+<div class="ewPager ewRec">
+	<span><?php echo $Language->Phrase("Record") ?>&nbsp;<?php echo $t02_jaminan_list->Pager->FromIndex ?>&nbsp;<?php echo $Language->Phrase("To") ?>&nbsp;<?php echo $t02_jaminan_list->Pager->ToIndex ?>&nbsp;<?php echo $Language->Phrase("Of") ?>&nbsp;<?php echo $t02_jaminan_list->Pager->RecordCount ?></span>
+</div>
+<?php } ?>
+<?php if ($t02_jaminan_list->TotalRecs > 0 && (!$t02_jaminan_list->AutoHidePageSizeSelector || $t02_jaminan_list->Pager->Visible)) { ?>
+<div class="ewPager">
+<input type="hidden" name="t" value="t02_jaminan">
+<select name="<?php echo EW_TABLE_REC_PER_PAGE ?>" class="form-control input-sm ewTooltip" title="<?php echo $Language->Phrase("RecordsPerPage") ?>" onchange="this.form.submit();">
+<option value="10"<?php if ($t02_jaminan_list->DisplayRecs == 10) { ?> selected<?php } ?>>10</option>
+<option value="20"<?php if ($t02_jaminan_list->DisplayRecs == 20) { ?> selected<?php } ?>>20</option>
+<option value="50"<?php if ($t02_jaminan_list->DisplayRecs == 50) { ?> selected<?php } ?>>50</option>
+<option value="100"<?php if ($t02_jaminan_list->DisplayRecs == 100) { ?> selected<?php } ?>>100</option>
+<option value="200"<?php if ($t02_jaminan_list->DisplayRecs == 200) { ?> selected<?php } ?>>200</option>
+<option value="ALL"<?php if ($t02_jaminan->getRecordsPerPage() == -1) { ?> selected<?php } ?>><?php echo $Language->Phrase("AllRecords") ?></option>
+</select>
+</div>
+<?php } ?>
+</form>
+<?php } ?>
+<div class="ewListOtherOptions">
+<?php
+	foreach ($t02_jaminan_list->OtherOptions as &$option)
+		$option->Render("body");
+?>
+</div>
+<div class="clearfix"></div>
+</div>
 <form name="ft02_jaminanlist" id="ft02_jaminanlist" class="form-inline ewForm ewListForm" action="<?php echo ew_CurrentPage() ?>" method="post">
 <?php if ($t02_jaminan_list->CheckToken) { ?>
 <input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t02_jaminan_list->Token ?>">
@@ -1807,10 +1823,6 @@ $t02_jaminan_list->ShowMessage();
 <?php if ($t02_jaminan->getCurrentMasterTable() == "t01_nasabah" && $t02_jaminan->CurrentAction <> "") { ?>
 <input type="hidden" name="<?php echo EW_TABLE_SHOW_MASTER ?>" value="t01_nasabah">
 <input type="hidden" name="fk_id" value="<?php echo $t02_jaminan->nasabah_id->getSessionValue() ?>">
-<?php } ?>
-<?php if ($t02_jaminan->getCurrentMasterTable() == "t03_pinjaman" && $t02_jaminan->CurrentAction <> "") { ?>
-<input type="hidden" name="<?php echo EW_TABLE_SHOW_MASTER ?>" value="t03_pinjaman">
-<input type="hidden" name="fk_nasabah_id" value="<?php echo $t02_jaminan->nasabah_id->getSessionValue() ?>">
 <?php } ?>
 <div id="gmp_t02_jaminan" class="<?php if (ew_IsResponsiveLayout()) { ?>table-responsive <?php } ?>ewGridMiddlePanel">
 <?php if ($t02_jaminan_list->TotalRecs > 0 || $t02_jaminan->CurrentAction == "gridedit") { ?>

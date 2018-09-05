@@ -5,7 +5,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "ewcfg14.php" ?>
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql14.php") ?>
 <?php include_once "phpfn14.php" ?>
-<?php include_once "t04_angsuraninfo.php" ?>
+<?php include_once "t05_pinjamanjaminaninfo.php" ?>
 <?php include_once "t03_pinjamaninfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
 <?php include_once "userfn14.php" ?>
@@ -15,9 +15,9 @@ ob_start(); // Turn on output buffering
 // Page class
 //
 
-$t04_angsuran_view = NULL; // Initialize page object first
+$t05_pinjamanjaminan_view = NULL; // Initialize page object first
 
-class ct04_angsuran_view extends ct04_angsuran {
+class ct05_pinjamanjaminan_view extends ct05_pinjamanjaminan {
 
 	// Page ID
 	var $PageID = 'view';
@@ -26,10 +26,10 @@ class ct04_angsuran_view extends ct04_angsuran {
 	var $ProjectID = '{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}';
 
 	// Table name
-	var $TableName = 't04_angsuran';
+	var $TableName = 't05_pinjamanjaminan';
 
 	// Page object name
-	var $PageObjName = 't04_angsuran_view';
+	var $PageObjName = 't05_pinjamanjaminan_view';
 
 	// Page headings
 	var $Heading = '';
@@ -289,10 +289,10 @@ class ct04_angsuran_view extends ct04_angsuran {
 		// Parent constuctor
 		parent::__construct();
 
-		// Table object (t04_angsuran)
-		if (!isset($GLOBALS["t04_angsuran"]) || get_class($GLOBALS["t04_angsuran"]) == "ct04_angsuran") {
-			$GLOBALS["t04_angsuran"] = &$this;
-			$GLOBALS["Table"] = &$GLOBALS["t04_angsuran"];
+		// Table object (t05_pinjamanjaminan)
+		if (!isset($GLOBALS["t05_pinjamanjaminan"]) || get_class($GLOBALS["t05_pinjamanjaminan"]) == "ct05_pinjamanjaminan") {
+			$GLOBALS["t05_pinjamanjaminan"] = &$this;
+			$GLOBALS["Table"] = &$GLOBALS["t05_pinjamanjaminan"];
 		}
 		$KeyUrl = "";
 		if (@$_GET["id"] <> "") {
@@ -319,7 +319,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 
 		// Table name (for backward compatibility)
 		if (!defined("EW_TABLE_NAME"))
-			define("EW_TABLE_NAME", 't04_angsuran', TRUE);
+			define("EW_TABLE_NAME", 't05_pinjamanjaminan', TRUE);
 
 		// Start timer
 		if (!isset($GLOBALS["gTimer"]))
@@ -374,7 +374,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 			$Security->SaveLastUrl();
 			$this->setFailureMessage(ew_DeniedMsg()); // Set no permission
 			if ($Security->CanList())
-				$this->Page_Terminate(ew_GetUrl("t04_angsuranlist.php"));
+				$this->Page_Terminate(ew_GetUrl("t05_pinjamanjaminanlist.php"));
 			else
 				$this->Page_Terminate(ew_GetUrl("login.php"));
 		}
@@ -390,16 +390,11 @@ class ct04_angsuran_view extends ct04_angsuran {
 		// 
 
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->AngsuranKe->SetVisibility();
-		$this->AngsuranTanggal->SetVisibility();
-		$this->AngsuranPokok->SetVisibility();
-		$this->AngsuranBunga->SetVisibility();
-		$this->AngsuranTotal->SetVisibility();
-		$this->SisaHutang->SetVisibility();
-		$this->TanggalBayar->SetVisibility();
-		$this->TotalDenda->SetVisibility();
-		$this->Terlambat->SetVisibility();
-		$this->Keterangan->SetVisibility();
+		$this->id->SetVisibility();
+		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
+			$this->id->Visible = FALSE;
+		$this->pinjaman_id->SetVisibility();
+		$this->jaminan_id->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -431,13 +426,13 @@ class ct04_angsuran_view extends ct04_angsuran {
 		Page_Unloaded();
 
 		// Export
-		global $EW_EXPORT, $t04_angsuran;
+		global $EW_EXPORT, $t05_pinjamanjaminan;
 		if ($this->CustomExport <> "" && $this->CustomExport == $this->Export && array_key_exists($this->CustomExport, $EW_EXPORT)) {
 				$sContent = ob_get_contents();
 			if ($gsExportFile == "") $gsExportFile = $this->TableVar;
 			$class = $EW_EXPORT[$this->CustomExport];
 			if (class_exists($class)) {
-				$doc = new $class($t04_angsuran);
+				$doc = new $class($t05_pinjamanjaminan);
 				$doc->Text = $sContent;
 				if ($this->Export == "email")
 					echo $this->ExportEmail($doc->Text);
@@ -463,7 +458,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 				$pageName = ew_GetPageName($url);
 				if ($pageName != $this->GetListUrl()) { // Not List page
 					$row["caption"] = $this->GetModalCaption($pageName);
-					if ($pageName == "t04_angsuranview.php")
+					if ($pageName == "t05_pinjamanjaminanview.php")
 						$row["view"] = "1";
 				} else { // List page should not be shown as modal => error
 					$row["error"] = $this->getFailureMessage();
@@ -532,7 +527,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 					if ($this->TotalRecs <= 0) { // No record found
 						if ($this->getSuccessMessage() == "" && $this->getFailureMessage() == "")
 							$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record message
-						$this->Page_Terminate("t04_angsuranlist.php"); // Return to list page
+						$this->Page_Terminate("t05_pinjamanjaminanlist.php"); // Return to list page
 					} elseif ($bLoadCurrentRecord) { // Load current record position
 						$this->SetupStartRec(); // Set up start record position
 
@@ -556,13 +551,13 @@ class ct04_angsuran_view extends ct04_angsuran {
 					if (!$bMatchRecord) {
 						if ($this->getSuccessMessage() == "" && $this->getFailureMessage() == "")
 							$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record message
-						$sReturnUrl = "t04_angsuranlist.php"; // No matching record, return to list
+						$sReturnUrl = "t05_pinjamanjaminanlist.php"; // No matching record, return to list
 					} else {
 						$this->LoadRowValues($this->Recordset); // Load row values
 					}
 			}
 		} else {
-			$sReturnUrl = "t04_angsuranlist.php"; // Not page request, return to list
+			$sReturnUrl = "t05_pinjamanjaminanlist.php"; // Not page request, return to list
 		}
 		if ($sReturnUrl <> "")
 			$this->Page_Terminate($sReturnUrl);
@@ -583,6 +578,15 @@ class ct04_angsuran_view extends ct04_angsuran {
 		$options = &$this->OtherOptions;
 		$option = &$options["action"];
 
+		// Add
+		$item = &$option->Add("add");
+		$addcaption = ew_HtmlTitle($Language->Phrase("ViewPageAddLink"));
+		if ($this->IsModal) // Modal
+			$item->Body = "<a class=\"ewAction ewAdd\" title=\"" . $addcaption . "\" data-caption=\"" . $addcaption . "\" href=\"javascript:void(0);\" onclick=\"ew_ModalDialogShow({lnk:this,url:'" . ew_HtmlEncode($this->AddUrl) . "'});\">" . $Language->Phrase("ViewPageAddLink") . "</a>";
+		else
+			$item->Body = "<a class=\"ewAction ewAdd\" title=\"" . $addcaption . "\" data-caption=\"" . $addcaption . "\" href=\"" . ew_HtmlEncode($this->AddUrl) . "\">" . $Language->Phrase("ViewPageAddLink") . "</a>";
+		$item->Visible = ($this->AddUrl <> "" && $Security->CanAdd());
+
 		// Edit
 		$item = &$option->Add("edit");
 		$editcaption = ew_HtmlTitle($Language->Phrase("ViewPageEditLink"));
@@ -591,6 +595,23 @@ class ct04_angsuran_view extends ct04_angsuran {
 		else
 			$item->Body = "<a class=\"ewAction ewEdit\" title=\"" . $editcaption . "\" data-caption=\"" . $editcaption . "\" href=\"" . ew_HtmlEncode($this->EditUrl) . "\">" . $Language->Phrase("ViewPageEditLink") . "</a>";
 		$item->Visible = ($this->EditUrl <> "" && $Security->CanEdit());
+
+		// Copy
+		$item = &$option->Add("copy");
+		$copycaption = ew_HtmlTitle($Language->Phrase("ViewPageCopyLink"));
+		if ($this->IsModal) // Modal
+			$item->Body = "<a class=\"ewAction ewCopy\" title=\"" . $copycaption . "\" data-caption=\"" . $copycaption . "\" href=\"javascript:void(0);\" onclick=\"ew_ModalDialogShow({lnk:this,btn:'AddBtn',url:'" . ew_HtmlEncode($this->CopyUrl) . "'});\">" . $Language->Phrase("ViewPageCopyLink") . "</a>";
+		else
+			$item->Body = "<a class=\"ewAction ewCopy\" title=\"" . $copycaption . "\" data-caption=\"" . $copycaption . "\" href=\"" . ew_HtmlEncode($this->CopyUrl) . "\">" . $Language->Phrase("ViewPageCopyLink") . "</a>";
+		$item->Visible = ($this->CopyUrl <> "" && $Security->CanAdd());
+
+		// Delete
+		$item = &$option->Add("delete");
+		if ($this->IsModal) // Handle as inline delete
+			$item->Body = "<a onclick=\"return ew_ConfirmDelete(this);\" class=\"ewAction ewDelete\" title=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" href=\"" . ew_HtmlEncode(ew_UrlAddQuery($this->DeleteUrl, "a_delete=1")) . "\">" . $Language->Phrase("ViewPageDeleteLink") . "</a>";
+		else
+			$item->Body = "<a class=\"ewAction ewDelete\" title=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" href=\"" . ew_HtmlEncode($this->DeleteUrl) . "\">" . $Language->Phrase("ViewPageDeleteLink") . "</a>";
+		$item->Visible = ($this->DeleteUrl <> "" && $Security->CanDelete());
 
 		// Set up action default
 		$option = &$options["action"];
@@ -651,7 +672,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 		if ($this->UseSelectLimit) {
 			$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
 			if ($dbtype == "MSSQL") {
-				$rs = $conn->SelectLimit($sSql, $rowcnt, $offset, array("_hasOrderBy" => trim($this->getOrderBy()) || trim($this->getSessionOrderBy())));
+				$rs = $conn->SelectLimit($sSql, $rowcnt, $offset, array("_hasOrderBy" => trim($this->getOrderBy()) || trim($this->getSessionOrderByList())));
 			} else {
 				$rs = $conn->SelectLimit($sSql, $rowcnt, $offset);
 			}
@@ -701,16 +722,12 @@ class ct04_angsuran_view extends ct04_angsuran {
 		if ($this->AuditTrailOnView) $this->WriteAuditTrailOnView($row);
 		$this->id->setDbValue($row['id']);
 		$this->pinjaman_id->setDbValue($row['pinjaman_id']);
-		$this->AngsuranKe->setDbValue($row['AngsuranKe']);
-		$this->AngsuranTanggal->setDbValue($row['AngsuranTanggal']);
-		$this->AngsuranPokok->setDbValue($row['AngsuranPokok']);
-		$this->AngsuranBunga->setDbValue($row['AngsuranBunga']);
-		$this->AngsuranTotal->setDbValue($row['AngsuranTotal']);
-		$this->SisaHutang->setDbValue($row['SisaHutang']);
-		$this->TanggalBayar->setDbValue($row['TanggalBayar']);
-		$this->TotalDenda->setDbValue($row['TotalDenda']);
-		$this->Terlambat->setDbValue($row['Terlambat']);
-		$this->Keterangan->setDbValue($row['Keterangan']);
+		$this->jaminan_id->setDbValue($row['jaminan_id']);
+		if (array_key_exists('EV__jaminan_id', $rs->fields)) {
+			$this->jaminan_id->VirtualValue = $rs->fields('EV__jaminan_id'); // Set up virtual field value
+		} else {
+			$this->jaminan_id->VirtualValue = ""; // Clear value
+		}
 	}
 
 	// Return a row with default values
@@ -718,16 +735,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 		$row = array();
 		$row['id'] = NULL;
 		$row['pinjaman_id'] = NULL;
-		$row['AngsuranKe'] = NULL;
-		$row['AngsuranTanggal'] = NULL;
-		$row['AngsuranPokok'] = NULL;
-		$row['AngsuranBunga'] = NULL;
-		$row['AngsuranTotal'] = NULL;
-		$row['SisaHutang'] = NULL;
-		$row['TanggalBayar'] = NULL;
-		$row['TotalDenda'] = NULL;
-		$row['Terlambat'] = NULL;
-		$row['Keterangan'] = NULL;
+		$row['jaminan_id'] = NULL;
 		return $row;
 	}
 
@@ -738,16 +746,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
 		$this->pinjaman_id->DbValue = $row['pinjaman_id'];
-		$this->AngsuranKe->DbValue = $row['AngsuranKe'];
-		$this->AngsuranTanggal->DbValue = $row['AngsuranTanggal'];
-		$this->AngsuranPokok->DbValue = $row['AngsuranPokok'];
-		$this->AngsuranBunga->DbValue = $row['AngsuranBunga'];
-		$this->AngsuranTotal->DbValue = $row['AngsuranTotal'];
-		$this->SisaHutang->DbValue = $row['SisaHutang'];
-		$this->TanggalBayar->DbValue = $row['TanggalBayar'];
-		$this->TotalDenda->DbValue = $row['TotalDenda'];
-		$this->Terlambat->DbValue = $row['Terlambat'];
-		$this->Keterangan->DbValue = $row['Keterangan'];
+		$this->jaminan_id->DbValue = $row['jaminan_id'];
 	}
 
 	// Render row values based on field settings
@@ -762,42 +761,13 @@ class ct04_angsuran_view extends ct04_angsuran {
 		$this->ListUrl = $this->GetListUrl();
 		$this->SetupOtherOptions();
 
-		// Convert decimal values if posted back
-		if ($this->AngsuranPokok->FormValue == $this->AngsuranPokok->CurrentValue && is_numeric(ew_StrToFloat($this->AngsuranPokok->CurrentValue)))
-			$this->AngsuranPokok->CurrentValue = ew_StrToFloat($this->AngsuranPokok->CurrentValue);
-
-		// Convert decimal values if posted back
-		if ($this->AngsuranBunga->FormValue == $this->AngsuranBunga->CurrentValue && is_numeric(ew_StrToFloat($this->AngsuranBunga->CurrentValue)))
-			$this->AngsuranBunga->CurrentValue = ew_StrToFloat($this->AngsuranBunga->CurrentValue);
-
-		// Convert decimal values if posted back
-		if ($this->AngsuranTotal->FormValue == $this->AngsuranTotal->CurrentValue && is_numeric(ew_StrToFloat($this->AngsuranTotal->CurrentValue)))
-			$this->AngsuranTotal->CurrentValue = ew_StrToFloat($this->AngsuranTotal->CurrentValue);
-
-		// Convert decimal values if posted back
-		if ($this->SisaHutang->FormValue == $this->SisaHutang->CurrentValue && is_numeric(ew_StrToFloat($this->SisaHutang->CurrentValue)))
-			$this->SisaHutang->CurrentValue = ew_StrToFloat($this->SisaHutang->CurrentValue);
-
-		// Convert decimal values if posted back
-		if ($this->TotalDenda->FormValue == $this->TotalDenda->CurrentValue && is_numeric(ew_StrToFloat($this->TotalDenda->CurrentValue)))
-			$this->TotalDenda->CurrentValue = ew_StrToFloat($this->TotalDenda->CurrentValue);
-
 		// Call Row_Rendering event
 		$this->Row_Rendering();
 
 		// Common render codes for all row types
 		// id
 		// pinjaman_id
-		// AngsuranKe
-		// AngsuranTanggal
-		// AngsuranPokok
-		// AngsuranBunga
-		// AngsuranTotal
-		// SisaHutang
-		// TanggalBayar
-		// TotalDenda
-		// Terlambat
-		// Keterangan
+		// jaminan_id
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -809,109 +779,47 @@ class ct04_angsuran_view extends ct04_angsuran {
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
 		$this->pinjaman_id->ViewCustomAttributes = "";
 
-		// AngsuranKe
-		$this->AngsuranKe->ViewValue = $this->AngsuranKe->CurrentValue;
-		$this->AngsuranKe->ViewCustomAttributes = "";
+		// jaminan_id
+		if ($this->jaminan_id->VirtualValue <> "") {
+			$this->jaminan_id->ViewValue = $this->jaminan_id->VirtualValue;
+		} else {
+		if (strval($this->jaminan_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->jaminan_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `MerkType` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t02_jaminan`";
+		$sWhereWrk = "";
+		$this->jaminan_id->LookupFilters = array("dx1" => '`MerkType`');
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->jaminan_id, $sWhereWrk); // Call Lookup Selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$this->jaminan_id->ViewValue = $this->jaminan_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->jaminan_id->ViewValue = $this->jaminan_id->CurrentValue;
+			}
+		} else {
+			$this->jaminan_id->ViewValue = NULL;
+		}
+		}
+		$this->jaminan_id->ViewCustomAttributes = "";
 
-		// AngsuranTanggal
-		$this->AngsuranTanggal->ViewValue = $this->AngsuranTanggal->CurrentValue;
-		$this->AngsuranTanggal->ViewValue = ew_FormatDateTime($this->AngsuranTanggal->ViewValue, 7);
-		$this->AngsuranTanggal->ViewCustomAttributes = "";
+			// id
+			$this->id->LinkCustomAttributes = "";
+			$this->id->HrefValue = "";
+			$this->id->TooltipValue = "";
 
-		// AngsuranPokok
-		$this->AngsuranPokok->ViewValue = $this->AngsuranPokok->CurrentValue;
-		$this->AngsuranPokok->ViewValue = ew_FormatNumber($this->AngsuranPokok->ViewValue, 2, -2, -2, -2);
-		$this->AngsuranPokok->CellCssStyle .= "text-align: right;";
-		$this->AngsuranPokok->ViewCustomAttributes = "";
+			// pinjaman_id
+			$this->pinjaman_id->LinkCustomAttributes = "";
+			$this->pinjaman_id->HrefValue = "";
+			$this->pinjaman_id->TooltipValue = "";
 
-		// AngsuranBunga
-		$this->AngsuranBunga->ViewValue = $this->AngsuranBunga->CurrentValue;
-		$this->AngsuranBunga->ViewValue = ew_FormatNumber($this->AngsuranBunga->ViewValue, 2, -2, -2, -2);
-		$this->AngsuranBunga->CellCssStyle .= "text-align: right;";
-		$this->AngsuranBunga->ViewCustomAttributes = "";
-
-		// AngsuranTotal
-		$this->AngsuranTotal->ViewValue = $this->AngsuranTotal->CurrentValue;
-		$this->AngsuranTotal->ViewValue = ew_FormatNumber($this->AngsuranTotal->ViewValue, 2, -2, -2, -2);
-		$this->AngsuranTotal->CellCssStyle .= "text-align: right;";
-		$this->AngsuranTotal->ViewCustomAttributes = "";
-
-		// SisaHutang
-		$this->SisaHutang->ViewValue = $this->SisaHutang->CurrentValue;
-		$this->SisaHutang->ViewValue = ew_FormatNumber($this->SisaHutang->ViewValue, 2, -2, -2, -2);
-		$this->SisaHutang->CellCssStyle .= "text-align: right;";
-		$this->SisaHutang->ViewCustomAttributes = "";
-
-		// TanggalBayar
-		$this->TanggalBayar->ViewValue = $this->TanggalBayar->CurrentValue;
-		$this->TanggalBayar->ViewValue = ew_FormatDateTime($this->TanggalBayar->ViewValue, 7);
-		$this->TanggalBayar->ViewCustomAttributes = "";
-
-		// TotalDenda
-		$this->TotalDenda->ViewValue = $this->TotalDenda->CurrentValue;
-		$this->TotalDenda->ViewValue = ew_FormatNumber($this->TotalDenda->ViewValue, 2, -2, -2, -2);
-		$this->TotalDenda->CellCssStyle .= "text-align: right;";
-		$this->TotalDenda->ViewCustomAttributes = "";
-
-		// Terlambat
-		$this->Terlambat->ViewValue = $this->Terlambat->CurrentValue;
-		$this->Terlambat->ViewValue = ew_FormatNumber($this->Terlambat->ViewValue, 0, -2, -2, -2);
-		$this->Terlambat->CellCssStyle .= "text-align: right;";
-		$this->Terlambat->ViewCustomAttributes = "";
-
-		// Keterangan
-		$this->Keterangan->ViewValue = $this->Keterangan->CurrentValue;
-		$this->Keterangan->ViewCustomAttributes = "";
-
-			// AngsuranKe
-			$this->AngsuranKe->LinkCustomAttributes = "";
-			$this->AngsuranKe->HrefValue = "";
-			$this->AngsuranKe->TooltipValue = "";
-
-			// AngsuranTanggal
-			$this->AngsuranTanggal->LinkCustomAttributes = "";
-			$this->AngsuranTanggal->HrefValue = "";
-			$this->AngsuranTanggal->TooltipValue = "";
-
-			// AngsuranPokok
-			$this->AngsuranPokok->LinkCustomAttributes = "";
-			$this->AngsuranPokok->HrefValue = "";
-			$this->AngsuranPokok->TooltipValue = "";
-
-			// AngsuranBunga
-			$this->AngsuranBunga->LinkCustomAttributes = "";
-			$this->AngsuranBunga->HrefValue = "";
-			$this->AngsuranBunga->TooltipValue = "";
-
-			// AngsuranTotal
-			$this->AngsuranTotal->LinkCustomAttributes = "";
-			$this->AngsuranTotal->HrefValue = "";
-			$this->AngsuranTotal->TooltipValue = "";
-
-			// SisaHutang
-			$this->SisaHutang->LinkCustomAttributes = "";
-			$this->SisaHutang->HrefValue = "";
-			$this->SisaHutang->TooltipValue = "";
-
-			// TanggalBayar
-			$this->TanggalBayar->LinkCustomAttributes = "";
-			$this->TanggalBayar->HrefValue = "";
-			$this->TanggalBayar->TooltipValue = "";
-
-			// TotalDenda
-			$this->TotalDenda->LinkCustomAttributes = "";
-			$this->TotalDenda->HrefValue = "";
-			$this->TotalDenda->TooltipValue = "";
-
-			// Terlambat
-			$this->Terlambat->LinkCustomAttributes = "";
-			$this->Terlambat->HrefValue = "";
-			$this->Terlambat->TooltipValue = "";
-
-			// Keterangan
-			$this->Keterangan->LinkCustomAttributes = "";
-			$this->Keterangan->HrefValue = "";
-			$this->Keterangan->TooltipValue = "";
+			// jaminan_id
+			$this->jaminan_id->LinkCustomAttributes = "";
+			$this->jaminan_id->HrefValue = "";
+			$this->jaminan_id->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -987,7 +895,7 @@ class ct04_angsuran_view extends ct04_angsuran {
 		global $Breadcrumb, $Language;
 		$Breadcrumb = new cBreadcrumb();
 		$url = substr(ew_CurrentUrl(), strrpos(ew_CurrentUrl(), "/")+1);
-		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t04_angsuranlist.php"), "", $this->TableVar, TRUE);
+		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t05_pinjamanjaminanlist.php"), "", $this->TableVar, TRUE);
 		$PageId = "view";
 		$Breadcrumb->Add("view", $PageId, $url);
 	}
@@ -1099,29 +1007,29 @@ class ct04_angsuran_view extends ct04_angsuran {
 <?php
 
 // Create page object
-if (!isset($t04_angsuran_view)) $t04_angsuran_view = new ct04_angsuran_view();
+if (!isset($t05_pinjamanjaminan_view)) $t05_pinjamanjaminan_view = new ct05_pinjamanjaminan_view();
 
 // Page init
-$t04_angsuran_view->Page_Init();
+$t05_pinjamanjaminan_view->Page_Init();
 
 // Page main
-$t04_angsuran_view->Page_Main();
+$t05_pinjamanjaminan_view->Page_Main();
 
 // Global Page Rendering event (in userfn*.php)
 Page_Rendering();
 
 // Page Rendering event
-$t04_angsuran_view->Page_Render();
+$t05_pinjamanjaminan_view->Page_Render();
 ?>
 <?php include_once "header.php" ?>
 <script type="text/javascript">
 
 // Form object
 var CurrentPageID = EW_PAGE_ID = "view";
-var CurrentForm = ft04_angsuranview = new ew_Form("ft04_angsuranview", "view");
+var CurrentForm = ft05_pinjamanjaminanview = new ew_Form("ft05_pinjamanjaminanview", "view");
 
 // Form_CustomValidate event
-ft04_angsuranview.Form_CustomValidate = 
+ft05_pinjamanjaminanview.Form_CustomValidate = 
  function(fobj) { // DO NOT CHANGE THIS LINE!
 
  	// Your custom validation code here, return false if invalid.
@@ -1129,240 +1037,165 @@ ft04_angsuranview.Form_CustomValidate =
  }
 
 // Use JavaScript validation or not
-ft04_angsuranview.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
+ft05_pinjamanjaminanview.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
 
 // Dynamic selection lists
-// Form object for search
+ft05_pinjamanjaminanview.Lists["x_jaminan_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_MerkType","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t02_jaminan"};
+ft05_pinjamanjaminanview.Lists["x_jaminan_id"].Data = "<?php echo $t05_pinjamanjaminan_view->jaminan_id->LookupFilterQuery(FALSE, "view") ?>";
 
+// Form object for search
 </script>
 <script type="text/javascript">
 
 // Write your client script here, no need to add script tags.
 </script>
 <div class="ewToolbar">
-<?php $t04_angsuran_view->ExportOptions->Render("body") ?>
+<?php $t05_pinjamanjaminan_view->ExportOptions->Render("body") ?>
 <?php
-	foreach ($t04_angsuran_view->OtherOptions as &$option)
+	foreach ($t05_pinjamanjaminan_view->OtherOptions as &$option)
 		$option->Render("body");
 ?>
 <div class="clearfix"></div>
 </div>
-<?php $t04_angsuran_view->ShowPageHeader(); ?>
+<?php $t05_pinjamanjaminan_view->ShowPageHeader(); ?>
 <?php
-$t04_angsuran_view->ShowMessage();
+$t05_pinjamanjaminan_view->ShowMessage();
 ?>
-<?php if (!$t04_angsuran_view->IsModal) { ?>
+<?php if (!$t05_pinjamanjaminan_view->IsModal) { ?>
 <form name="ewPagerForm" class="form-inline ewForm ewPagerForm" action="<?php echo ew_CurrentPage() ?>">
-<?php if (!isset($t04_angsuran_view->Pager)) $t04_angsuran_view->Pager = new cPrevNextPager($t04_angsuran_view->StartRec, $t04_angsuran_view->DisplayRecs, $t04_angsuran_view->TotalRecs, $t04_angsuran_view->AutoHidePager) ?>
-<?php if ($t04_angsuran_view->Pager->RecordCount > 0 && $t04_angsuran_view->Pager->Visible) { ?>
+<?php if (!isset($t05_pinjamanjaminan_view->Pager)) $t05_pinjamanjaminan_view->Pager = new cPrevNextPager($t05_pinjamanjaminan_view->StartRec, $t05_pinjamanjaminan_view->DisplayRecs, $t05_pinjamanjaminan_view->TotalRecs, $t05_pinjamanjaminan_view->AutoHidePager) ?>
+<?php if ($t05_pinjamanjaminan_view->Pager->RecordCount > 0 && $t05_pinjamanjaminan_view->Pager->Visible) { ?>
 <div class="ewPager">
 <span><?php echo $Language->Phrase("Page") ?>&nbsp;</span>
 <div class="ewPrevNext"><div class="input-group">
 <div class="input-group-btn">
 <!--first page button-->
-	<?php if ($t04_angsuran_view->Pager->FirstButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $t04_angsuran_view->PageUrl() ?>start=<?php echo $t04_angsuran_view->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
+	<?php if ($t05_pinjamanjaminan_view->Pager->FirstButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $t05_pinjamanjaminan_view->PageUrl() ?>start=<?php echo $t05_pinjamanjaminan_view->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
 	<?php } else { ?>
 	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerFirst") ?>"><span class="icon-first ewIcon"></span></a>
 	<?php } ?>
 <!--previous page button-->
-	<?php if ($t04_angsuran_view->Pager->PrevButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $t04_angsuran_view->PageUrl() ?>start=<?php echo $t04_angsuran_view->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php if ($t05_pinjamanjaminan_view->Pager->PrevButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $t05_pinjamanjaminan_view->PageUrl() ?>start=<?php echo $t05_pinjamanjaminan_view->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
 	<?php } else { ?>
 	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerPrevious") ?>"><span class="icon-prev ewIcon"></span></a>
 	<?php } ?>
 </div>
 <!--current page number-->
-	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $t04_angsuran_view->Pager->CurrentPage ?>">
+	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $t05_pinjamanjaminan_view->Pager->CurrentPage ?>">
 <div class="input-group-btn">
 <!--next page button-->
-	<?php if ($t04_angsuran_view->Pager->NextButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $t04_angsuran_view->PageUrl() ?>start=<?php echo $t04_angsuran_view->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
+	<?php if ($t05_pinjamanjaminan_view->Pager->NextButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $t05_pinjamanjaminan_view->PageUrl() ?>start=<?php echo $t05_pinjamanjaminan_view->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
 	<?php } else { ?>
 	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerNext") ?>"><span class="icon-next ewIcon"></span></a>
 	<?php } ?>
 <!--last page button-->
-	<?php if ($t04_angsuran_view->Pager->LastButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $t04_angsuran_view->PageUrl() ?>start=<?php echo $t04_angsuran_view->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
+	<?php if ($t05_pinjamanjaminan_view->Pager->LastButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $t05_pinjamanjaminan_view->PageUrl() ?>start=<?php echo $t05_pinjamanjaminan_view->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
 	<?php } else { ?>
 	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerLast") ?>"><span class="icon-last ewIcon"></span></a>
 	<?php } ?>
 </div>
 </div>
 </div>
-<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $t04_angsuran_view->Pager->PageCount ?></span>
+<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $t05_pinjamanjaminan_view->Pager->PageCount ?></span>
 </div>
 <?php } ?>
 <div class="clearfix"></div>
 </form>
 <?php } ?>
-<form name="ft04_angsuranview" id="ft04_angsuranview" class="form-inline ewForm ewViewForm" action="<?php echo ew_CurrentPage() ?>" method="post">
-<?php if ($t04_angsuran_view->CheckToken) { ?>
-<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t04_angsuran_view->Token ?>">
+<form name="ft05_pinjamanjaminanview" id="ft05_pinjamanjaminanview" class="form-inline ewForm ewViewForm" action="<?php echo ew_CurrentPage() ?>" method="post">
+<?php if ($t05_pinjamanjaminan_view->CheckToken) { ?>
+<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t05_pinjamanjaminan_view->Token ?>">
 <?php } ?>
-<input type="hidden" name="t" value="t04_angsuran">
-<input type="hidden" name="modal" value="<?php echo intval($t04_angsuran_view->IsModal) ?>">
+<input type="hidden" name="t" value="t05_pinjamanjaminan">
+<input type="hidden" name="modal" value="<?php echo intval($t05_pinjamanjaminan_view->IsModal) ?>">
 <table class="table table-striped table-bordered table-hover table-condensed ewViewTable">
-<?php if ($t04_angsuran->AngsuranKe->Visible) { // AngsuranKe ?>
-	<tr id="r_AngsuranKe">
-		<td class="col-sm-2"><span id="elh_t04_angsuran_AngsuranKe"><?php echo $t04_angsuran->AngsuranKe->FldCaption() ?></span></td>
-		<td data-name="AngsuranKe"<?php echo $t04_angsuran->AngsuranKe->CellAttributes() ?>>
-<span id="el_t04_angsuran_AngsuranKe">
-<span<?php echo $t04_angsuran->AngsuranKe->ViewAttributes() ?>>
-<?php echo $t04_angsuran->AngsuranKe->ViewValue ?></span>
+<?php if ($t05_pinjamanjaminan->id->Visible) { // id ?>
+	<tr id="r_id">
+		<td class="col-sm-2"><span id="elh_t05_pinjamanjaminan_id"><?php echo $t05_pinjamanjaminan->id->FldCaption() ?></span></td>
+		<td data-name="id"<?php echo $t05_pinjamanjaminan->id->CellAttributes() ?>>
+<span id="el_t05_pinjamanjaminan_id">
+<span<?php echo $t05_pinjamanjaminan->id->ViewAttributes() ?>>
+<?php echo $t05_pinjamanjaminan->id->ViewValue ?></span>
 </span>
 </td>
 	</tr>
 <?php } ?>
-<?php if ($t04_angsuran->AngsuranTanggal->Visible) { // AngsuranTanggal ?>
-	<tr id="r_AngsuranTanggal">
-		<td class="col-sm-2"><span id="elh_t04_angsuran_AngsuranTanggal"><?php echo $t04_angsuran->AngsuranTanggal->FldCaption() ?></span></td>
-		<td data-name="AngsuranTanggal"<?php echo $t04_angsuran->AngsuranTanggal->CellAttributes() ?>>
-<span id="el_t04_angsuran_AngsuranTanggal">
-<span<?php echo $t04_angsuran->AngsuranTanggal->ViewAttributes() ?>>
-<?php echo $t04_angsuran->AngsuranTanggal->ViewValue ?></span>
+<?php if ($t05_pinjamanjaminan->pinjaman_id->Visible) { // pinjaman_id ?>
+	<tr id="r_pinjaman_id">
+		<td class="col-sm-2"><span id="elh_t05_pinjamanjaminan_pinjaman_id"><?php echo $t05_pinjamanjaminan->pinjaman_id->FldCaption() ?></span></td>
+		<td data-name="pinjaman_id"<?php echo $t05_pinjamanjaminan->pinjaman_id->CellAttributes() ?>>
+<span id="el_t05_pinjamanjaminan_pinjaman_id">
+<span<?php echo $t05_pinjamanjaminan->pinjaman_id->ViewAttributes() ?>>
+<?php echo $t05_pinjamanjaminan->pinjaman_id->ViewValue ?></span>
 </span>
 </td>
 	</tr>
 <?php } ?>
-<?php if ($t04_angsuran->AngsuranPokok->Visible) { // AngsuranPokok ?>
-	<tr id="r_AngsuranPokok">
-		<td class="col-sm-2"><span id="elh_t04_angsuran_AngsuranPokok"><?php echo $t04_angsuran->AngsuranPokok->FldCaption() ?></span></td>
-		<td data-name="AngsuranPokok"<?php echo $t04_angsuran->AngsuranPokok->CellAttributes() ?>>
-<span id="el_t04_angsuran_AngsuranPokok">
-<span<?php echo $t04_angsuran->AngsuranPokok->ViewAttributes() ?>>
-<?php echo $t04_angsuran->AngsuranPokok->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t04_angsuran->AngsuranBunga->Visible) { // AngsuranBunga ?>
-	<tr id="r_AngsuranBunga">
-		<td class="col-sm-2"><span id="elh_t04_angsuran_AngsuranBunga"><?php echo $t04_angsuran->AngsuranBunga->FldCaption() ?></span></td>
-		<td data-name="AngsuranBunga"<?php echo $t04_angsuran->AngsuranBunga->CellAttributes() ?>>
-<span id="el_t04_angsuran_AngsuranBunga">
-<span<?php echo $t04_angsuran->AngsuranBunga->ViewAttributes() ?>>
-<?php echo $t04_angsuran->AngsuranBunga->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t04_angsuran->AngsuranTotal->Visible) { // AngsuranTotal ?>
-	<tr id="r_AngsuranTotal">
-		<td class="col-sm-2"><span id="elh_t04_angsuran_AngsuranTotal"><?php echo $t04_angsuran->AngsuranTotal->FldCaption() ?></span></td>
-		<td data-name="AngsuranTotal"<?php echo $t04_angsuran->AngsuranTotal->CellAttributes() ?>>
-<span id="el_t04_angsuran_AngsuranTotal">
-<span<?php echo $t04_angsuran->AngsuranTotal->ViewAttributes() ?>>
-<?php echo $t04_angsuran->AngsuranTotal->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t04_angsuran->SisaHutang->Visible) { // SisaHutang ?>
-	<tr id="r_SisaHutang">
-		<td class="col-sm-2"><span id="elh_t04_angsuran_SisaHutang"><?php echo $t04_angsuran->SisaHutang->FldCaption() ?></span></td>
-		<td data-name="SisaHutang"<?php echo $t04_angsuran->SisaHutang->CellAttributes() ?>>
-<span id="el_t04_angsuran_SisaHutang">
-<span<?php echo $t04_angsuran->SisaHutang->ViewAttributes() ?>>
-<?php echo $t04_angsuran->SisaHutang->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t04_angsuran->TanggalBayar->Visible) { // TanggalBayar ?>
-	<tr id="r_TanggalBayar">
-		<td class="col-sm-2"><span id="elh_t04_angsuran_TanggalBayar"><?php echo $t04_angsuran->TanggalBayar->FldCaption() ?></span></td>
-		<td data-name="TanggalBayar"<?php echo $t04_angsuran->TanggalBayar->CellAttributes() ?>>
-<span id="el_t04_angsuran_TanggalBayar">
-<span<?php echo $t04_angsuran->TanggalBayar->ViewAttributes() ?>>
-<?php echo $t04_angsuran->TanggalBayar->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t04_angsuran->TotalDenda->Visible) { // TotalDenda ?>
-	<tr id="r_TotalDenda">
-		<td class="col-sm-2"><span id="elh_t04_angsuran_TotalDenda"><?php echo $t04_angsuran->TotalDenda->FldCaption() ?></span></td>
-		<td data-name="TotalDenda"<?php echo $t04_angsuran->TotalDenda->CellAttributes() ?>>
-<span id="el_t04_angsuran_TotalDenda">
-<span<?php echo $t04_angsuran->TotalDenda->ViewAttributes() ?>>
-<?php echo $t04_angsuran->TotalDenda->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t04_angsuran->Terlambat->Visible) { // Terlambat ?>
-	<tr id="r_Terlambat">
-		<td class="col-sm-2"><span id="elh_t04_angsuran_Terlambat"><?php echo $t04_angsuran->Terlambat->FldCaption() ?></span></td>
-		<td data-name="Terlambat"<?php echo $t04_angsuran->Terlambat->CellAttributes() ?>>
-<span id="el_t04_angsuran_Terlambat">
-<span<?php echo $t04_angsuran->Terlambat->ViewAttributes() ?>>
-<?php echo $t04_angsuran->Terlambat->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t04_angsuran->Keterangan->Visible) { // Keterangan ?>
-	<tr id="r_Keterangan">
-		<td class="col-sm-2"><span id="elh_t04_angsuran_Keterangan"><?php echo $t04_angsuran->Keterangan->FldCaption() ?></span></td>
-		<td data-name="Keterangan"<?php echo $t04_angsuran->Keterangan->CellAttributes() ?>>
-<span id="el_t04_angsuran_Keterangan">
-<span<?php echo $t04_angsuran->Keterangan->ViewAttributes() ?>>
-<?php echo $t04_angsuran->Keterangan->ViewValue ?></span>
+<?php if ($t05_pinjamanjaminan->jaminan_id->Visible) { // jaminan_id ?>
+	<tr id="r_jaminan_id">
+		<td class="col-sm-2"><span id="elh_t05_pinjamanjaminan_jaminan_id"><?php echo $t05_pinjamanjaminan->jaminan_id->FldCaption() ?></span></td>
+		<td data-name="jaminan_id"<?php echo $t05_pinjamanjaminan->jaminan_id->CellAttributes() ?>>
+<span id="el_t05_pinjamanjaminan_jaminan_id">
+<span<?php echo $t05_pinjamanjaminan->jaminan_id->ViewAttributes() ?>>
+<?php echo $t05_pinjamanjaminan->jaminan_id->ViewValue ?></span>
 </span>
 </td>
 	</tr>
 <?php } ?>
 </table>
-<?php if (!$t04_angsuran_view->IsModal) { ?>
-<?php if (!isset($t04_angsuran_view->Pager)) $t04_angsuran_view->Pager = new cPrevNextPager($t04_angsuran_view->StartRec, $t04_angsuran_view->DisplayRecs, $t04_angsuran_view->TotalRecs, $t04_angsuran_view->AutoHidePager) ?>
-<?php if ($t04_angsuran_view->Pager->RecordCount > 0 && $t04_angsuran_view->Pager->Visible) { ?>
+<?php if (!$t05_pinjamanjaminan_view->IsModal) { ?>
+<?php if (!isset($t05_pinjamanjaminan_view->Pager)) $t05_pinjamanjaminan_view->Pager = new cPrevNextPager($t05_pinjamanjaminan_view->StartRec, $t05_pinjamanjaminan_view->DisplayRecs, $t05_pinjamanjaminan_view->TotalRecs, $t05_pinjamanjaminan_view->AutoHidePager) ?>
+<?php if ($t05_pinjamanjaminan_view->Pager->RecordCount > 0 && $t05_pinjamanjaminan_view->Pager->Visible) { ?>
 <div class="ewPager">
 <span><?php echo $Language->Phrase("Page") ?>&nbsp;</span>
 <div class="ewPrevNext"><div class="input-group">
 <div class="input-group-btn">
 <!--first page button-->
-	<?php if ($t04_angsuran_view->Pager->FirstButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $t04_angsuran_view->PageUrl() ?>start=<?php echo $t04_angsuran_view->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
+	<?php if ($t05_pinjamanjaminan_view->Pager->FirstButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $t05_pinjamanjaminan_view->PageUrl() ?>start=<?php echo $t05_pinjamanjaminan_view->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
 	<?php } else { ?>
 	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerFirst") ?>"><span class="icon-first ewIcon"></span></a>
 	<?php } ?>
 <!--previous page button-->
-	<?php if ($t04_angsuran_view->Pager->PrevButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $t04_angsuran_view->PageUrl() ?>start=<?php echo $t04_angsuran_view->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php if ($t05_pinjamanjaminan_view->Pager->PrevButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $t05_pinjamanjaminan_view->PageUrl() ?>start=<?php echo $t05_pinjamanjaminan_view->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
 	<?php } else { ?>
 	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerPrevious") ?>"><span class="icon-prev ewIcon"></span></a>
 	<?php } ?>
 </div>
 <!--current page number-->
-	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $t04_angsuran_view->Pager->CurrentPage ?>">
+	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $t05_pinjamanjaminan_view->Pager->CurrentPage ?>">
 <div class="input-group-btn">
 <!--next page button-->
-	<?php if ($t04_angsuran_view->Pager->NextButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $t04_angsuran_view->PageUrl() ?>start=<?php echo $t04_angsuran_view->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
+	<?php if ($t05_pinjamanjaminan_view->Pager->NextButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $t05_pinjamanjaminan_view->PageUrl() ?>start=<?php echo $t05_pinjamanjaminan_view->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
 	<?php } else { ?>
 	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerNext") ?>"><span class="icon-next ewIcon"></span></a>
 	<?php } ?>
 <!--last page button-->
-	<?php if ($t04_angsuran_view->Pager->LastButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $t04_angsuran_view->PageUrl() ?>start=<?php echo $t04_angsuran_view->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
+	<?php if ($t05_pinjamanjaminan_view->Pager->LastButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $t05_pinjamanjaminan_view->PageUrl() ?>start=<?php echo $t05_pinjamanjaminan_view->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
 	<?php } else { ?>
 	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerLast") ?>"><span class="icon-last ewIcon"></span></a>
 	<?php } ?>
 </div>
 </div>
 </div>
-<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $t04_angsuran_view->Pager->PageCount ?></span>
+<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $t05_pinjamanjaminan_view->Pager->PageCount ?></span>
 </div>
 <?php } ?>
 <div class="clearfix"></div>
 <?php } ?>
 </form>
 <script type="text/javascript">
-ft04_angsuranview.Init();
+ft05_pinjamanjaminanview.Init();
 </script>
 <?php
-$t04_angsuran_view->ShowPageFooter();
+$t05_pinjamanjaminan_view->ShowPageFooter();
 if (EW_DEBUG_ENABLED)
 	echo ew_DebugMsg();
 ?>
@@ -1374,5 +1207,5 @@ if (EW_DEBUG_ENABLED)
 </script>
 <?php include_once "footer.php" ?>
 <?php
-$t04_angsuran_view->Page_Terminate();
+$t05_pinjamanjaminan_view->Page_Terminate();
 ?>

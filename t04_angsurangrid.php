@@ -79,9 +79,6 @@ ft04_angsurangrid.Validate = function() {
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t04_angsuran->SisaHutang->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_TanggalBayar");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t04_angsuran->TanggalBayar->FldCaption(), $t04_angsuran->TanggalBayar->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_TanggalBayar");
 			if (elm && !ew_CheckEuroDate(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t04_angsuran->TanggalBayar->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_TotalDenda");
@@ -184,6 +181,15 @@ $t04_angsuran_grid->ShowMessage();
 <?php if ($t04_angsuran_grid->TotalRecs > 0 || $t04_angsuran->CurrentAction <> "") { ?>
 <div class="box ewBox ewGrid<?php if ($t04_angsuran_grid->IsAddOrEdit()) { ?> ewGridAddEdit<?php } ?> t04_angsuran">
 <div id="ft04_angsurangrid" class="ewForm ewListForm form-inline">
+<?php if ($t04_angsuran_grid->ShowOtherOptions) { ?>
+<div class="box-header ewGridUpperPanel">
+<?php
+	foreach ($t04_angsuran_grid->OtherOptions as &$option)
+		$option->Render("body");
+?>
+</div>
+<div class="clearfix"></div>
+<?php } ?>
 <div id="gmp_t04_angsuran" class="<?php if (ew_IsResponsiveLayout()) { ?>table-responsive <?php } ?>ewGridMiddlePanel">
 <table id="tbl_t04_angsurangrid" class="table ewTable">
 <thead>

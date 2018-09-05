@@ -313,6 +313,8 @@ class cdefault {
 			$this->Page_Terminate("t03_pinjamanlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't04_angsuran'))
 			$this->Page_Terminate("t04_angsuranlist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't05_pinjamanjaminan'))
+			$this->Page_Terminate("t05_pinjamanjaminanlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't96_employees'))
 			$this->Page_Terminate("t96_employeeslist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't97_userlevels'))

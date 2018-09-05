@@ -8,7 +8,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "t03_pinjamaninfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
 <?php include_once "t04_angsurangridcls.php" ?>
-<?php include_once "t02_jaminangridcls.php" ?>
+<?php include_once "t05_pinjamanjaminangridcls.php" ?>
 <?php include_once "userfn14.php" ?>
 <?php
 
@@ -376,12 +376,12 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 						exit();
 					}
 				}
-				if (in_array("t02_jaminan", $DetailTblVar)) {
+				if (in_array("t05_pinjamanjaminan", $DetailTblVar)) {
 
-					// Process auto fill for detail table 't02_jaminan'
-					if (preg_match('/^ft02_jaminan(grid|add|addopt|edit|update|search)$/', @$_POST["form"])) {
-						if (!isset($GLOBALS["t02_jaminan_grid"])) $GLOBALS["t02_jaminan_grid"] = new ct02_jaminan_grid;
-						$GLOBALS["t02_jaminan_grid"]->Page_Init();
+					// Process auto fill for detail table 't05_pinjamanjaminan'
+					if (preg_match('/^ft05_pinjamanjaminan(grid|add|addopt|edit|update|search)$/', @$_POST["form"])) {
+						if (!isset($GLOBALS["t05_pinjamanjaminan_grid"])) $GLOBALS["t05_pinjamanjaminan_grid"] = new ct05_pinjamanjaminan_grid;
+						$GLOBALS["t05_pinjamanjaminan_grid"]->Page_Init();
 						$this->Page_Terminate();
 						exit();
 					}
@@ -468,6 +468,15 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 	var $IsMobileOrModal = FALSE;
 	var $DbMasterFilter;
 	var $DbDetailFilter;
+	var $DisplayRecs = 1;
+	var $StartRec;
+	var $StopRec;
+	var $TotalRecs = 0;
+	var $RecRange = 10;
+	var $Pager;
+	var $AutoHidePager = EW_AUTO_HIDE_PAGER;
+	var $RecCnt;
+	var $Recordset;
 	var $DetailPages; // Detail pages object
 
 	//
@@ -481,6 +490,9 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 			$gbSkipHeaderFooter = TRUE;
 		$this->IsMobileOrModal = ew_IsMobile() || $this->IsModal;
 		$this->FormClassName = "ewForm ewEditForm form-horizontal";
+
+		// Load record by position
+		$loadByPosition = FALSE;
 		$sReturnUrl = "";
 		$loaded = FALSE;
 		$postBack = FALSE;
@@ -506,10 +518,44 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 			} else {
 				$this->id->CurrentValue = NULL;
 			}
+			if (!$loadByQuery)
+				$loadByPosition = TRUE;
 		}
 
-		// Load current record
-		$loaded = $this->LoadRow();
+		// Load recordset
+		$this->StartRec = 1; // Initialize start position
+		if ($this->Recordset = $this->LoadRecordset()) // Load records
+			$this->TotalRecs = $this->Recordset->RecordCount(); // Get record count
+		if ($this->TotalRecs <= 0) { // No record found
+			if ($this->getSuccessMessage() == "" && $this->getFailureMessage() == "")
+				$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record message
+			$this->Page_Terminate("t03_pinjamanlist.php"); // Return to list page
+		} elseif ($loadByPosition) { // Load record by position
+			$this->SetupStartRec(); // Set up start record position
+
+			// Point to current record
+			if (intval($this->StartRec) <= intval($this->TotalRecs)) {
+				$this->Recordset->Move($this->StartRec-1);
+				$loaded = TRUE;
+			}
+		} else { // Match key values
+			if (!is_null($this->id->CurrentValue)) {
+				while (!$this->Recordset->EOF) {
+					if (strval($this->id->CurrentValue) == strval($this->Recordset->fields('id'))) {
+						$this->setStartRecordNumber($this->StartRec); // Save record position
+						$loaded = TRUE;
+						break;
+					} else {
+						$this->StartRec++;
+						$this->Recordset->MoveNext();
+					}
+				}
+			}
+		}
+
+		// Load current row values
+		if ($loaded)
+			$this->LoadRowValues($this->Recordset);
 
 		// Process form if post back
 		if ($postBack) {
@@ -532,9 +578,11 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 		// Perform current action
 		switch ($this->CurrentAction) {
 			case "I": // Get a record to display
-				if (!$loaded) { // Load record based on key
-					if ($this->getFailureMessage() == "") $this->setFailureMessage($Language->Phrase("NoRecord")); // No record found
-					$this->Page_Terminate("t03_pinjamanlist.php"); // No matching record, return to list
+				if (!$loaded) {
+					if ($this->getSuccessMessage() == "" && $this->getFailureMessage() == "")
+						$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record message
+					$this->Page_Terminate("t03_pinjamanlist.php"); // Return to list page
+				} else {
 				}
 
 				// Set up detail parameters
@@ -666,6 +714,32 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 		$this->LamaAngsuran->CurrentValue = $this->LamaAngsuran->FormValue;
 		$this->JumlahAngsuran->CurrentValue = $this->JumlahAngsuran->FormValue;
 		$this->NoKontrakRefTo->CurrentValue = $this->NoKontrakRefTo->FormValue;
+	}
+
+	// Load recordset
+	function LoadRecordset($offset = -1, $rowcnt = -1) {
+
+		// Load List page SQL
+		$sSql = $this->ListSQL();
+		$conn = &$this->Connection();
+
+		// Load recordset
+		$dbtype = ew_GetConnectionType($this->DBID);
+		if ($this->UseSelectLimit) {
+			$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+			if ($dbtype == "MSSQL") {
+				$rs = $conn->SelectLimit($sSql, $rowcnt, $offset, array("_hasOrderBy" => trim($this->getOrderBy()) || trim($this->getSessionOrderByList())));
+			} else {
+				$rs = $conn->SelectLimit($sSql, $rowcnt, $offset);
+			}
+			$conn->raiseErrorFn = '';
+		} else {
+			$rs = ew_LoadRecordset($sSql, $conn);
+		}
+
+		// Call Recordset Selected event
+		$this->Recordset_Selected($rs);
+		return $rs;
 	}
 
 	// Load row based on key values
@@ -1114,9 +1188,9 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 			if (!isset($GLOBALS["t04_angsuran_grid"])) $GLOBALS["t04_angsuran_grid"] = new ct04_angsuran_grid(); // get detail page object
 			$GLOBALS["t04_angsuran_grid"]->ValidateGridForm();
 		}
-		if (in_array("t02_jaminan", $DetailTblVar) && $GLOBALS["t02_jaminan"]->DetailEdit) {
-			if (!isset($GLOBALS["t02_jaminan_grid"])) $GLOBALS["t02_jaminan_grid"] = new ct02_jaminan_grid(); // get detail page object
-			$GLOBALS["t02_jaminan_grid"]->ValidateGridForm();
+		if (in_array("t05_pinjamanjaminan", $DetailTblVar) && $GLOBALS["t05_pinjamanjaminan"]->DetailEdit) {
+			if (!isset($GLOBALS["t05_pinjamanjaminan_grid"])) $GLOBALS["t05_pinjamanjaminan_grid"] = new ct05_pinjamanjaminan_grid(); // get detail page object
+			$GLOBALS["t05_pinjamanjaminan_grid"]->ValidateGridForm();
 		}
 
 		// Return validate result
@@ -1208,10 +1282,10 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 					}
 				}
 				if ($EditRow) {
-					if (in_array("t02_jaminan", $DetailTblVar) && $GLOBALS["t02_jaminan"]->DetailEdit) {
-						if (!isset($GLOBALS["t02_jaminan_grid"])) $GLOBALS["t02_jaminan_grid"] = new ct02_jaminan_grid(); // Get detail page object
-						$Security->LoadCurrentUserLevel($this->ProjectID . "t02_jaminan"); // Load user level of detail table
-						$EditRow = $GLOBALS["t02_jaminan_grid"]->GridUpdate();
+					if (in_array("t05_pinjamanjaminan", $DetailTblVar) && $GLOBALS["t05_pinjamanjaminan"]->DetailEdit) {
+						if (!isset($GLOBALS["t05_pinjamanjaminan_grid"])) $GLOBALS["t05_pinjamanjaminan_grid"] = new ct05_pinjamanjaminan_grid(); // Get detail page object
+						$Security->LoadCurrentUserLevel($this->ProjectID . "t05_pinjamanjaminan"); // Load user level of detail table
+						$EditRow = $GLOBALS["t05_pinjamanjaminan_grid"]->GridUpdate();
 						$Security->LoadCurrentUserLevel($this->ProjectID . $this->TableName); // Restore user level of master table
 					}
 				}
@@ -1272,19 +1346,19 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 					$GLOBALS["t04_angsuran_grid"]->pinjaman_id->setSessionValue($GLOBALS["t04_angsuran_grid"]->pinjaman_id->CurrentValue);
 				}
 			}
-			if (in_array("t02_jaminan", $DetailTblVar)) {
-				if (!isset($GLOBALS["t02_jaminan_grid"]))
-					$GLOBALS["t02_jaminan_grid"] = new ct02_jaminan_grid;
-				if ($GLOBALS["t02_jaminan_grid"]->DetailEdit) {
-					$GLOBALS["t02_jaminan_grid"]->CurrentMode = "edit";
-					$GLOBALS["t02_jaminan_grid"]->CurrentAction = "gridedit";
+			if (in_array("t05_pinjamanjaminan", $DetailTblVar)) {
+				if (!isset($GLOBALS["t05_pinjamanjaminan_grid"]))
+					$GLOBALS["t05_pinjamanjaminan_grid"] = new ct05_pinjamanjaminan_grid;
+				if ($GLOBALS["t05_pinjamanjaminan_grid"]->DetailEdit) {
+					$GLOBALS["t05_pinjamanjaminan_grid"]->CurrentMode = "edit";
+					$GLOBALS["t05_pinjamanjaminan_grid"]->CurrentAction = "gridedit";
 
 					// Save current master table to detail table
-					$GLOBALS["t02_jaminan_grid"]->setCurrentMasterTable($this->TableVar);
-					$GLOBALS["t02_jaminan_grid"]->setStartRecordNumber(1);
-					$GLOBALS["t02_jaminan_grid"]->nasabah_id->FldIsDetailKey = TRUE;
-					$GLOBALS["t02_jaminan_grid"]->nasabah_id->CurrentValue = $this->nasabah_id->CurrentValue;
-					$GLOBALS["t02_jaminan_grid"]->nasabah_id->setSessionValue($GLOBALS["t02_jaminan_grid"]->nasabah_id->CurrentValue);
+					$GLOBALS["t05_pinjamanjaminan_grid"]->setCurrentMasterTable($this->TableVar);
+					$GLOBALS["t05_pinjamanjaminan_grid"]->setStartRecordNumber(1);
+					$GLOBALS["t05_pinjamanjaminan_grid"]->pinjaman_id->FldIsDetailKey = TRUE;
+					$GLOBALS["t05_pinjamanjaminan_grid"]->pinjaman_id->CurrentValue = $this->id->CurrentValue;
+					$GLOBALS["t05_pinjamanjaminan_grid"]->pinjaman_id->setSessionValue($GLOBALS["t05_pinjamanjaminan_grid"]->pinjaman_id->CurrentValue);
 				}
 			}
 		}
@@ -1303,9 +1377,9 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 	// Set up detail pages
 	function SetupDetailPages() {
 		$pages = new cSubPages();
-		$pages->Style = "tabs";
+		$pages->Style = "pills";
 		$pages->Add('t04_angsuran');
-		$pages->Add('t02_jaminan');
+		$pages->Add('t05_pinjamanjaminan');
 		$this->DetailPages = $pages;
 	}
 
@@ -1387,16 +1461,6 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 		// Example:
 		//$header = "your header";
 
-		$header = "
-		<button class='btn ewButton' name='myFirstBtn' id='myFirstBtn' type='submit'>
-		My First Button @ edit
-		</button>&nbsp;
-		<button class='btn ewButton' name='mySecondBtn' id='mySecondtBtn' type='submit'>
-		My Second Button @ edit
-		</button>&nbsp;
-		<button class='btn ewButton' name='myThirdBtn' id='myThirdBtn' type='submit'>
-		My Third Button @ edit
-		</button>";
 	}
 
 	// Page Data Rendered event
@@ -1539,7 +1603,7 @@ ft03_pinjamanedit.Form_CustomValidate =
 ft03_pinjamanedit.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
 
 // Dynamic selection lists
-ft03_pinjamanedit.Lists["x_nasabah_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Customer","x_NoTelpHp","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t01_nasabah"};
+ft03_pinjamanedit.Lists["x_nasabah_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Customer","x_NoTelpHp","",""],"ParentFields":[],"ChildFields":["t05_pinjamanjaminan x_jaminan_id"],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t01_nasabah"};
 ft03_pinjamanedit.Lists["x_nasabah_id"].Data = "<?php echo $t03_pinjaman_edit->nasabah_id->LookupFilterQuery(FALSE, "edit") ?>";
 
 // Form object for search
@@ -1552,6 +1616,51 @@ ft03_pinjamanedit.Lists["x_nasabah_id"].Data = "<?php echo $t03_pinjaman_edit->n
 <?php
 $t03_pinjaman_edit->ShowMessage();
 ?>
+<?php if (!$t03_pinjaman_edit->IsModal) { ?>
+<form name="ewPagerForm" class="form-horizontal ewForm ewPagerForm" action="<?php echo ew_CurrentPage() ?>">
+<?php if (!isset($t03_pinjaman_edit->Pager)) $t03_pinjaman_edit->Pager = new cPrevNextPager($t03_pinjaman_edit->StartRec, $t03_pinjaman_edit->DisplayRecs, $t03_pinjaman_edit->TotalRecs, $t03_pinjaman_edit->AutoHidePager) ?>
+<?php if ($t03_pinjaman_edit->Pager->RecordCount > 0 && $t03_pinjaman_edit->Pager->Visible) { ?>
+<div class="ewPager">
+<span><?php echo $Language->Phrase("Page") ?>&nbsp;</span>
+<div class="ewPrevNext"><div class="input-group">
+<div class="input-group-btn">
+<!--first page button-->
+	<?php if ($t03_pinjaman_edit->Pager->FirstButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $t03_pinjaman_edit->PageUrl() ?>start=<?php echo $t03_pinjaman_edit->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerFirst") ?>"><span class="icon-first ewIcon"></span></a>
+	<?php } ?>
+<!--previous page button-->
+	<?php if ($t03_pinjaman_edit->Pager->PrevButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $t03_pinjaman_edit->PageUrl() ?>start=<?php echo $t03_pinjaman_edit->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerPrevious") ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php } ?>
+</div>
+<!--current page number-->
+	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $t03_pinjaman_edit->Pager->CurrentPage ?>">
+<div class="input-group-btn">
+<!--next page button-->
+	<?php if ($t03_pinjaman_edit->Pager->NextButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $t03_pinjaman_edit->PageUrl() ?>start=<?php echo $t03_pinjaman_edit->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerNext") ?>"><span class="icon-next ewIcon"></span></a>
+	<?php } ?>
+<!--last page button-->
+	<?php if ($t03_pinjaman_edit->Pager->LastButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $t03_pinjaman_edit->PageUrl() ?>start=<?php echo $t03_pinjaman_edit->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerLast") ?>"><span class="icon-last ewIcon"></span></a>
+	<?php } ?>
+</div>
+</div>
+</div>
+<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $t03_pinjaman_edit->Pager->PageCount ?></span>
+</div>
+<?php } ?>
+<div class="clearfix"></div>
+</form>
+<?php } ?>
 <form name="ft03_pinjamanedit" id="ft03_pinjamanedit" class="<?php echo $t03_pinjaman_edit->FormClassName ?>" action="<?php echo ew_CurrentPage() ?>" method="post">
 <?php if ($t03_pinjaman_edit->CheckToken) { ?>
 <input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t03_pinjaman_edit->Token ?>">
@@ -1590,6 +1699,7 @@ ew_CreateDateTimePicker("ft03_pinjamanedit", "x_TglKontrak", {"ignoreReadonly":t
 		<label id="elh_t03_pinjaman_nasabah_id" for="x_nasabah_id" class="<?php echo $t03_pinjaman_edit->LeftColumnClass ?>"><?php echo $t03_pinjaman->nasabah_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_edit->RightColumnClass ?>"><div<?php echo $t03_pinjaman->nasabah_id->CellAttributes() ?>>
 <span id="el_t03_pinjaman_nasabah_id">
+<?php $t03_pinjaman->nasabah_id->EditAttrs["onchange"] = "ew_UpdateOpt.call(this); " . @$t03_pinjaman->nasabah_id->EditAttrs["onchange"]; ?>
 <span class="ewLookupList">
 	<span onclick="jQuery(this).parent().next(":not([disabled])").click();" tabindex="-1" class="form-control ewLookupText" id="lu_x_nasabah_id"><?php echo (strval($t03_pinjaman->nasabah_id->ViewValue) == "" ? $Language->Phrase("PleaseSelect") : $t03_pinjaman->nasabah_id->ViewValue); ?></span>
 </span>
@@ -1683,12 +1793,12 @@ ew_CreateDateTimePicker("ft03_pinjamanedit", "x_TglKontrak", {"ignoreReadonly":t
 	}
 ?>
 <?php
-	if (in_array("t02_jaminan", explode(",", $t03_pinjaman->getCurrentDetailTable())) && $t02_jaminan->DetailEdit) {
-		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t02_jaminan") {
-			$FirstActiveDetailTable = "t02_jaminan";
+	if (in_array("t05_pinjamanjaminan", explode(",", $t03_pinjaman->getCurrentDetailTable())) && $t05_pinjamanjaminan->DetailEdit) {
+		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t05_pinjamanjaminan") {
+			$FirstActiveDetailTable = "t05_pinjamanjaminan";
 		}
 ?>
-		<li<?php echo $t03_pinjaman_edit->DetailPages->TabStyle("t02_jaminan") ?>><a href="#tab_t02_jaminan" data-toggle="tab"><?php echo $Language->TablePhrase("t02_jaminan", "TblCaption") ?></a></li>
+		<li<?php echo $t03_pinjaman_edit->DetailPages->TabStyle("t05_pinjamanjaminan") ?>><a href="#tab_t05_pinjamanjaminan" data-toggle="tab"><?php echo $Language->TablePhrase("t05_pinjamanjaminan", "TblCaption") ?></a></li>
 <?php
 	}
 ?>
@@ -1705,13 +1815,13 @@ ew_CreateDateTimePicker("ft03_pinjamanedit", "x_TglKontrak", {"ignoreReadonly":t
 		</div><!-- /page* -->
 <?php } ?>
 <?php
-	if (in_array("t02_jaminan", explode(",", $t03_pinjaman->getCurrentDetailTable())) && $t02_jaminan->DetailEdit) {
-		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t02_jaminan") {
-			$FirstActiveDetailTable = "t02_jaminan";
+	if (in_array("t05_pinjamanjaminan", explode(",", $t03_pinjaman->getCurrentDetailTable())) && $t05_pinjamanjaminan->DetailEdit) {
+		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t05_pinjamanjaminan") {
+			$FirstActiveDetailTable = "t05_pinjamanjaminan";
 		}
 ?>
-		<div class="tab-pane<?php echo $t03_pinjaman_edit->DetailPages->PageStyle("t02_jaminan") ?>" id="tab_t02_jaminan"><!-- page* -->
-<?php include_once "t02_jaminangrid.php" ?>
+		<div class="tab-pane<?php echo $t03_pinjaman_edit->DetailPages->PageStyle("t05_pinjamanjaminan") ?>" id="tab_t05_pinjamanjaminan"><!-- page* -->
+<?php include_once "t05_pinjamanjaminangrid.php" ?>
 		</div><!-- /page* -->
 <?php } ?>
 	</div><!-- /.tab-content -->
@@ -1725,6 +1835,49 @@ ew_CreateDateTimePicker("ft03_pinjamanedit", "x_TglKontrak", {"ignoreReadonly":t
 <button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $t03_pinjaman_edit->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
 	</div><!-- /buttons offset -->
 </div><!-- /buttons .form-group -->
+<?php } ?>
+<?php if (!$t03_pinjaman_edit->IsModal) { ?>
+<?php if (!isset($t03_pinjaman_edit->Pager)) $t03_pinjaman_edit->Pager = new cPrevNextPager($t03_pinjaman_edit->StartRec, $t03_pinjaman_edit->DisplayRecs, $t03_pinjaman_edit->TotalRecs, $t03_pinjaman_edit->AutoHidePager) ?>
+<?php if ($t03_pinjaman_edit->Pager->RecordCount > 0 && $t03_pinjaman_edit->Pager->Visible) { ?>
+<div class="ewPager">
+<span><?php echo $Language->Phrase("Page") ?>&nbsp;</span>
+<div class="ewPrevNext"><div class="input-group">
+<div class="input-group-btn">
+<!--first page button-->
+	<?php if ($t03_pinjaman_edit->Pager->FirstButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $t03_pinjaman_edit->PageUrl() ?>start=<?php echo $t03_pinjaman_edit->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerFirst") ?>"><span class="icon-first ewIcon"></span></a>
+	<?php } ?>
+<!--previous page button-->
+	<?php if ($t03_pinjaman_edit->Pager->PrevButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $t03_pinjaman_edit->PageUrl() ?>start=<?php echo $t03_pinjaman_edit->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerPrevious") ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php } ?>
+</div>
+<!--current page number-->
+	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $t03_pinjaman_edit->Pager->CurrentPage ?>">
+<div class="input-group-btn">
+<!--next page button-->
+	<?php if ($t03_pinjaman_edit->Pager->NextButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $t03_pinjaman_edit->PageUrl() ?>start=<?php echo $t03_pinjaman_edit->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerNext") ?>"><span class="icon-next ewIcon"></span></a>
+	<?php } ?>
+<!--last page button-->
+	<?php if ($t03_pinjaman_edit->Pager->LastButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $t03_pinjaman_edit->PageUrl() ?>start=<?php echo $t03_pinjaman_edit->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerLast") ?>"><span class="icon-last ewIcon"></span></a>
+	<?php } ?>
+</div>
+</div>
+</div>
+<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $t03_pinjaman_edit->Pager->PageCount ?></span>
+</div>
+<?php } ?>
+<div class="clearfix"></div>
 <?php } ?>
 </form>
 <script type="text/javascript">
