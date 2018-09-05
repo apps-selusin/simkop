@@ -511,7 +511,7 @@ class ct04_angsuran_edit extends ct04_angsuran {
 				}
 				break;
 			Case "U": // Update
-				$sReturnUrl = $this->getReturnUrl();
+				$sReturnUrl = $this->GetViewUrl();
 				if (ew_GetPageName($sReturnUrl) == "t04_angsuranlist.php")
 					$sReturnUrl = $this->AddMasterUrl($sReturnUrl); // List page, return to List page with correct master key if necessary
 				$this->SendEmail = TRUE; // Send email on update success
