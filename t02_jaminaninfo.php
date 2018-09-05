@@ -14,6 +14,7 @@ class ct02_jaminan extends cTable {
 	var $AuditTrailOnViewData = FALSE;
 	var $AuditTrailOnSearch = FALSE;
 	var $id;
+	var $nasabah_id;
 	var $MerkType;
 	var $NoRangka;
 	var $NoMesin;
@@ -45,9 +46,9 @@ class ct02_jaminan extends cTable {
 		$this->ExportExcelPageSize = ""; // Page size (PHPExcel only)
 		$this->ExportWordPageOrientation = "portrait"; // Page orientation (PHPWord only)
 		$this->ExportWordColumnWidth = NULL; // Cell width (PHPWord only)
-		$this->DetailAdd = FALSE; // Allow detail add
-		$this->DetailEdit = FALSE; // Allow detail edit
-		$this->DetailView = FALSE; // Allow detail view
+		$this->DetailAdd = TRUE; // Allow detail add
+		$this->DetailEdit = TRUE; // Allow detail edit
+		$this->DetailView = TRUE; // Allow detail view
 		$this->ShowMultipleDetails = FALSE; // Show multiple details
 		$this->GridAddRowCount = 5;
 		$this->AllowAddDeleteRow = TRUE; // Allow add/delete row
@@ -59,6 +60,12 @@ class ct02_jaminan extends cTable {
 		$this->id->Sortable = TRUE; // Allow sort
 		$this->id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['id'] = &$this->id;
+
+		// nasabah_id
+		$this->nasabah_id = new cField('t02_jaminan', 't02_jaminan', 'x_nasabah_id', 'nasabah_id', '`nasabah_id`', '`nasabah_id`', 3, -1, FALSE, '`nasabah_id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->nasabah_id->Sortable = TRUE; // Allow sort
+		$this->nasabah_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['nasabah_id'] = &$this->nasabah_id;
 
 		// MerkType
 		$this->MerkType = new cField('t02_jaminan', 't02_jaminan', 'x_MerkType', 'MerkType', '`MerkType`', '`MerkType`', 200, -1, FALSE, '`MerkType`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
@@ -142,6 +149,75 @@ class ct02_jaminan extends cTable {
 		} else {
 			if (!$ctrl) $ofld->setSort("");
 		}
+	}
+
+	// Current master table name
+	function getCurrentMasterTable() {
+		return @$_SESSION[EW_PROJECT_NAME . "_" . $this->TableVar . "_" . EW_TABLE_MASTER_TABLE];
+	}
+
+	function setCurrentMasterTable($v) {
+		$_SESSION[EW_PROJECT_NAME . "_" . $this->TableVar . "_" . EW_TABLE_MASTER_TABLE] = $v;
+	}
+
+	// Session master WHERE clause
+	function GetMasterFilter() {
+
+		// Master filter
+		$sMasterFilter = "";
+		if ($this->getCurrentMasterTable() == "t01_nasabah") {
+			if ($this->nasabah_id->getSessionValue() <> "")
+				$sMasterFilter .= "`id`=" . ew_QuotedValue($this->nasabah_id->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
+			else
+				return "";
+		}
+		if ($this->getCurrentMasterTable() == "t03_pinjaman") {
+			if ($this->nasabah_id->getSessionValue() <> "")
+				$sMasterFilter .= "`nasabah_id`=" . ew_QuotedValue($this->nasabah_id->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
+			else
+				return "";
+		}
+		return $sMasterFilter;
+	}
+
+	// Session detail WHERE clause
+	function GetDetailFilter() {
+
+		// Detail filter
+		$sDetailFilter = "";
+		if ($this->getCurrentMasterTable() == "t01_nasabah") {
+			if ($this->nasabah_id->getSessionValue() <> "")
+				$sDetailFilter .= "`nasabah_id`=" . ew_QuotedValue($this->nasabah_id->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
+			else
+				return "";
+		}
+		if ($this->getCurrentMasterTable() == "t03_pinjaman") {
+			if ($this->nasabah_id->getSessionValue() <> "")
+				$sDetailFilter .= "`nasabah_id`=" . ew_QuotedValue($this->nasabah_id->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
+			else
+				return "";
+		}
+		return $sDetailFilter;
+	}
+
+	// Master filter
+	function SqlMasterFilter_t01_nasabah() {
+		return "`id`=@id@";
+	}
+
+	// Detail filter
+	function SqlDetailFilter_t01_nasabah() {
+		return "`nasabah_id`=@nasabah_id@";
+	}
+
+	// Master filter
+	function SqlMasterFilter_t03_pinjaman() {
+		return "`nasabah_id`=@nasabah_id@";
+	}
+
+	// Detail filter
+	function SqlDetailFilter_t03_pinjaman() {
+		return "`nasabah_id`=@nasabah_id@";
 	}
 
 	// Table level SQL
@@ -546,6 +622,14 @@ class ct02_jaminan extends cTable {
 
 	// Add master url
 	function AddMasterUrl($url) {
+		if ($this->getCurrentMasterTable() == "t01_nasabah" && strpos($url, EW_TABLE_SHOW_MASTER . "=") === FALSE) {
+			$url .= (strpos($url, "?") !== FALSE ? "&" : "?") . EW_TABLE_SHOW_MASTER . "=" . $this->getCurrentMasterTable();
+			$url .= "&fk_id=" . urlencode($this->nasabah_id->CurrentValue);
+		}
+		if ($this->getCurrentMasterTable() == "t03_pinjaman" && strpos($url, EW_TABLE_SHOW_MASTER . "=") === FALSE) {
+			$url .= (strpos($url, "?") !== FALSE ? "&" : "?") . EW_TABLE_SHOW_MASTER . "=" . $this->getCurrentMasterTable();
+			$url .= "&fk_nasabah_id=" . urlencode($this->nasabah_id->CurrentValue);
+		}
 		return $url;
 	}
 
@@ -643,6 +727,7 @@ class ct02_jaminan extends cTable {
 	// Load row values from recordset
 	function LoadListRowValues(&$rs) {
 		$this->id->setDbValue($rs->fields('id'));
+		$this->nasabah_id->setDbValue($rs->fields('nasabah_id'));
 		$this->MerkType->setDbValue($rs->fields('MerkType'));
 		$this->NoRangka->setDbValue($rs->fields('NoRangka'));
 		$this->NoMesin->setDbValue($rs->fields('NoMesin'));
@@ -661,6 +746,7 @@ class ct02_jaminan extends cTable {
 
 	// Common render codes
 		// id
+		// nasabah_id
 		// MerkType
 		// NoRangka
 		// NoMesin
@@ -672,6 +758,10 @@ class ct02_jaminan extends cTable {
 
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
+
+		// nasabah_id
+		$this->nasabah_id->ViewValue = $this->nasabah_id->CurrentValue;
+		$this->nasabah_id->ViewCustomAttributes = "";
 
 		// MerkType
 		$this->MerkType->ViewValue = $this->MerkType->CurrentValue;
@@ -705,6 +795,11 @@ class ct02_jaminan extends cTable {
 		$this->id->LinkCustomAttributes = "";
 		$this->id->HrefValue = "";
 		$this->id->TooltipValue = "";
+
+		// nasabah_id
+		$this->nasabah_id->LinkCustomAttributes = "";
+		$this->nasabah_id->HrefValue = "";
+		$this->nasabah_id->TooltipValue = "";
 
 		// MerkType
 		$this->MerkType->LinkCustomAttributes = "";
@@ -760,6 +855,18 @@ class ct02_jaminan extends cTable {
 		$this->id->EditCustomAttributes = "";
 		$this->id->EditValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
+
+		// nasabah_id
+		$this->nasabah_id->EditAttrs["class"] = "form-control";
+		$this->nasabah_id->EditCustomAttributes = "";
+		if ($this->nasabah_id->getSessionValue() <> "") {
+			$this->nasabah_id->CurrentValue = $this->nasabah_id->getSessionValue();
+		$this->nasabah_id->ViewValue = $this->nasabah_id->CurrentValue;
+		$this->nasabah_id->ViewCustomAttributes = "";
+		} else {
+		$this->nasabah_id->EditValue = $this->nasabah_id->CurrentValue;
+		$this->nasabah_id->PlaceHolder = ew_RemoveHtml($this->nasabah_id->FldCaption());
+		}
 
 		// MerkType
 		$this->MerkType->EditAttrs["class"] = "form-control";
@@ -830,6 +937,7 @@ class ct02_jaminan extends cTable {
 			if ($Doc->Horizontal) { // Horizontal format, write header
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
+					if ($this->nasabah_id->Exportable) $Doc->ExportCaption($this->nasabah_id);
 					if ($this->MerkType->Exportable) $Doc->ExportCaption($this->MerkType);
 					if ($this->NoRangka->Exportable) $Doc->ExportCaption($this->NoRangka);
 					if ($this->NoMesin->Exportable) $Doc->ExportCaption($this->NoMesin);
@@ -839,6 +947,7 @@ class ct02_jaminan extends cTable {
 					if ($this->AtasNama->Exportable) $Doc->ExportCaption($this->AtasNama);
 				} else {
 					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
+					if ($this->nasabah_id->Exportable) $Doc->ExportCaption($this->nasabah_id);
 					if ($this->MerkType->Exportable) $Doc->ExportCaption($this->MerkType);
 					if ($this->NoRangka->Exportable) $Doc->ExportCaption($this->NoRangka);
 					if ($this->NoMesin->Exportable) $Doc->ExportCaption($this->NoMesin);
@@ -877,6 +986,7 @@ class ct02_jaminan extends cTable {
 				if (!$Doc->ExportCustom) {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
+						if ($this->nasabah_id->Exportable) $Doc->ExportField($this->nasabah_id);
 						if ($this->MerkType->Exportable) $Doc->ExportField($this->MerkType);
 						if ($this->NoRangka->Exportable) $Doc->ExportField($this->NoRangka);
 						if ($this->NoMesin->Exportable) $Doc->ExportField($this->NoMesin);
@@ -886,6 +996,7 @@ class ct02_jaminan extends cTable {
 						if ($this->AtasNama->Exportable) $Doc->ExportField($this->AtasNama);
 					} else {
 						if ($this->id->Exportable) $Doc->ExportField($this->id);
+						if ($this->nasabah_id->Exportable) $Doc->ExportField($this->nasabah_id);
 						if ($this->MerkType->Exportable) $Doc->ExportField($this->MerkType);
 						if ($this->NoRangka->Exportable) $Doc->ExportField($this->NoRangka);
 						if ($this->NoMesin->Exportable) $Doc->ExportField($this->NoMesin);

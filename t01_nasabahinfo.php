@@ -126,6 +126,30 @@ class ct01_nasabah extends cTable {
 		}
 	}
 
+	// Current detail table name
+	function getCurrentDetailTable() {
+		return @$_SESSION[EW_PROJECT_NAME . "_" . $this->TableVar . "_" . EW_TABLE_DETAIL_TABLE];
+	}
+
+	function setCurrentDetailTable($v) {
+		$_SESSION[EW_PROJECT_NAME . "_" . $this->TableVar . "_" . EW_TABLE_DETAIL_TABLE] = $v;
+	}
+
+	// Get detail url
+	function GetDetailUrl() {
+
+		// Detail url
+		$sDetailUrl = "";
+		if ($this->getCurrentDetailTable() == "t02_jaminan") {
+			$sDetailUrl = $GLOBALS["t02_jaminan"]->GetListUrl() . "?" . EW_TABLE_SHOW_MASTER . "=" . $this->TableVar;
+			$sDetailUrl .= "&fk_id=" . urlencode($this->id->CurrentValue);
+		}
+		if ($sDetailUrl == "") {
+			$sDetailUrl = "t01_nasabahlist.php";
+		}
+		return $sDetailUrl;
+	}
+
 	// Table level SQL
 	var $_SqlFrom = "";
 
@@ -387,6 +411,35 @@ class ct01_nasabah extends cTable {
 	// Update
 	function Update(&$rs, $where = "", $rsold = NULL, $curfilter = TRUE) {
 		$conn = &$this->Connection();
+
+		// Cascade Update detail table 't02_jaminan'
+		$bCascadeUpdate = FALSE;
+		$rscascade = array();
+		if (!is_null($rsold) && (isset($rs['id']) && $rsold['id'] <> $rs['id'])) { // Update detail field 'nasabah_id'
+			$bCascadeUpdate = TRUE;
+			$rscascade['nasabah_id'] = $rs['id']; 
+		}
+		if ($bCascadeUpdate) {
+			if (!isset($GLOBALS["t02_jaminan"])) $GLOBALS["t02_jaminan"] = new ct02_jaminan();
+			$rswrk = $GLOBALS["t02_jaminan"]->LoadRs("`nasabah_id` = " . ew_QuotedValue($rsold['id'], EW_DATATYPE_NUMBER, 'DB')); 
+			while ($rswrk && !$rswrk->EOF) {
+				$rskey = array();
+				$fldname = 'id';
+				$rskey[$fldname] = $rswrk->fields[$fldname];
+				$rsdtlold = &$rswrk->fields;
+				$rsdtlnew = array_merge($rsdtlold, $rscascade);
+
+				// Call Row_Updating event
+				$bUpdate = $GLOBALS["t02_jaminan"]->Row_Updating($rsdtlold, $rsdtlnew);
+				if ($bUpdate)
+					$bUpdate = $GLOBALS["t02_jaminan"]->Update($rscascade, $rskey, $rswrk->fields);
+				if (!$bUpdate) return FALSE;
+
+				// Call Row_Updated event
+				$GLOBALS["t02_jaminan"]->Row_Updated($rsdtlold, $rsdtlnew);
+				$rswrk->MoveNext();
+			}
+		}
 		$bUpdate = $conn->Execute($this->UpdateSQL($rs, $where, $curfilter));
 		if ($bUpdate && $this->AuditTrailOnEdit) {
 			$rsaudit = $rs;
@@ -419,6 +472,31 @@ class ct01_nasabah extends cTable {
 	function Delete(&$rs, $where = "", $curfilter = TRUE) {
 		$bDelete = TRUE;
 		$conn = &$this->Connection();
+
+		// Cascade delete detail table 't02_jaminan'
+		if (!isset($GLOBALS["t02_jaminan"])) $GLOBALS["t02_jaminan"] = new ct02_jaminan();
+		$rscascade = $GLOBALS["t02_jaminan"]->LoadRs("`nasabah_id` = " . ew_QuotedValue($rs['id'], EW_DATATYPE_NUMBER, "DB")); 
+		$dtlrows = ($rscascade) ? $rscascade->GetRows() : array();
+
+		// Call Row Deleting event
+		foreach ($dtlrows as $dtlrow) {
+			$bDelete = $GLOBALS["t02_jaminan"]->Row_Deleting($dtlrow);
+			if (!$bDelete) break;
+		}
+		if ($bDelete) {
+			foreach ($dtlrows as $dtlrow) {
+				$bDelete = $GLOBALS["t02_jaminan"]->Delete($dtlrow); // Delete
+				if ($bDelete === FALSE)
+					break;
+			}
+		}
+
+		// Call Row Deleted event
+		if ($bDelete) {
+			foreach ($dtlrows as $dtlrow) {
+				$GLOBALS["t02_jaminan"]->Row_Deleted($dtlrow);
+			}
+		}
 		if ($bDelete)
 			$bDelete = $conn->Execute($this->DeleteSQL($rs, $where, $curfilter));
 		if ($bDelete && $this->AuditTrailOnDelete)
@@ -499,7 +577,10 @@ class ct01_nasabah extends cTable {
 
 	// Edit URL
 	function GetEditUrl($parm = "") {
-		$url = $this->KeyUrl("t01_nasabahedit.php", $this->UrlParm($parm));
+		if ($parm <> "")
+			$url = $this->KeyUrl("t01_nasabahedit.php", $this->UrlParm($parm));
+		else
+			$url = $this->KeyUrl("t01_nasabahedit.php", $this->UrlParm(EW_TABLE_SHOW_DETAIL . "="));
 		return $this->AddMasterUrl($url);
 	}
 
@@ -511,7 +592,10 @@ class ct01_nasabah extends cTable {
 
 	// Copy URL
 	function GetCopyUrl($parm = "") {
-		$url = $this->KeyUrl("t01_nasabahadd.php", $this->UrlParm($parm));
+		if ($parm <> "")
+			$url = $this->KeyUrl("t01_nasabahadd.php", $this->UrlParm($parm));
+		else
+			$url = $this->KeyUrl("t01_nasabahadd.php", $this->UrlParm(EW_TABLE_SHOW_DETAIL . "="));
 		return $this->AddMasterUrl($url);
 	}
 

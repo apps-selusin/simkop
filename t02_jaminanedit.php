@@ -6,6 +6,8 @@ ob_start(); // Turn on output buffering
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql14.php") ?>
 <?php include_once "phpfn14.php" ?>
 <?php include_once "t02_jaminaninfo.php" ?>
+<?php include_once "t01_nasabahinfo.php" ?>
+<?php include_once "t03_pinjamaninfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
 <?php include_once "userfn14.php" ?>
 <?php
@@ -262,6 +264,12 @@ class ct02_jaminan_edit extends ct02_jaminan {
 			$GLOBALS["Table"] = &$GLOBALS["t02_jaminan"];
 		}
 
+		// Table object (t01_nasabah)
+		if (!isset($GLOBALS['t01_nasabah'])) $GLOBALS['t01_nasabah'] = new ct01_nasabah();
+
+		// Table object (t03_pinjaman)
+		if (!isset($GLOBALS['t03_pinjaman'])) $GLOBALS['t03_pinjaman'] = new ct03_pinjaman();
+
 		// Table object (t96_employees)
 		if (!isset($GLOBALS['t96_employees'])) $GLOBALS['t96_employees'] = new ct96_employees();
 
@@ -331,6 +339,7 @@ class ct02_jaminan_edit extends ct02_jaminan {
 
 		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
+		$this->nasabah_id->SetVisibility();
 		$this->MerkType->SetVisibility();
 		$this->NoRangka->SetVisibility();
 		$this->NoMesin->SetVisibility();
@@ -474,6 +483,9 @@ class ct02_jaminan_edit extends ct02_jaminan {
 			}
 		}
 
+		// Set up master detail parameters
+		$this->SetupMasterParms();
+
 		// Load current record
 		$loaded = $this->LoadRow();
 
@@ -574,6 +586,9 @@ class ct02_jaminan_edit extends ct02_jaminan {
 
 		// Load from form
 		global $objForm;
+		if (!$this->nasabah_id->FldIsDetailKey) {
+			$this->nasabah_id->setFormValue($objForm->GetValue("x_nasabah_id"));
+		}
 		if (!$this->MerkType->FldIsDetailKey) {
 			$this->MerkType->setFormValue($objForm->GetValue("x_MerkType"));
 		}
@@ -603,6 +618,7 @@ class ct02_jaminan_edit extends ct02_jaminan {
 	function RestoreFormValues() {
 		global $objForm;
 		$this->id->CurrentValue = $this->id->FormValue;
+		$this->nasabah_id->CurrentValue = $this->nasabah_id->FormValue;
 		$this->MerkType->CurrentValue = $this->MerkType->FormValue;
 		$this->NoRangka->CurrentValue = $this->NoRangka->FormValue;
 		$this->NoMesin->CurrentValue = $this->NoMesin->FormValue;
@@ -646,6 +662,7 @@ class ct02_jaminan_edit extends ct02_jaminan {
 		if (!$rs || $rs->EOF)
 			return;
 		$this->id->setDbValue($row['id']);
+		$this->nasabah_id->setDbValue($row['nasabah_id']);
 		$this->MerkType->setDbValue($row['MerkType']);
 		$this->NoRangka->setDbValue($row['NoRangka']);
 		$this->NoMesin->setDbValue($row['NoMesin']);
@@ -659,6 +676,7 @@ class ct02_jaminan_edit extends ct02_jaminan {
 	function NewRow() {
 		$row = array();
 		$row['id'] = NULL;
+		$row['nasabah_id'] = NULL;
 		$row['MerkType'] = NULL;
 		$row['NoRangka'] = NULL;
 		$row['NoMesin'] = NULL;
@@ -675,6 +693,7 @@ class ct02_jaminan_edit extends ct02_jaminan {
 			return;
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
+		$this->nasabah_id->DbValue = $row['nasabah_id'];
 		$this->MerkType->DbValue = $row['MerkType'];
 		$this->NoRangka->DbValue = $row['NoRangka'];
 		$this->NoMesin->DbValue = $row['NoMesin'];
@@ -717,6 +736,7 @@ class ct02_jaminan_edit extends ct02_jaminan {
 
 		// Common render codes for all row types
 		// id
+		// nasabah_id
 		// MerkType
 		// NoRangka
 		// NoMesin
@@ -730,6 +750,10 @@ class ct02_jaminan_edit extends ct02_jaminan {
 		// id
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
+
+		// nasabah_id
+		$this->nasabah_id->ViewValue = $this->nasabah_id->CurrentValue;
+		$this->nasabah_id->ViewCustomAttributes = "";
 
 		// MerkType
 		$this->MerkType->ViewValue = $this->MerkType->CurrentValue;
@@ -758,6 +782,11 @@ class ct02_jaminan_edit extends ct02_jaminan {
 		// AtasNama
 		$this->AtasNama->ViewValue = $this->AtasNama->CurrentValue;
 		$this->AtasNama->ViewCustomAttributes = "";
+
+			// nasabah_id
+			$this->nasabah_id->LinkCustomAttributes = "";
+			$this->nasabah_id->HrefValue = "";
+			$this->nasabah_id->TooltipValue = "";
 
 			// MerkType
 			$this->MerkType->LinkCustomAttributes = "";
@@ -794,6 +823,18 @@ class ct02_jaminan_edit extends ct02_jaminan {
 			$this->AtasNama->HrefValue = "";
 			$this->AtasNama->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
+
+			// nasabah_id
+			$this->nasabah_id->EditAttrs["class"] = "form-control";
+			$this->nasabah_id->EditCustomAttributes = "";
+			if ($this->nasabah_id->getSessionValue() <> "") {
+				$this->nasabah_id->CurrentValue = $this->nasabah_id->getSessionValue();
+			$this->nasabah_id->ViewValue = $this->nasabah_id->CurrentValue;
+			$this->nasabah_id->ViewCustomAttributes = "";
+			} else {
+			$this->nasabah_id->EditValue = ew_HtmlEncode($this->nasabah_id->CurrentValue);
+			$this->nasabah_id->PlaceHolder = ew_RemoveHtml($this->nasabah_id->FldCaption());
+			}
 
 			// MerkType
 			$this->MerkType->EditAttrs["class"] = "form-control";
@@ -838,8 +879,12 @@ class ct02_jaminan_edit extends ct02_jaminan {
 			$this->AtasNama->PlaceHolder = ew_RemoveHtml($this->AtasNama->FldCaption());
 
 			// Edit refer script
-			// MerkType
+			// nasabah_id
 
+			$this->nasabah_id->LinkCustomAttributes = "";
+			$this->nasabah_id->HrefValue = "";
+
+			// MerkType
 			$this->MerkType->LinkCustomAttributes = "";
 			$this->MerkType->HrefValue = "";
 
@@ -885,6 +930,12 @@ class ct02_jaminan_edit extends ct02_jaminan {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
+		if (!$this->nasabah_id->FldIsDetailKey && !is_null($this->nasabah_id->FormValue) && $this->nasabah_id->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->nasabah_id->FldCaption(), $this->nasabah_id->ReqErrMsg));
+		}
+		if (!ew_CheckInteger($this->nasabah_id->FormValue)) {
+			ew_AddMessage($gsFormError, $this->nasabah_id->FldErrMsg());
+		}
 		if (!$this->MerkType->FldIsDetailKey && !is_null($this->MerkType->FormValue) && $this->MerkType->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->MerkType->FldCaption(), $this->MerkType->ReqErrMsg));
 		}
@@ -924,6 +975,9 @@ class ct02_jaminan_edit extends ct02_jaminan {
 			$this->LoadDbValues($rsold);
 			$rsnew = array();
 
+			// nasabah_id
+			$this->nasabah_id->SetDbValueDef($rsnew, $this->nasabah_id->CurrentValue, 0, $this->nasabah_id->ReadOnly);
+
 			// MerkType
 			$this->MerkType->SetDbValueDef($rsnew, $this->MerkType->CurrentValue, "", $this->MerkType->ReadOnly);
 
@@ -944,6 +998,50 @@ class ct02_jaminan_edit extends ct02_jaminan {
 
 			// AtasNama
 			$this->AtasNama->SetDbValueDef($rsnew, $this->AtasNama->CurrentValue, NULL, $this->AtasNama->ReadOnly);
+
+			// Check referential integrity for master table 't01_nasabah'
+			$bValidMasterRecord = TRUE;
+			$sMasterFilter = $this->SqlMasterFilter_t01_nasabah();
+			$KeyValue = isset($rsnew['nasabah_id']) ? $rsnew['nasabah_id'] : $rsold['nasabah_id'];
+			if (strval($KeyValue) <> "") {
+				$sMasterFilter = str_replace("@id@", ew_AdjustSql($KeyValue), $sMasterFilter);
+			} else {
+				$bValidMasterRecord = FALSE;
+			}
+			if ($bValidMasterRecord) {
+				if (!isset($GLOBALS["t01_nasabah"])) $GLOBALS["t01_nasabah"] = new ct01_nasabah();
+				$rsmaster = $GLOBALS["t01_nasabah"]->LoadRs($sMasterFilter);
+				$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
+				$rsmaster->Close();
+			}
+			if (!$bValidMasterRecord) {
+				$sRelatedRecordMsg = str_replace("%t", "t01_nasabah", $Language->Phrase("RelatedRecordRequired"));
+				$this->setFailureMessage($sRelatedRecordMsg);
+				$rs->Close();
+				return FALSE;
+			}
+
+			// Check referential integrity for master table 't03_pinjaman'
+			$bValidMasterRecord = TRUE;
+			$sMasterFilter = $this->SqlMasterFilter_t03_pinjaman();
+			$KeyValue = isset($rsnew['nasabah_id']) ? $rsnew['nasabah_id'] : $rsold['nasabah_id'];
+			if (strval($KeyValue) <> "") {
+				$sMasterFilter = str_replace("@nasabah_id@", ew_AdjustSql($KeyValue), $sMasterFilter);
+			} else {
+				$bValidMasterRecord = FALSE;
+			}
+			if ($bValidMasterRecord) {
+				if (!isset($GLOBALS["t03_pinjaman"])) $GLOBALS["t03_pinjaman"] = new ct03_pinjaman();
+				$rsmaster = $GLOBALS["t03_pinjaman"]->LoadRs($sMasterFilter);
+				$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
+				$rsmaster->Close();
+			}
+			if (!$bValidMasterRecord) {
+				$sRelatedRecordMsg = str_replace("%t", "t03_pinjaman", $Language->Phrase("RelatedRecordRequired"));
+				$this->setFailureMessage($sRelatedRecordMsg);
+				$rs->Close();
+				return FALSE;
+			}
 
 			// Call Row Updating event
 			$bUpdateRow = $this->Row_Updating($rsold, $rsnew);
@@ -975,6 +1073,94 @@ class ct02_jaminan_edit extends ct02_jaminan {
 			$this->Row_Updated($rsold, $rsnew);
 		$rs->Close();
 		return $EditRow;
+	}
+
+	// Set up master/detail based on QueryString
+	function SetupMasterParms() {
+		$bValidMaster = FALSE;
+
+		// Get the keys for master table
+		if (isset($_GET[EW_TABLE_SHOW_MASTER])) {
+			$sMasterTblVar = $_GET[EW_TABLE_SHOW_MASTER];
+			if ($sMasterTblVar == "") {
+				$bValidMaster = TRUE;
+				$this->DbMasterFilter = "";
+				$this->DbDetailFilter = "";
+			}
+			if ($sMasterTblVar == "t01_nasabah") {
+				$bValidMaster = TRUE;
+				if (@$_GET["fk_id"] <> "") {
+					$GLOBALS["t01_nasabah"]->id->setQueryStringValue($_GET["fk_id"]);
+					$this->nasabah_id->setQueryStringValue($GLOBALS["t01_nasabah"]->id->QueryStringValue);
+					$this->nasabah_id->setSessionValue($this->nasabah_id->QueryStringValue);
+					if (!is_numeric($GLOBALS["t01_nasabah"]->id->QueryStringValue)) $bValidMaster = FALSE;
+				} else {
+					$bValidMaster = FALSE;
+				}
+			}
+			if ($sMasterTblVar == "t03_pinjaman") {
+				$bValidMaster = TRUE;
+				if (@$_GET["fk_nasabah_id"] <> "") {
+					$GLOBALS["t03_pinjaman"]->nasabah_id->setQueryStringValue($_GET["fk_nasabah_id"]);
+					$this->nasabah_id->setQueryStringValue($GLOBALS["t03_pinjaman"]->nasabah_id->QueryStringValue);
+					$this->nasabah_id->setSessionValue($this->nasabah_id->QueryStringValue);
+					if (!is_numeric($GLOBALS["t03_pinjaman"]->nasabah_id->QueryStringValue)) $bValidMaster = FALSE;
+				} else {
+					$bValidMaster = FALSE;
+				}
+			}
+		} elseif (isset($_POST[EW_TABLE_SHOW_MASTER])) {
+			$sMasterTblVar = $_POST[EW_TABLE_SHOW_MASTER];
+			if ($sMasterTblVar == "") {
+				$bValidMaster = TRUE;
+				$this->DbMasterFilter = "";
+				$this->DbDetailFilter = "";
+			}
+			if ($sMasterTblVar == "t01_nasabah") {
+				$bValidMaster = TRUE;
+				if (@$_POST["fk_id"] <> "") {
+					$GLOBALS["t01_nasabah"]->id->setFormValue($_POST["fk_id"]);
+					$this->nasabah_id->setFormValue($GLOBALS["t01_nasabah"]->id->FormValue);
+					$this->nasabah_id->setSessionValue($this->nasabah_id->FormValue);
+					if (!is_numeric($GLOBALS["t01_nasabah"]->id->FormValue)) $bValidMaster = FALSE;
+				} else {
+					$bValidMaster = FALSE;
+				}
+			}
+			if ($sMasterTblVar == "t03_pinjaman") {
+				$bValidMaster = TRUE;
+				if (@$_POST["fk_nasabah_id"] <> "") {
+					$GLOBALS["t03_pinjaman"]->nasabah_id->setFormValue($_POST["fk_nasabah_id"]);
+					$this->nasabah_id->setFormValue($GLOBALS["t03_pinjaman"]->nasabah_id->FormValue);
+					$this->nasabah_id->setSessionValue($this->nasabah_id->FormValue);
+					if (!is_numeric($GLOBALS["t03_pinjaman"]->nasabah_id->FormValue)) $bValidMaster = FALSE;
+				} else {
+					$bValidMaster = FALSE;
+				}
+			}
+		}
+		if ($bValidMaster) {
+
+			// Save current master table
+			$this->setCurrentMasterTable($sMasterTblVar);
+			$this->setSessionWhere($this->GetDetailFilter());
+
+			// Reset start record counter (new master key)
+			if (!$this->IsAddOrEdit()) {
+				$this->StartRec = 1;
+				$this->setStartRecordNumber($this->StartRec);
+			}
+
+			// Clear previous master key from Session
+			if ($sMasterTblVar <> "t01_nasabah") {
+				if ($this->nasabah_id->CurrentValue == "") $this->nasabah_id->setSessionValue("");
+			}
+			if ($sMasterTblVar <> "t03_pinjaman") {
+				if ($this->nasabah_id->CurrentValue == "") $this->nasabah_id->setSessionValue("");
+			}
+		}
+		$this->DbMasterFilter = $this->GetMasterFilter(); // Get master filter
+		$this->DbDetailFilter = $this->GetDetailFilter(); // Get detail filter
 	}
 
 	// Set up Breadcrumb
@@ -1111,6 +1297,12 @@ ft02_jaminanedit.Validate = function() {
 	for (var i = startcnt; i <= rowcnt; i++) {
 		var infix = ($k[0]) ? String(i) : "";
 		$fobj.data("rowindex", infix);
+			elm = this.GetElements("x" + infix + "_nasabah_id");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t02_jaminan->nasabah_id->FldCaption(), $t02_jaminan->nasabah_id->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_nasabah_id");
+			if (elm && !ew_CheckInteger(elm.value))
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t02_jaminan->nasabah_id->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_MerkType");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t02_jaminan->MerkType->FldCaption(), $t02_jaminan->MerkType->ReqErrMsg)) ?>");
@@ -1161,7 +1353,33 @@ $t02_jaminan_edit->ShowMessage();
 <input type="hidden" name="t" value="t02_jaminan">
 <input type="hidden" name="a_edit" id="a_edit" value="U">
 <input type="hidden" name="modal" value="<?php echo intval($t02_jaminan_edit->IsModal) ?>">
+<?php if ($t02_jaminan->getCurrentMasterTable() == "t01_nasabah") { ?>
+<input type="hidden" name="<?php echo EW_TABLE_SHOW_MASTER ?>" value="t01_nasabah">
+<input type="hidden" name="fk_id" value="<?php echo $t02_jaminan->nasabah_id->getSessionValue() ?>">
+<?php } ?>
+<?php if ($t02_jaminan->getCurrentMasterTable() == "t03_pinjaman") { ?>
+<input type="hidden" name="<?php echo EW_TABLE_SHOW_MASTER ?>" value="t03_pinjaman">
+<input type="hidden" name="fk_nasabah_id" value="<?php echo $t02_jaminan->nasabah_id->getSessionValue() ?>">
+<?php } ?>
 <div class="ewEditDiv"><!-- page* -->
+<?php if ($t02_jaminan->nasabah_id->Visible) { // nasabah_id ?>
+	<div id="r_nasabah_id" class="form-group">
+		<label id="elh_t02_jaminan_nasabah_id" for="x_nasabah_id" class="<?php echo $t02_jaminan_edit->LeftColumnClass ?>"><?php echo $t02_jaminan->nasabah_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="<?php echo $t02_jaminan_edit->RightColumnClass ?>"><div<?php echo $t02_jaminan->nasabah_id->CellAttributes() ?>>
+<?php if ($t02_jaminan->nasabah_id->getSessionValue() <> "") { ?>
+<span id="el_t02_jaminan_nasabah_id">
+<span<?php echo $t02_jaminan->nasabah_id->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t02_jaminan->nasabah_id->ViewValue ?></p></span>
+</span>
+<input type="hidden" id="x_nasabah_id" name="x_nasabah_id" value="<?php echo ew_HtmlEncode($t02_jaminan->nasabah_id->CurrentValue) ?>">
+<?php } else { ?>
+<span id="el_t02_jaminan_nasabah_id">
+<input type="text" data-table="t02_jaminan" data-field="x_nasabah_id" name="x_nasabah_id" id="x_nasabah_id" size="30" placeholder="<?php echo ew_HtmlEncode($t02_jaminan->nasabah_id->getPlaceHolder()) ?>" value="<?php echo $t02_jaminan->nasabah_id->EditValue ?>"<?php echo $t02_jaminan->nasabah_id->EditAttributes() ?>>
+</span>
+<?php } ?>
+<?php echo $t02_jaminan->nasabah_id->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
 <?php if ($t02_jaminan->MerkType->Visible) { // MerkType ?>
 	<div id="r_MerkType" class="form-group">
 		<label id="elh_t02_jaminan_MerkType" for="x_MerkType" class="<?php echo $t02_jaminan_edit->LeftColumnClass ?>"><?php echo $t02_jaminan->MerkType->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>

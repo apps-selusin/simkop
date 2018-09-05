@@ -329,7 +329,6 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$this->NoKontrak->SetVisibility();
 		$this->TglKontrak->SetVisibility();
 		$this->nasabah_id->SetVisibility();
-		$this->jaminan_id->SetVisibility();
 		$this->Pinjaman->SetVisibility();
 		$this->Denda->SetVisibility();
 		$this->DispensasiDenda->SetVisibility();
@@ -524,12 +523,6 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		} else {
 			$this->nasabah_id->VirtualValue = ""; // Clear value
 		}
-		$this->jaminan_id->setDbValue($row['jaminan_id']);
-		if (array_key_exists('EV__jaminan_id', $rs->fields)) {
-			$this->jaminan_id->VirtualValue = $rs->fields('EV__jaminan_id'); // Set up virtual field value
-		} else {
-			$this->jaminan_id->VirtualValue = ""; // Clear value
-		}
 		$this->Pinjaman->setDbValue($row['Pinjaman']);
 		$this->Denda->setDbValue($row['Denda']);
 		$this->DispensasiDenda->setDbValue($row['DispensasiDenda']);
@@ -545,7 +538,6 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$row['NoKontrak'] = NULL;
 		$row['TglKontrak'] = NULL;
 		$row['nasabah_id'] = NULL;
-		$row['jaminan_id'] = NULL;
 		$row['Pinjaman'] = NULL;
 		$row['Denda'] = NULL;
 		$row['DispensasiDenda'] = NULL;
@@ -564,7 +556,6 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$this->NoKontrak->DbValue = $row['NoKontrak'];
 		$this->TglKontrak->DbValue = $row['TglKontrak'];
 		$this->nasabah_id->DbValue = $row['nasabah_id'];
-		$this->jaminan_id->DbValue = $row['jaminan_id'];
 		$this->Pinjaman->DbValue = $row['Pinjaman'];
 		$this->Denda->DbValue = $row['Denda'];
 		$this->DispensasiDenda->DbValue = $row['DispensasiDenda'];
@@ -599,7 +590,6 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		// NoKontrak
 		// TglKontrak
 		// nasabah_id
-		// jaminan_id
 		// Pinjaman
 		// Denda
 		// DispensasiDenda
@@ -650,34 +640,6 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		}
 		$this->nasabah_id->ViewCustomAttributes = "";
 
-		// jaminan_id
-		if ($this->jaminan_id->VirtualValue <> "") {
-			$this->jaminan_id->ViewValue = $this->jaminan_id->VirtualValue;
-		} else {
-		if (strval($this->jaminan_id->CurrentValue) <> "") {
-			$sFilterWrk = "`id`" . ew_SearchString("=", $this->jaminan_id->CurrentValue, EW_DATATYPE_NUMBER, "");
-		$sSqlWrk = "SELECT `id`, `MerkType` AS `DispFld`, `NoPol` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t02_jaminan`";
-		$sWhereWrk = "";
-		$this->jaminan_id->LookupFilters = array("dx1" => '`MerkType`', "dx2" => '`NoPol`');
-		ew_AddFilter($sWhereWrk, $sFilterWrk);
-		$this->Lookup_Selecting($this->jaminan_id, $sWhereWrk); // Call Lookup Selecting
-		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-			$rswrk = Conn()->Execute($sSqlWrk);
-			if ($rswrk && !$rswrk->EOF) { // Lookup values found
-				$arwrk = array();
-				$arwrk[1] = $rswrk->fields('DispFld');
-				$arwrk[2] = $rswrk->fields('Disp2Fld');
-				$this->jaminan_id->ViewValue = $this->jaminan_id->DisplayValue($arwrk);
-				$rswrk->Close();
-			} else {
-				$this->jaminan_id->ViewValue = $this->jaminan_id->CurrentValue;
-			}
-		} else {
-			$this->jaminan_id->ViewValue = NULL;
-		}
-		}
-		$this->jaminan_id->ViewCustomAttributes = "";
-
 		// Pinjaman
 		$this->Pinjaman->ViewValue = $this->Pinjaman->CurrentValue;
 		$this->Pinjaman->ViewValue = ew_FormatNumber($this->Pinjaman->ViewValue, 2, -2, -2, -2);
@@ -726,11 +688,6 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 			$this->nasabah_id->LinkCustomAttributes = "";
 			$this->nasabah_id->HrefValue = "";
 			$this->nasabah_id->TooltipValue = "";
-
-			// jaminan_id
-			$this->jaminan_id->LinkCustomAttributes = "";
-			$this->jaminan_id->HrefValue = "";
-			$this->jaminan_id->TooltipValue = "";
 
 			// Pinjaman
 			$this->Pinjaman->LinkCustomAttributes = "";
@@ -977,8 +934,6 @@ ft03_pinjamandelete.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE
 // Dynamic selection lists
 ft03_pinjamandelete.Lists["x_nasabah_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Customer","x_NoTelpHp","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t01_nasabah"};
 ft03_pinjamandelete.Lists["x_nasabah_id"].Data = "<?php echo $t03_pinjaman_delete->nasabah_id->LookupFilterQuery(FALSE, "delete") ?>";
-ft03_pinjamandelete.Lists["x_jaminan_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_MerkType","x_NoPol","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t02_jaminan"};
-ft03_pinjamandelete.Lists["x_jaminan_id"].Data = "<?php echo $t03_pinjaman_delete->jaminan_id->LookupFilterQuery(FALSE, "delete") ?>";
 
 // Form object for search
 </script>
@@ -1013,9 +968,6 @@ $t03_pinjaman_delete->ShowMessage();
 <?php } ?>
 <?php if ($t03_pinjaman->nasabah_id->Visible) { // nasabah_id ?>
 		<th class="<?php echo $t03_pinjaman->nasabah_id->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_nasabah_id" class="t03_pinjaman_nasabah_id"><?php echo $t03_pinjaman->nasabah_id->FldCaption() ?></span></th>
-<?php } ?>
-<?php if ($t03_pinjaman->jaminan_id->Visible) { // jaminan_id ?>
-		<th class="<?php echo $t03_pinjaman->jaminan_id->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_jaminan_id" class="t03_pinjaman_jaminan_id"><?php echo $t03_pinjaman->jaminan_id->FldCaption() ?></span></th>
 <?php } ?>
 <?php if ($t03_pinjaman->Pinjaman->Visible) { // Pinjaman ?>
 		<th class="<?php echo $t03_pinjaman->Pinjaman->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_Pinjaman" class="t03_pinjaman_Pinjaman"><?php echo $t03_pinjaman->Pinjaman->FldCaption() ?></span></th>
@@ -1077,14 +1029,6 @@ while (!$t03_pinjaman_delete->Recordset->EOF) {
 <span id="el<?php echo $t03_pinjaman_delete->RowCnt ?>_t03_pinjaman_nasabah_id" class="t03_pinjaman_nasabah_id">
 <span<?php echo $t03_pinjaman->nasabah_id->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->nasabah_id->ListViewValue() ?></span>
-</span>
-</td>
-<?php } ?>
-<?php if ($t03_pinjaman->jaminan_id->Visible) { // jaminan_id ?>
-		<td<?php echo $t03_pinjaman->jaminan_id->CellAttributes() ?>>
-<span id="el<?php echo $t03_pinjaman_delete->RowCnt ?>_t03_pinjaman_jaminan_id" class="t03_pinjaman_jaminan_id">
-<span<?php echo $t03_pinjaman->jaminan_id->ViewAttributes() ?>>
-<?php echo $t03_pinjaman->jaminan_id->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>

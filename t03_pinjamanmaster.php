@@ -3,7 +3,6 @@
 // NoKontrak
 // TglKontrak
 // nasabah_id
-// jaminan_id
 // Pinjaman
 // Denda
 // DispensasiDenda
@@ -45,17 +44,6 @@
 <span id="el_t03_pinjaman_nasabah_id">
 <span<?php echo $t03_pinjaman->nasabah_id->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->nasabah_id->ListViewValue() ?></span>
-</span>
-</td>
-		</tr>
-<?php } ?>
-<?php if ($t03_pinjaman->jaminan_id->Visible) { // jaminan_id ?>
-		<tr id="r_jaminan_id">
-			<td class="col-sm-2"><?php echo $t03_pinjaman->jaminan_id->FldCaption() ?></td>
-			<td<?php echo $t03_pinjaman->jaminan_id->CellAttributes() ?>>
-<span id="el_t03_pinjaman_jaminan_id">
-<span<?php echo $t03_pinjaman->jaminan_id->ViewAttributes() ?>>
-<?php echo $t03_pinjaman->jaminan_id->ListViewValue() ?></span>
 </span>
 </td>
 		</tr>

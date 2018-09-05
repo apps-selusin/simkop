@@ -17,7 +17,6 @@ class ct03_pinjaman extends cTable {
 	var $NoKontrak;
 	var $TglKontrak;
 	var $nasabah_id;
-	var $jaminan_id;
 	var $Pinjaman;
 	var $Denda;
 	var $DispensasiDenda;
@@ -51,7 +50,7 @@ class ct03_pinjaman extends cTable {
 		$this->DetailAdd = FALSE; // Allow detail add
 		$this->DetailEdit = FALSE; // Allow detail edit
 		$this->DetailView = FALSE; // Allow detail view
-		$this->ShowMultipleDetails = FALSE; // Show multiple details
+		$this->ShowMultipleDetails = TRUE; // Show multiple details
 		$this->GridAddRowCount = 5;
 		$this->AllowAddDeleteRow = TRUE; // Allow add/delete row
 		$this->UserIDAllowSecurity = 0; // User ID Allow
@@ -81,14 +80,6 @@ class ct03_pinjaman extends cTable {
 		$this->nasabah_id->PleaseSelectText = $Language->Phrase("PleaseSelect"); // PleaseSelect text
 		$this->nasabah_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['nasabah_id'] = &$this->nasabah_id;
-
-		// jaminan_id
-		$this->jaminan_id = new cField('t03_pinjaman', 't03_pinjaman', 'x_jaminan_id', 'jaminan_id', '`jaminan_id`', '`jaminan_id`', 3, -1, FALSE, '`EV__jaminan_id`', TRUE, TRUE, TRUE, 'FORMATTED TEXT', 'SELECT');
-		$this->jaminan_id->Sortable = TRUE; // Allow sort
-		$this->jaminan_id->UsePleaseSelect = TRUE; // Use PleaseSelect by default
-		$this->jaminan_id->PleaseSelectText = $Language->Phrase("PleaseSelect"); // PleaseSelect text
-		$this->jaminan_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
-		$this->fields['jaminan_id'] = &$this->jaminan_id;
 
 		// Pinjaman
 		$this->Pinjaman = new cField('t03_pinjaman', 't03_pinjaman', 'x_Pinjaman', 'Pinjaman', '`Pinjaman`', '`Pinjaman`', 4, -1, FALSE, '`Pinjaman`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
@@ -215,6 +206,10 @@ class ct03_pinjaman extends cTable {
 			$sDetailUrl = $GLOBALS["t04_angsuran"]->GetListUrl() . "?" . EW_TABLE_SHOW_MASTER . "=" . $this->TableVar;
 			$sDetailUrl .= "&fk_id=" . urlencode($this->id->CurrentValue);
 		}
+		if ($this->getCurrentDetailTable() == "t02_jaminan") {
+			$sDetailUrl = $GLOBALS["t02_jaminan"]->GetListUrl() . "?" . EW_TABLE_SHOW_MASTER . "=" . $this->TableVar;
+			$sDetailUrl .= "&fk_nasabah_id=" . urlencode($this->nasabah_id->CurrentValue);
+		}
 		if ($sDetailUrl == "") {
 			$sDetailUrl = "t03_pinjamanlist.php";
 		}
@@ -253,7 +248,7 @@ class ct03_pinjaman extends cTable {
 	function getSqlSelectList() { // Select for List page
 		$select = "";
 		$select = "SELECT * FROM (" .
-			"SELECT *, (SELECT CONCAT(COALESCE(`Customer`, ''),'" . ew_ValueSeparator(1, $this->nasabah_id) . "',COALESCE(`NoTelpHp`,'')) FROM `t01_nasabah` `EW_TMP_LOOKUPTABLE` WHERE `EW_TMP_LOOKUPTABLE`.`id` = `t03_pinjaman`.`nasabah_id` LIMIT 1) AS `EV__nasabah_id`, (SELECT CONCAT(COALESCE(`MerkType`, ''),'" . ew_ValueSeparator(1, $this->jaminan_id) . "',COALESCE(`NoPol`,'')) FROM `t02_jaminan` `EW_TMP_LOOKUPTABLE` WHERE `EW_TMP_LOOKUPTABLE`.`id` = `t03_pinjaman`.`jaminan_id` LIMIT 1) AS `EV__jaminan_id` FROM `t03_pinjaman`" .
+			"SELECT *, (SELECT CONCAT(COALESCE(`Customer`, ''),'" . ew_ValueSeparator(1, $this->nasabah_id) . "',COALESCE(`NoTelpHp`,'')) FROM `t01_nasabah` `EW_TMP_LOOKUPTABLE` WHERE `EW_TMP_LOOKUPTABLE`.`id` = `t03_pinjaman`.`nasabah_id` LIMIT 1) AS `EV__nasabah_id` FROM `t03_pinjaman`" .
 			") `EW_TMP_TABLE`";
 		return ($this->_SqlSelectList <> "") ? $this->_SqlSelectList : $select;
 	}
@@ -407,12 +402,6 @@ class ct03_pinjaman extends cTable {
 			return TRUE;
 		if (strpos($sOrderBy, " " . $this->nasabah_id->FldVirtualExpression . " ") !== FALSE)
 			return TRUE;
-		if ($this->jaminan_id->AdvancedSearch->SearchValue <> "" ||
-			$this->jaminan_id->AdvancedSearch->SearchValue2 <> "" ||
-			strpos($sWhere, " " . $this->jaminan_id->FldVirtualExpression . " ") !== FALSE)
-			return TRUE;
-		if (strpos($sOrderBy, " " . $this->jaminan_id->FldVirtualExpression . " ") !== FALSE)
-			return TRUE;
 		return FALSE;
 	}
 
@@ -530,6 +519,64 @@ class ct03_pinjaman extends cTable {
 	// Update
 	function Update(&$rs, $where = "", $rsold = NULL, $curfilter = TRUE) {
 		$conn = &$this->Connection();
+
+		// Cascade Update detail table 't04_angsuran'
+		$bCascadeUpdate = FALSE;
+		$rscascade = array();
+		if (!is_null($rsold) && (isset($rs['id']) && $rsold['id'] <> $rs['id'])) { // Update detail field 'pinjaman_id'
+			$bCascadeUpdate = TRUE;
+			$rscascade['pinjaman_id'] = $rs['id']; 
+		}
+		if ($bCascadeUpdate) {
+			if (!isset($GLOBALS["t04_angsuran"])) $GLOBALS["t04_angsuran"] = new ct04_angsuran();
+			$rswrk = $GLOBALS["t04_angsuran"]->LoadRs("`pinjaman_id` = " . ew_QuotedValue($rsold['id'], EW_DATATYPE_NUMBER, 'DB')); 
+			while ($rswrk && !$rswrk->EOF) {
+				$rskey = array();
+				$fldname = 'id';
+				$rskey[$fldname] = $rswrk->fields[$fldname];
+				$rsdtlold = &$rswrk->fields;
+				$rsdtlnew = array_merge($rsdtlold, $rscascade);
+
+				// Call Row_Updating event
+				$bUpdate = $GLOBALS["t04_angsuran"]->Row_Updating($rsdtlold, $rsdtlnew);
+				if ($bUpdate)
+					$bUpdate = $GLOBALS["t04_angsuran"]->Update($rscascade, $rskey, $rswrk->fields);
+				if (!$bUpdate) return FALSE;
+
+				// Call Row_Updated event
+				$GLOBALS["t04_angsuran"]->Row_Updated($rsdtlold, $rsdtlnew);
+				$rswrk->MoveNext();
+			}
+		}
+
+		// Cascade Update detail table 't02_jaminan'
+		$bCascadeUpdate = FALSE;
+		$rscascade = array();
+		if (!is_null($rsold) && (isset($rs['nasabah_id']) && $rsold['nasabah_id'] <> $rs['nasabah_id'])) { // Update detail field 'nasabah_id'
+			$bCascadeUpdate = TRUE;
+			$rscascade['nasabah_id'] = $rs['nasabah_id']; 
+		}
+		if ($bCascadeUpdate) {
+			if (!isset($GLOBALS["t02_jaminan"])) $GLOBALS["t02_jaminan"] = new ct02_jaminan();
+			$rswrk = $GLOBALS["t02_jaminan"]->LoadRs("`nasabah_id` = " . ew_QuotedValue($rsold['nasabah_id'], EW_DATATYPE_NUMBER, 'DB')); 
+			while ($rswrk && !$rswrk->EOF) {
+				$rskey = array();
+				$fldname = 'id';
+				$rskey[$fldname] = $rswrk->fields[$fldname];
+				$rsdtlold = &$rswrk->fields;
+				$rsdtlnew = array_merge($rsdtlold, $rscascade);
+
+				// Call Row_Updating event
+				$bUpdate = $GLOBALS["t02_jaminan"]->Row_Updating($rsdtlold, $rsdtlnew);
+				if ($bUpdate)
+					$bUpdate = $GLOBALS["t02_jaminan"]->Update($rscascade, $rskey, $rswrk->fields);
+				if (!$bUpdate) return FALSE;
+
+				// Call Row_Updated event
+				$GLOBALS["t02_jaminan"]->Row_Updated($rsdtlold, $rsdtlnew);
+				$rswrk->MoveNext();
+			}
+		}
 		$bUpdate = $conn->Execute($this->UpdateSQL($rs, $where, $curfilter));
 		if ($bUpdate && $this->AuditTrailOnEdit) {
 			$rsaudit = $rs;
@@ -562,6 +609,56 @@ class ct03_pinjaman extends cTable {
 	function Delete(&$rs, $where = "", $curfilter = TRUE) {
 		$bDelete = TRUE;
 		$conn = &$this->Connection();
+
+		// Cascade delete detail table 't04_angsuran'
+		if (!isset($GLOBALS["t04_angsuran"])) $GLOBALS["t04_angsuran"] = new ct04_angsuran();
+		$rscascade = $GLOBALS["t04_angsuran"]->LoadRs("`pinjaman_id` = " . ew_QuotedValue($rs['id'], EW_DATATYPE_NUMBER, "DB")); 
+		$dtlrows = ($rscascade) ? $rscascade->GetRows() : array();
+
+		// Call Row Deleting event
+		foreach ($dtlrows as $dtlrow) {
+			$bDelete = $GLOBALS["t04_angsuran"]->Row_Deleting($dtlrow);
+			if (!$bDelete) break;
+		}
+		if ($bDelete) {
+			foreach ($dtlrows as $dtlrow) {
+				$bDelete = $GLOBALS["t04_angsuran"]->Delete($dtlrow); // Delete
+				if ($bDelete === FALSE)
+					break;
+			}
+		}
+
+		// Call Row Deleted event
+		if ($bDelete) {
+			foreach ($dtlrows as $dtlrow) {
+				$GLOBALS["t04_angsuran"]->Row_Deleted($dtlrow);
+			}
+		}
+
+		// Cascade delete detail table 't02_jaminan'
+		if (!isset($GLOBALS["t02_jaminan"])) $GLOBALS["t02_jaminan"] = new ct02_jaminan();
+		$rscascade = $GLOBALS["t02_jaminan"]->LoadRs("`nasabah_id` = " . ew_QuotedValue($rs['nasabah_id'], EW_DATATYPE_NUMBER, "DB")); 
+		$dtlrows = ($rscascade) ? $rscascade->GetRows() : array();
+
+		// Call Row Deleting event
+		foreach ($dtlrows as $dtlrow) {
+			$bDelete = $GLOBALS["t02_jaminan"]->Row_Deleting($dtlrow);
+			if (!$bDelete) break;
+		}
+		if ($bDelete) {
+			foreach ($dtlrows as $dtlrow) {
+				$bDelete = $GLOBALS["t02_jaminan"]->Delete($dtlrow); // Delete
+				if ($bDelete === FALSE)
+					break;
+			}
+		}
+
+		// Call Row Deleted event
+		if ($bDelete) {
+			foreach ($dtlrows as $dtlrow) {
+				$GLOBALS["t02_jaminan"]->Row_Deleted($dtlrow);
+			}
+		}
 		if ($bDelete)
 			$bDelete = $conn->Execute($this->DeleteSQL($rs, $where, $curfilter));
 		if ($bDelete && $this->AuditTrailOnDelete)
@@ -777,7 +874,6 @@ class ct03_pinjaman extends cTable {
 		$this->NoKontrak->setDbValue($rs->fields('NoKontrak'));
 		$this->TglKontrak->setDbValue($rs->fields('TglKontrak'));
 		$this->nasabah_id->setDbValue($rs->fields('nasabah_id'));
-		$this->jaminan_id->setDbValue($rs->fields('jaminan_id'));
 		$this->Pinjaman->setDbValue($rs->fields('Pinjaman'));
 		$this->Denda->setDbValue($rs->fields('Denda'));
 		$this->DispensasiDenda->setDbValue($rs->fields('DispensasiDenda'));
@@ -798,7 +894,6 @@ class ct03_pinjaman extends cTable {
 		// NoKontrak
 		// TglKontrak
 		// nasabah_id
-		// jaminan_id
 		// Pinjaman
 		// Denda
 		// DispensasiDenda
@@ -846,34 +941,6 @@ class ct03_pinjaman extends cTable {
 		}
 		}
 		$this->nasabah_id->ViewCustomAttributes = "";
-
-		// jaminan_id
-		if ($this->jaminan_id->VirtualValue <> "") {
-			$this->jaminan_id->ViewValue = $this->jaminan_id->VirtualValue;
-		} else {
-		if (strval($this->jaminan_id->CurrentValue) <> "") {
-			$sFilterWrk = "`id`" . ew_SearchString("=", $this->jaminan_id->CurrentValue, EW_DATATYPE_NUMBER, "");
-		$sSqlWrk = "SELECT `id`, `MerkType` AS `DispFld`, `NoPol` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t02_jaminan`";
-		$sWhereWrk = "";
-		$this->jaminan_id->LookupFilters = array("dx1" => '`MerkType`', "dx2" => '`NoPol`');
-		ew_AddFilter($sWhereWrk, $sFilterWrk);
-		$this->Lookup_Selecting($this->jaminan_id, $sWhereWrk); // Call Lookup Selecting
-		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-			$rswrk = Conn()->Execute($sSqlWrk);
-			if ($rswrk && !$rswrk->EOF) { // Lookup values found
-				$arwrk = array();
-				$arwrk[1] = $rswrk->fields('DispFld');
-				$arwrk[2] = $rswrk->fields('Disp2Fld');
-				$this->jaminan_id->ViewValue = $this->jaminan_id->DisplayValue($arwrk);
-				$rswrk->Close();
-			} else {
-				$this->jaminan_id->ViewValue = $this->jaminan_id->CurrentValue;
-			}
-		} else {
-			$this->jaminan_id->ViewValue = NULL;
-		}
-		}
-		$this->jaminan_id->ViewCustomAttributes = "";
 
 		// Pinjaman
 		$this->Pinjaman->ViewValue = $this->Pinjaman->CurrentValue;
@@ -928,11 +995,6 @@ class ct03_pinjaman extends cTable {
 		$this->nasabah_id->LinkCustomAttributes = "";
 		$this->nasabah_id->HrefValue = "";
 		$this->nasabah_id->TooltipValue = "";
-
-		// jaminan_id
-		$this->jaminan_id->LinkCustomAttributes = "";
-		$this->jaminan_id->HrefValue = "";
-		$this->jaminan_id->TooltipValue = "";
 
 		// Pinjaman
 		$this->Pinjaman->LinkCustomAttributes = "";
@@ -999,10 +1061,6 @@ class ct03_pinjaman extends cTable {
 		// nasabah_id
 		$this->nasabah_id->EditAttrs["class"] = "form-control";
 		$this->nasabah_id->EditCustomAttributes = "";
-
-		// jaminan_id
-		$this->jaminan_id->EditAttrs["class"] = "form-control";
-		$this->jaminan_id->EditCustomAttributes = "";
 
 		// Pinjaman
 		$this->Pinjaman->EditAttrs["class"] = "form-control";
@@ -1073,7 +1131,6 @@ class ct03_pinjaman extends cTable {
 					if ($this->NoKontrak->Exportable) $Doc->ExportCaption($this->NoKontrak);
 					if ($this->TglKontrak->Exportable) $Doc->ExportCaption($this->TglKontrak);
 					if ($this->nasabah_id->Exportable) $Doc->ExportCaption($this->nasabah_id);
-					if ($this->jaminan_id->Exportable) $Doc->ExportCaption($this->jaminan_id);
 					if ($this->Pinjaman->Exportable) $Doc->ExportCaption($this->Pinjaman);
 					if ($this->Denda->Exportable) $Doc->ExportCaption($this->Denda);
 					if ($this->DispensasiDenda->Exportable) $Doc->ExportCaption($this->DispensasiDenda);
@@ -1085,7 +1142,6 @@ class ct03_pinjaman extends cTable {
 					if ($this->NoKontrak->Exportable) $Doc->ExportCaption($this->NoKontrak);
 					if ($this->TglKontrak->Exportable) $Doc->ExportCaption($this->TglKontrak);
 					if ($this->nasabah_id->Exportable) $Doc->ExportCaption($this->nasabah_id);
-					if ($this->jaminan_id->Exportable) $Doc->ExportCaption($this->jaminan_id);
 					if ($this->Pinjaman->Exportable) $Doc->ExportCaption($this->Pinjaman);
 					if ($this->Denda->Exportable) $Doc->ExportCaption($this->Denda);
 					if ($this->DispensasiDenda->Exportable) $Doc->ExportCaption($this->DispensasiDenda);
@@ -1126,7 +1182,6 @@ class ct03_pinjaman extends cTable {
 						if ($this->NoKontrak->Exportable) $Doc->ExportField($this->NoKontrak);
 						if ($this->TglKontrak->Exportable) $Doc->ExportField($this->TglKontrak);
 						if ($this->nasabah_id->Exportable) $Doc->ExportField($this->nasabah_id);
-						if ($this->jaminan_id->Exportable) $Doc->ExportField($this->jaminan_id);
 						if ($this->Pinjaman->Exportable) $Doc->ExportField($this->Pinjaman);
 						if ($this->Denda->Exportable) $Doc->ExportField($this->Denda);
 						if ($this->DispensasiDenda->Exportable) $Doc->ExportField($this->DispensasiDenda);
@@ -1138,7 +1193,6 @@ class ct03_pinjaman extends cTable {
 						if ($this->NoKontrak->Exportable) $Doc->ExportField($this->NoKontrak);
 						if ($this->TglKontrak->Exportable) $Doc->ExportField($this->TglKontrak);
 						if ($this->nasabah_id->Exportable) $Doc->ExportField($this->nasabah_id);
-						if ($this->jaminan_id->Exportable) $Doc->ExportField($this->jaminan_id);
 						if ($this->Pinjaman->Exportable) $Doc->ExportField($this->Pinjaman);
 						if ($this->Denda->Exportable) $Doc->ExportField($this->Denda);
 						if ($this->DispensasiDenda->Exportable) $Doc->ExportField($this->DispensasiDenda);

@@ -6,6 +6,8 @@ ob_start(); // Turn on output buffering
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql14.php") ?>
 <?php include_once "phpfn14.php" ?>
 <?php include_once "t02_jaminaninfo.php" ?>
+<?php include_once "t01_nasabahinfo.php" ?>
+<?php include_once "t03_pinjamaninfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
 <?php include_once "userfn14.php" ?>
 <?php
@@ -262,6 +264,12 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 			$GLOBALS["Table"] = &$GLOBALS["t02_jaminan"];
 		}
 
+		// Table object (t01_nasabah)
+		if (!isset($GLOBALS['t01_nasabah'])) $GLOBALS['t01_nasabah'] = new ct01_nasabah();
+
+		// Table object (t03_pinjaman)
+		if (!isset($GLOBALS['t03_pinjaman'])) $GLOBALS['t03_pinjaman'] = new ct03_pinjaman();
+
 		// Table object (t96_employees)
 		if (!isset($GLOBALS['t96_employees'])) $GLOBALS['t96_employees'] = new ct96_employees();
 
@@ -328,6 +336,7 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 
 		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
+		$this->nasabah_id->SetVisibility();
 		$this->MerkType->SetVisibility();
 		$this->NoRangka->SetVisibility();
 		$this->NoMesin->SetVisibility();
@@ -446,6 +455,7 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 				if ($this->AddRow()) { // Add successful
 					$row = array();
 					$row["x_id"] = $this->id->DbValue;
+					$row["x_nasabah_id"] = $this->nasabah_id->DbValue;
 					$row["x_MerkType"] = ew_ConvertToUtf8($this->MerkType->DbValue);
 					$row["x_NoRangka"] = ew_ConvertToUtf8($this->NoRangka->DbValue);
 					$row["x_NoMesin"] = ew_ConvertToUtf8($this->NoMesin->DbValue);
@@ -481,6 +491,8 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 	function LoadDefaultValues() {
 		$this->id->CurrentValue = NULL;
 		$this->id->OldValue = $this->id->CurrentValue;
+		$this->nasabah_id->CurrentValue = NULL;
+		$this->nasabah_id->OldValue = $this->nasabah_id->CurrentValue;
 		$this->MerkType->CurrentValue = NULL;
 		$this->MerkType->OldValue = $this->MerkType->CurrentValue;
 		$this->NoRangka->CurrentValue = NULL;
@@ -502,6 +514,9 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 
 		// Load from form
 		global $objForm;
+		if (!$this->nasabah_id->FldIsDetailKey) {
+			$this->nasabah_id->setFormValue(ew_ConvertFromUtf8($objForm->GetValue("x_nasabah_id")));
+		}
 		if (!$this->MerkType->FldIsDetailKey) {
 			$this->MerkType->setFormValue(ew_ConvertFromUtf8($objForm->GetValue("x_MerkType")));
 		}
@@ -528,6 +543,7 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 	// Restore form values
 	function RestoreFormValues() {
 		global $objForm;
+		$this->nasabah_id->CurrentValue = ew_ConvertToUtf8($this->nasabah_id->FormValue);
 		$this->MerkType->CurrentValue = ew_ConvertToUtf8($this->MerkType->FormValue);
 		$this->NoRangka->CurrentValue = ew_ConvertToUtf8($this->NoRangka->FormValue);
 		$this->NoMesin->CurrentValue = ew_ConvertToUtf8($this->NoMesin->FormValue);
@@ -571,6 +587,7 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 		if (!$rs || $rs->EOF)
 			return;
 		$this->id->setDbValue($row['id']);
+		$this->nasabah_id->setDbValue($row['nasabah_id']);
 		$this->MerkType->setDbValue($row['MerkType']);
 		$this->NoRangka->setDbValue($row['NoRangka']);
 		$this->NoMesin->setDbValue($row['NoMesin']);
@@ -585,6 +602,7 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 		$this->LoadDefaultValues();
 		$row = array();
 		$row['id'] = $this->id->CurrentValue;
+		$row['nasabah_id'] = $this->nasabah_id->CurrentValue;
 		$row['MerkType'] = $this->MerkType->CurrentValue;
 		$row['NoRangka'] = $this->NoRangka->CurrentValue;
 		$row['NoMesin'] = $this->NoMesin->CurrentValue;
@@ -601,6 +619,7 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 			return;
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
+		$this->nasabah_id->DbValue = $row['nasabah_id'];
 		$this->MerkType->DbValue = $row['MerkType'];
 		$this->NoRangka->DbValue = $row['NoRangka'];
 		$this->NoMesin->DbValue = $row['NoMesin'];
@@ -621,6 +640,7 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 
 		// Common render codes for all row types
 		// id
+		// nasabah_id
 		// MerkType
 		// NoRangka
 		// NoMesin
@@ -634,6 +654,10 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 		// id
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
+
+		// nasabah_id
+		$this->nasabah_id->ViewValue = $this->nasabah_id->CurrentValue;
+		$this->nasabah_id->ViewCustomAttributes = "";
 
 		// MerkType
 		$this->MerkType->ViewValue = $this->MerkType->CurrentValue;
@@ -662,6 +686,11 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 		// AtasNama
 		$this->AtasNama->ViewValue = $this->AtasNama->CurrentValue;
 		$this->AtasNama->ViewCustomAttributes = "";
+
+			// nasabah_id
+			$this->nasabah_id->LinkCustomAttributes = "";
+			$this->nasabah_id->HrefValue = "";
+			$this->nasabah_id->TooltipValue = "";
 
 			// MerkType
 			$this->MerkType->LinkCustomAttributes = "";
@@ -698,6 +727,12 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 			$this->AtasNama->HrefValue = "";
 			$this->AtasNama->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
+
+			// nasabah_id
+			$this->nasabah_id->EditAttrs["class"] = "form-control";
+			$this->nasabah_id->EditCustomAttributes = "";
+			$this->nasabah_id->EditValue = ew_HtmlEncode($this->nasabah_id->CurrentValue);
+			$this->nasabah_id->PlaceHolder = ew_RemoveHtml($this->nasabah_id->FldCaption());
 
 			// MerkType
 			$this->MerkType->EditAttrs["class"] = "form-control";
@@ -742,8 +777,12 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 			$this->AtasNama->PlaceHolder = ew_RemoveHtml($this->AtasNama->FldCaption());
 
 			// Add refer script
-			// MerkType
+			// nasabah_id
 
+			$this->nasabah_id->LinkCustomAttributes = "";
+			$this->nasabah_id->HrefValue = "";
+
+			// MerkType
 			$this->MerkType->LinkCustomAttributes = "";
 			$this->MerkType->HrefValue = "";
 
@@ -789,6 +828,12 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
+		if (!$this->nasabah_id->FldIsDetailKey && !is_null($this->nasabah_id->FormValue) && $this->nasabah_id->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->nasabah_id->FldCaption(), $this->nasabah_id->ReqErrMsg));
+		}
+		if (!ew_CheckInteger($this->nasabah_id->FormValue)) {
+			ew_AddMessage($gsFormError, $this->nasabah_id->FldErrMsg());
+		}
 		if (!$this->MerkType->FldIsDetailKey && !is_null($this->MerkType->FormValue) && $this->MerkType->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->MerkType->FldCaption(), $this->MerkType->ReqErrMsg));
 		}
@@ -808,6 +853,46 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 	// Add record
 	function AddRow($rsold = NULL) {
 		global $Language, $Security;
+
+		// Check referential integrity for master table 't01_nasabah'
+		$bValidMasterRecord = TRUE;
+		$sMasterFilter = $this->SqlMasterFilter_t01_nasabah();
+		if (strval($this->nasabah_id->CurrentValue) <> "") {
+			$sMasterFilter = str_replace("@id@", ew_AdjustSql($this->nasabah_id->CurrentValue, "DB"), $sMasterFilter);
+		} else {
+			$bValidMasterRecord = FALSE;
+		}
+		if ($bValidMasterRecord) {
+			if (!isset($GLOBALS["t01_nasabah"])) $GLOBALS["t01_nasabah"] = new ct01_nasabah();
+			$rsmaster = $GLOBALS["t01_nasabah"]->LoadRs($sMasterFilter);
+			$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
+			$rsmaster->Close();
+		}
+		if (!$bValidMasterRecord) {
+			$sRelatedRecordMsg = str_replace("%t", "t01_nasabah", $Language->Phrase("RelatedRecordRequired"));
+			$this->setFailureMessage($sRelatedRecordMsg);
+			return FALSE;
+		}
+
+		// Check referential integrity for master table 't03_pinjaman'
+		$bValidMasterRecord = TRUE;
+		$sMasterFilter = $this->SqlMasterFilter_t03_pinjaman();
+		if (strval($this->nasabah_id->CurrentValue) <> "") {
+			$sMasterFilter = str_replace("@nasabah_id@", ew_AdjustSql($this->nasabah_id->CurrentValue, "DB"), $sMasterFilter);
+		} else {
+			$bValidMasterRecord = FALSE;
+		}
+		if ($bValidMasterRecord) {
+			if (!isset($GLOBALS["t03_pinjaman"])) $GLOBALS["t03_pinjaman"] = new ct03_pinjaman();
+			$rsmaster = $GLOBALS["t03_pinjaman"]->LoadRs($sMasterFilter);
+			$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
+			$rsmaster->Close();
+		}
+		if (!$bValidMasterRecord) {
+			$sRelatedRecordMsg = str_replace("%t", "t03_pinjaman", $Language->Phrase("RelatedRecordRequired"));
+			$this->setFailureMessage($sRelatedRecordMsg);
+			return FALSE;
+		}
 		$conn = &$this->Connection();
 
 		// Load db values from rsold
@@ -815,6 +900,9 @@ class ct02_jaminan_addopt extends ct02_jaminan {
 		if ($rsold) {
 		}
 		$rsnew = array();
+
+		// nasabah_id
+		$this->nasabah_id->SetDbValueDef($rsnew, $this->nasabah_id->CurrentValue, 0, FALSE);
 
 		// MerkType
 		$this->MerkType->SetDbValueDef($rsnew, $this->MerkType->CurrentValue, "", FALSE);
@@ -1001,6 +1089,12 @@ ft02_jaminanaddopt.Validate = function() {
 	for (var i = startcnt; i <= rowcnt; i++) {
 		var infix = ($k[0]) ? String(i) : "";
 		$fobj.data("rowindex", infix);
+			elm = this.GetElements("x" + infix + "_nasabah_id");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t02_jaminan->nasabah_id->FldCaption(), $t02_jaminan->nasabah_id->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_nasabah_id");
+			if (elm && !ew_CheckInteger(elm.value))
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t02_jaminan->nasabah_id->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_MerkType");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t02_jaminan->MerkType->FldCaption(), $t02_jaminan->MerkType->ReqErrMsg)) ?>");
@@ -1040,6 +1134,14 @@ $t02_jaminan_addopt->ShowMessage();
 <?php } ?>
 <input type="hidden" name="t" value="t02_jaminan">
 <input type="hidden" name="a_addopt" id="a_addopt" value="A">
+<?php if ($t02_jaminan->nasabah_id->Visible) { // nasabah_id ?>
+	<div class="form-group">
+		<label class="col-sm-2 control-label ewLabel" for="x_nasabah_id"><?php echo $t02_jaminan->nasabah_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="col-sm-10">
+<input type="text" data-table="t02_jaminan" data-field="x_nasabah_id" name="x_nasabah_id" id="x_nasabah_id" size="30" placeholder="<?php echo ew_HtmlEncode($t02_jaminan->nasabah_id->getPlaceHolder()) ?>" value="<?php echo $t02_jaminan->nasabah_id->EditValue ?>"<?php echo $t02_jaminan->nasabah_id->EditAttributes() ?>>
+</div>
+	</div>
+<?php } ?>
 <?php if ($t02_jaminan->MerkType->Visible) { // MerkType ?>
 	<div class="form-group">
 		<label class="col-sm-2 control-label ewLabel" for="x_MerkType"><?php echo $t02_jaminan->MerkType->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
