@@ -8,6 +8,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "t03_pinjamaninfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
 <?php include_once "t04_angsurangridcls.php" ?>
+<?php include_once "t05_pinjamanjaminangridcls.php" ?>
 <?php include_once "userfn14.php" ?>
 <?php
 
@@ -390,13 +391,15 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 		$this->NoKontrak->SetVisibility();
 		$this->TglKontrak->SetVisibility();
 		$this->nasabah_id->SetVisibility();
-		$this->jaminan_id->SetVisibility();
 		$this->Pinjaman->SetVisibility();
 		$this->Denda->SetVisibility();
 		$this->DispensasiDenda->SetVisibility();
 		$this->LamaAngsuran->SetVisibility();
 		$this->JumlahAngsuran->SetVisibility();
 		$this->NoKontrakRefTo->SetVisibility();
+
+		// Set up detail page object
+		$this->SetupDetailPages();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -484,10 +487,13 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 	var $StopRec;
 	var $TotalRecs = 0;
 	var $RecRange = 10;
+	var $Pager;
+	var $AutoHidePager = EW_AUTO_HIDE_PAGER;
 	var $RecCnt;
 	var $RecKey = array();
 	var $IsModal = FALSE;
 	var $Recordset;
+	var $DetailPages; // Detail pages object
 
 	//
 	// Page main
@@ -498,6 +504,9 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 		// Check modal
 		if ($this->IsModal)
 			$gbSkipHeaderFooter = TRUE;
+
+		// Load current record
+		$bLoadCurrentRecord = FALSE;
 		$sReturnUrl = "";
 		$bMatchRecord = FALSE;
 		if ($this->IsPageRequest()) { // Validate request
@@ -508,17 +517,46 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 				$this->id->setFormValue($_POST["id"]);
 				$this->RecKey["id"] = $this->id->FormValue;
 			} else {
-				$sReturnUrl = "t03_pinjamanlist.php"; // Return to list
+				$bLoadCurrentRecord = TRUE;
 			}
 
 			// Get action
 			$this->CurrentAction = "I"; // Display form
 			switch ($this->CurrentAction) {
 				case "I": // Get a record to display
-					if (!$this->LoadRow()) { // Load record based on key
+					$this->StartRec = 1; // Initialize start position
+					if ($this->Recordset = $this->LoadRecordset()) // Load records
+						$this->TotalRecs = $this->Recordset->RecordCount(); // Get record count
+					if ($this->TotalRecs <= 0) { // No record found
+						if ($this->getSuccessMessage() == "" && $this->getFailureMessage() == "")
+							$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record message
+						$this->Page_Terminate("t03_pinjamanlist.php"); // Return to list page
+					} elseif ($bLoadCurrentRecord) { // Load current record position
+						$this->SetupStartRec(); // Set up start record position
+
+						// Point to current record
+						if (intval($this->StartRec) <= intval($this->TotalRecs)) {
+							$bMatchRecord = TRUE;
+							$this->Recordset->Move($this->StartRec-1);
+						}
+					} else { // Match key values
+						while (!$this->Recordset->EOF) {
+							if (strval($this->id->CurrentValue) == strval($this->Recordset->fields('id'))) {
+								$this->setStartRecordNumber($this->StartRec); // Save record position
+								$bMatchRecord = TRUE;
+								break;
+							} else {
+								$this->StartRec++;
+								$this->Recordset->MoveNext();
+							}
+						}
+					}
+					if (!$bMatchRecord) {
 						if ($this->getSuccessMessage() == "" && $this->getFailureMessage() == "")
 							$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record message
 						$sReturnUrl = "t03_pinjamanlist.php"; // No matching record, return to list
+					} else {
+						$this->LoadRowValues($this->Recordset); // Load row values
 					}
 			}
 		} else {
@@ -619,6 +657,39 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 		}
 		if ($this->ShowMultipleDetails) $item->Visible = FALSE;
 
+		// "detail_t05_pinjamanjaminan"
+		$item = &$option->Add("detail_t05_pinjamanjaminan");
+		$body = $Language->Phrase("ViewPageDetailLink") . $Language->TablePhrase("t05_pinjamanjaminan", "TblCaption");
+		$body = "<a class=\"btn btn-default btn-sm ewRowLink ewDetail\" data-action=\"list\" href=\"" . ew_HtmlEncode("t05_pinjamanjaminanlist.php?" . EW_TABLE_SHOW_MASTER . "=t03_pinjaman&fk_id=" . urlencode(strval($this->id->CurrentValue)) . "") . "\">" . $body . "</a>";
+		$links = "";
+		if ($GLOBALS["t05_pinjamanjaminan_grid"] && $GLOBALS["t05_pinjamanjaminan_grid"]->DetailView && $Security->CanView() && $Security->AllowView(CurrentProjectID() . 't05_pinjamanjaminan')) {
+			$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailViewLink")) . "\" href=\"" . ew_HtmlEncode($this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=t05_pinjamanjaminan")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailViewLink")) . "</a></li>";
+			if ($DetailViewTblVar <> "") $DetailViewTblVar .= ",";
+			$DetailViewTblVar .= "t05_pinjamanjaminan";
+		}
+		if ($GLOBALS["t05_pinjamanjaminan_grid"] && $GLOBALS["t05_pinjamanjaminan_grid"]->DetailEdit && $Security->CanEdit() && $Security->AllowEdit(CurrentProjectID() . 't05_pinjamanjaminan')) {
+			$links .= "<li><a class=\"ewRowLink ewDetailEdit\" data-action=\"edit\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailEditLink")) . "\" href=\"" . ew_HtmlEncode($this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=t05_pinjamanjaminan")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailEditLink")) . "</a></li>";
+			if ($DetailEditTblVar <> "") $DetailEditTblVar .= ",";
+			$DetailEditTblVar .= "t05_pinjamanjaminan";
+		}
+		if ($GLOBALS["t05_pinjamanjaminan_grid"] && $GLOBALS["t05_pinjamanjaminan_grid"]->DetailAdd && $Security->CanAdd() && $Security->AllowAdd(CurrentProjectID() . 't05_pinjamanjaminan')) {
+			$links .= "<li><a class=\"ewRowLink ewDetailCopy\" data-action=\"add\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailCopyLink")) . "\" href=\"" . ew_HtmlEncode($this->GetCopyUrl(EW_TABLE_SHOW_DETAIL . "=t05_pinjamanjaminan")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailCopyLink")) . "</a></li>";
+			if ($DetailCopyTblVar <> "") $DetailCopyTblVar .= ",";
+			$DetailCopyTblVar .= "t05_pinjamanjaminan";
+		}
+		if ($links <> "") {
+			$body .= "<button class=\"dropdown-toggle btn btn-default btn-sm ewDetail\" data-toggle=\"dropdown\"><b class=\"caret\"></b></button>";
+			$body .= "<ul class=\"dropdown-menu\">". $links . "</ul>";
+		}
+		$body = "<div class=\"btn-group\">" . $body . "</div>";
+		$item->Body = $body;
+		$item->Visible = $Security->AllowList(CurrentProjectID() . 't05_pinjamanjaminan');
+		if ($item->Visible) {
+			if ($DetailTableLink <> "") $DetailTableLink .= ",";
+			$DetailTableLink .= "t05_pinjamanjaminan";
+		}
+		if ($this->ShowMultipleDetails) $item->Visible = FALSE;
+
 		// Multiple details
 		if ($this->ShowMultipleDetails) {
 			$body = $Language->Phrase("MultipleMasterDetails");
@@ -703,6 +774,32 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 		}
 	}
 
+	// Load recordset
+	function LoadRecordset($offset = -1, $rowcnt = -1) {
+
+		// Load List page SQL
+		$sSql = $this->ListSQL();
+		$conn = &$this->Connection();
+
+		// Load recordset
+		$dbtype = ew_GetConnectionType($this->DBID);
+		if ($this->UseSelectLimit) {
+			$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+			if ($dbtype == "MSSQL") {
+				$rs = $conn->SelectLimit($sSql, $rowcnt, $offset, array("_hasOrderBy" => trim($this->getOrderBy()) || trim($this->getSessionOrderByList())));
+			} else {
+				$rs = $conn->SelectLimit($sSql, $rowcnt, $offset);
+			}
+			$conn->raiseErrorFn = '';
+		} else {
+			$rs = ew_LoadRecordset($sSql, $conn);
+		}
+
+		// Call Recordset Selected event
+		$this->Recordset_Selected($rs);
+		return $rs;
+	}
+
 	// Load row based on key values
 	function LoadRow() {
 		global $Security, $Language;
@@ -746,12 +843,6 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 		} else {
 			$this->nasabah_id->VirtualValue = ""; // Clear value
 		}
-		$this->jaminan_id->setDbValue($row['jaminan_id']);
-		if (array_key_exists('EV__jaminan_id', $rs->fields)) {
-			$this->jaminan_id->VirtualValue = $rs->fields('EV__jaminan_id'); // Set up virtual field value
-		} else {
-			$this->jaminan_id->VirtualValue = ""; // Clear value
-		}
 		$this->Pinjaman->setDbValue($row['Pinjaman']);
 		$this->Denda->setDbValue($row['Denda']);
 		$this->DispensasiDenda->setDbValue($row['DispensasiDenda']);
@@ -767,7 +858,6 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 		$row['NoKontrak'] = NULL;
 		$row['TglKontrak'] = NULL;
 		$row['nasabah_id'] = NULL;
-		$row['jaminan_id'] = NULL;
 		$row['Pinjaman'] = NULL;
 		$row['Denda'] = NULL;
 		$row['DispensasiDenda'] = NULL;
@@ -786,7 +876,6 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 		$this->NoKontrak->DbValue = $row['NoKontrak'];
 		$this->TglKontrak->DbValue = $row['TglKontrak'];
 		$this->nasabah_id->DbValue = $row['nasabah_id'];
-		$this->jaminan_id->DbValue = $row['jaminan_id'];
 		$this->Pinjaman->DbValue = $row['Pinjaman'];
 		$this->Denda->DbValue = $row['Denda'];
 		$this->DispensasiDenda->DbValue = $row['DispensasiDenda'];
@@ -827,7 +916,6 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 		// NoKontrak
 		// TglKontrak
 		// nasabah_id
-		// jaminan_id
 		// Pinjaman
 		// Denda
 		// DispensasiDenda
@@ -878,34 +966,6 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 		}
 		$this->nasabah_id->ViewCustomAttributes = "";
 
-		// jaminan_id
-		if ($this->jaminan_id->VirtualValue <> "") {
-			$this->jaminan_id->ViewValue = $this->jaminan_id->VirtualValue;
-		} else {
-		if (strval($this->jaminan_id->CurrentValue) <> "") {
-			$sFilterWrk = "`id`" . ew_SearchString("=", $this->jaminan_id->CurrentValue, EW_DATATYPE_NUMBER, "");
-		$sSqlWrk = "SELECT `id`, `MerkType` AS `DispFld`, `NoPol` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t02_jaminan`";
-		$sWhereWrk = "";
-		$this->jaminan_id->LookupFilters = array("dx1" => '`MerkType`', "dx2" => '`NoPol`');
-		ew_AddFilter($sWhereWrk, $sFilterWrk);
-		$this->Lookup_Selecting($this->jaminan_id, $sWhereWrk); // Call Lookup Selecting
-		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-			$rswrk = Conn()->Execute($sSqlWrk);
-			if ($rswrk && !$rswrk->EOF) { // Lookup values found
-				$arwrk = array();
-				$arwrk[1] = $rswrk->fields('DispFld');
-				$arwrk[2] = $rswrk->fields('Disp2Fld');
-				$this->jaminan_id->ViewValue = $this->jaminan_id->DisplayValue($arwrk);
-				$rswrk->Close();
-			} else {
-				$this->jaminan_id->ViewValue = $this->jaminan_id->CurrentValue;
-			}
-		} else {
-			$this->jaminan_id->ViewValue = NULL;
-		}
-		}
-		$this->jaminan_id->ViewCustomAttributes = "";
-
 		// Pinjaman
 		$this->Pinjaman->ViewValue = $this->Pinjaman->CurrentValue;
 		$this->Pinjaman->ViewValue = ew_FormatNumber($this->Pinjaman->ViewValue, 2, -2, -2, -2);
@@ -954,11 +1014,6 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 			$this->nasabah_id->LinkCustomAttributes = "";
 			$this->nasabah_id->HrefValue = "";
 			$this->nasabah_id->TooltipValue = "";
-
-			// jaminan_id
-			$this->jaminan_id->LinkCustomAttributes = "";
-			$this->jaminan_id->HrefValue = "";
-			$this->jaminan_id->TooltipValue = "";
 
 			// Pinjaman
 			$this->Pinjaman->LinkCustomAttributes = "";
@@ -1022,6 +1077,20 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 					$GLOBALS["t04_angsuran_grid"]->pinjaman_id->setSessionValue($GLOBALS["t04_angsuran_grid"]->pinjaman_id->CurrentValue);
 				}
 			}
+			if (in_array("t05_pinjamanjaminan", $DetailTblVar)) {
+				if (!isset($GLOBALS["t05_pinjamanjaminan_grid"]))
+					$GLOBALS["t05_pinjamanjaminan_grid"] = new ct05_pinjamanjaminan_grid;
+				if ($GLOBALS["t05_pinjamanjaminan_grid"]->DetailView) {
+					$GLOBALS["t05_pinjamanjaminan_grid"]->CurrentMode = "view";
+
+					// Save current master table to detail table
+					$GLOBALS["t05_pinjamanjaminan_grid"]->setCurrentMasterTable($this->TableVar);
+					$GLOBALS["t05_pinjamanjaminan_grid"]->setStartRecordNumber(1);
+					$GLOBALS["t05_pinjamanjaminan_grid"]->pinjaman_id->FldIsDetailKey = TRUE;
+					$GLOBALS["t05_pinjamanjaminan_grid"]->pinjaman_id->CurrentValue = $this->id->CurrentValue;
+					$GLOBALS["t05_pinjamanjaminan_grid"]->pinjaman_id->setSessionValue($GLOBALS["t05_pinjamanjaminan_grid"]->pinjaman_id->CurrentValue);
+				}
+			}
 		}
 	}
 
@@ -1033,6 +1102,15 @@ class ct03_pinjaman_view extends ct03_pinjaman {
 		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t03_pinjamanlist.php"), "", $this->TableVar, TRUE);
 		$PageId = "view";
 		$Breadcrumb->Add("view", $PageId, $url);
+	}
+
+	// Set up detail pages
+	function SetupDetailPages() {
+		$pages = new cSubPages();
+		$pages->Style = "pills";
+		$pages->Add('t04_angsuran');
+		$pages->Add('t05_pinjamanjaminan');
+		$this->DetailPages = $pages;
 	}
 
 	// Setup lookup filters of a field
@@ -1175,10 +1253,8 @@ ft03_pinjamanview.Form_CustomValidate =
 ft03_pinjamanview.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
 
 // Dynamic selection lists
-ft03_pinjamanview.Lists["x_nasabah_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Customer","x_NoTelpHp","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t01_nasabah"};
+ft03_pinjamanview.Lists["x_nasabah_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Customer","x_NoTelpHp","",""],"ParentFields":[],"ChildFields":["t05_pinjamanjaminan x_jaminan_id"],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t01_nasabah"};
 ft03_pinjamanview.Lists["x_nasabah_id"].Data = "<?php echo $t03_pinjaman_view->nasabah_id->LookupFilterQuery(FALSE, "view") ?>";
-ft03_pinjamanview.Lists["x_jaminan_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_MerkType","x_NoPol","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t02_jaminan"};
-ft03_pinjamanview.Lists["x_jaminan_id"].Data = "<?php echo $t03_pinjaman_view->jaminan_id->LookupFilterQuery(FALSE, "view") ?>";
 
 // Form object for search
 </script>
@@ -1198,6 +1274,51 @@ ft03_pinjamanview.Lists["x_jaminan_id"].Data = "<?php echo $t03_pinjaman_view->j
 <?php
 $t03_pinjaman_view->ShowMessage();
 ?>
+<?php if (!$t03_pinjaman_view->IsModal) { ?>
+<form name="ewPagerForm" class="form-inline ewForm ewPagerForm" action="<?php echo ew_CurrentPage() ?>">
+<?php if (!isset($t03_pinjaman_view->Pager)) $t03_pinjaman_view->Pager = new cPrevNextPager($t03_pinjaman_view->StartRec, $t03_pinjaman_view->DisplayRecs, $t03_pinjaman_view->TotalRecs, $t03_pinjaman_view->AutoHidePager) ?>
+<?php if ($t03_pinjaman_view->Pager->RecordCount > 0 && $t03_pinjaman_view->Pager->Visible) { ?>
+<div class="ewPager">
+<span><?php echo $Language->Phrase("Page") ?>&nbsp;</span>
+<div class="ewPrevNext"><div class="input-group">
+<div class="input-group-btn">
+<!--first page button-->
+	<?php if ($t03_pinjaman_view->Pager->FirstButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $t03_pinjaman_view->PageUrl() ?>start=<?php echo $t03_pinjaman_view->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerFirst") ?>"><span class="icon-first ewIcon"></span></a>
+	<?php } ?>
+<!--previous page button-->
+	<?php if ($t03_pinjaman_view->Pager->PrevButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $t03_pinjaman_view->PageUrl() ?>start=<?php echo $t03_pinjaman_view->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerPrevious") ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php } ?>
+</div>
+<!--current page number-->
+	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $t03_pinjaman_view->Pager->CurrentPage ?>">
+<div class="input-group-btn">
+<!--next page button-->
+	<?php if ($t03_pinjaman_view->Pager->NextButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $t03_pinjaman_view->PageUrl() ?>start=<?php echo $t03_pinjaman_view->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerNext") ?>"><span class="icon-next ewIcon"></span></a>
+	<?php } ?>
+<!--last page button-->
+	<?php if ($t03_pinjaman_view->Pager->LastButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $t03_pinjaman_view->PageUrl() ?>start=<?php echo $t03_pinjaman_view->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerLast") ?>"><span class="icon-last ewIcon"></span></a>
+	<?php } ?>
+</div>
+</div>
+</div>
+<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $t03_pinjaman_view->Pager->PageCount ?></span>
+</div>
+<?php } ?>
+<div class="clearfix"></div>
+</form>
+<?php } ?>
 <form name="ft03_pinjamanview" id="ft03_pinjamanview" class="form-inline ewForm ewViewForm" action="<?php echo ew_CurrentPage() ?>" method="post">
 <?php if ($t03_pinjaman_view->CheckToken) { ?>
 <input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t03_pinjaman_view->Token ?>">
@@ -1234,17 +1355,6 @@ $t03_pinjaman_view->ShowMessage();
 <span id="el_t03_pinjaman_nasabah_id">
 <span<?php echo $t03_pinjaman->nasabah_id->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->nasabah_id->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t03_pinjaman->jaminan_id->Visible) { // jaminan_id ?>
-	<tr id="r_jaminan_id">
-		<td class="col-sm-2"><span id="elh_t03_pinjaman_jaminan_id"><?php echo $t03_pinjaman->jaminan_id->FldCaption() ?></span></td>
-		<td data-name="jaminan_id"<?php echo $t03_pinjaman->jaminan_id->CellAttributes() ?>>
-<span id="el_t03_pinjaman_jaminan_id">
-<span<?php echo $t03_pinjaman->jaminan_id->ViewAttributes() ?>>
-<?php echo $t03_pinjaman->jaminan_id->ViewValue ?></span>
 </span>
 </td>
 	</tr>
@@ -1316,13 +1426,102 @@ $t03_pinjaman_view->ShowMessage();
 	</tr>
 <?php } ?>
 </table>
+<?php if (!$t03_pinjaman_view->IsModal) { ?>
+<?php if (!isset($t03_pinjaman_view->Pager)) $t03_pinjaman_view->Pager = new cPrevNextPager($t03_pinjaman_view->StartRec, $t03_pinjaman_view->DisplayRecs, $t03_pinjaman_view->TotalRecs, $t03_pinjaman_view->AutoHidePager) ?>
+<?php if ($t03_pinjaman_view->Pager->RecordCount > 0 && $t03_pinjaman_view->Pager->Visible) { ?>
+<div class="ewPager">
+<span><?php echo $Language->Phrase("Page") ?>&nbsp;</span>
+<div class="ewPrevNext"><div class="input-group">
+<div class="input-group-btn">
+<!--first page button-->
+	<?php if ($t03_pinjaman_view->Pager->FirstButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $t03_pinjaman_view->PageUrl() ?>start=<?php echo $t03_pinjaman_view->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerFirst") ?>"><span class="icon-first ewIcon"></span></a>
+	<?php } ?>
+<!--previous page button-->
+	<?php if ($t03_pinjaman_view->Pager->PrevButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $t03_pinjaman_view->PageUrl() ?>start=<?php echo $t03_pinjaman_view->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerPrevious") ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php } ?>
+</div>
+<!--current page number-->
+	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $t03_pinjaman_view->Pager->CurrentPage ?>">
+<div class="input-group-btn">
+<!--next page button-->
+	<?php if ($t03_pinjaman_view->Pager->NextButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $t03_pinjaman_view->PageUrl() ?>start=<?php echo $t03_pinjaman_view->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerNext") ?>"><span class="icon-next ewIcon"></span></a>
+	<?php } ?>
+<!--last page button-->
+	<?php if ($t03_pinjaman_view->Pager->LastButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $t03_pinjaman_view->PageUrl() ?>start=<?php echo $t03_pinjaman_view->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
+	<?php } else { ?>
+	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerLast") ?>"><span class="icon-last ewIcon"></span></a>
+	<?php } ?>
+</div>
+</div>
+</div>
+<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $t03_pinjaman_view->Pager->PageCount ?></span>
+</div>
+<?php } ?>
+<div class="clearfix"></div>
+<?php } ?>
+<?php if ($t03_pinjaman->getCurrentDetailTable() <> "") { ?>
+<?php
+	$t03_pinjaman_view->DetailPages->ValidKeys = explode(",", $t03_pinjaman->getCurrentDetailTable());
+	$FirstActiveDetailTable = $t03_pinjaman_view->DetailPages->ActivePageIndex();
+?>
+<div class="ewDetailPages"><!-- detail-pages -->
+<div class="nav-tabs-custom" id="t03_pinjaman_view_details"><!-- .nav-tabs-custom -->
+	<ul class="nav<?php echo $t03_pinjaman_view->DetailPages->NavStyle() ?>"><!-- .nav -->
 <?php
 	if (in_array("t04_angsuran", explode(",", $t03_pinjaman->getCurrentDetailTable())) && $t04_angsuran->DetailView) {
+		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t04_angsuran") {
+			$FirstActiveDetailTable = "t04_angsuran";
+		}
 ?>
-<?php if ($t03_pinjaman->getCurrentDetailTable() <> "") { ?>
-<h4 class="ewDetailCaption"><?php echo $Language->TablePhrase("t04_angsuran", "TblCaption") ?></h4>
-<?php } ?>
+		<li<?php echo $t03_pinjaman_view->DetailPages->TabStyle("t04_angsuran") ?>><a href="#tab_t04_angsuran" data-toggle="tab"><?php echo $Language->TablePhrase("t04_angsuran", "TblCaption") ?></a></li>
+<?php
+	}
+?>
+<?php
+	if (in_array("t05_pinjamanjaminan", explode(",", $t03_pinjaman->getCurrentDetailTable())) && $t05_pinjamanjaminan->DetailView) {
+		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t05_pinjamanjaminan") {
+			$FirstActiveDetailTable = "t05_pinjamanjaminan";
+		}
+?>
+		<li<?php echo $t03_pinjaman_view->DetailPages->TabStyle("t05_pinjamanjaminan") ?>><a href="#tab_t05_pinjamanjaminan" data-toggle="tab"><?php echo $Language->TablePhrase("t05_pinjamanjaminan", "TblCaption") ?></a></li>
+<?php
+	}
+?>
+	</ul><!-- /.nav -->
+	<div class="tab-content"><!-- .tab-content -->
+<?php
+	if (in_array("t04_angsuran", explode(",", $t03_pinjaman->getCurrentDetailTable())) && $t04_angsuran->DetailView) {
+		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t04_angsuran") {
+			$FirstActiveDetailTable = "t04_angsuran";
+		}
+?>
+		<div class="tab-pane<?php echo $t03_pinjaman_view->DetailPages->PageStyle("t04_angsuran") ?>" id="tab_t04_angsuran"><!-- page* -->
 <?php include_once "t04_angsurangrid.php" ?>
+		</div><!-- /page* -->
+<?php } ?>
+<?php
+	if (in_array("t05_pinjamanjaminan", explode(",", $t03_pinjaman->getCurrentDetailTable())) && $t05_pinjamanjaminan->DetailView) {
+		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t05_pinjamanjaminan") {
+			$FirstActiveDetailTable = "t05_pinjamanjaminan";
+		}
+?>
+		<div class="tab-pane<?php echo $t03_pinjaman_view->DetailPages->PageStyle("t05_pinjamanjaminan") ?>" id="tab_t05_pinjamanjaminan"><!-- page* -->
+<?php include_once "t05_pinjamanjaminangrid.php" ?>
+		</div><!-- /page* -->
+<?php } ?>
+	</div><!-- /.tab-content -->
+</div><!-- /.nav-tabs-custom -->
+</div><!-- /detail-pages -->
 <?php } ?>
 </form>
 <script type="text/javascript">
