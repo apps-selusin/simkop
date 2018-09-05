@@ -1365,11 +1365,6 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 	function Page_Render() {
 
 		//echo "Page Render";
-		$this->OtherOptions["addedit"]->UseDropDownButton = FALSE; // jangan gunakan style DropDownButton
-		$my_options = &$this->OtherOptions; // pastikan menggunakan area OtherOptions
-		$my_option = $my_options["addedit"]; // dekat tombol addedit
-		$my_item = &$my_option->Add("mynewbutton"); // tambahkan tombol baru
-		$my_item->Body = "<a class=\"ewAddEdit ewAdd\" title=\"Your Title\" data-caption=\"Your Caption\" href=\"yourpage.php\">My New Button @ add</a>"; // definisikan link, style, dan caption tombol
 	}
 
 	// Page Data Rendering event
@@ -1378,6 +1373,16 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		// Example:
 		//$header = "your header";
 
+		$header = "
+			<button class='btn ewButton' name='myFirstBtn' id='myFirstBtn' type='submit'>
+			My First Button @ add
+			</button>&nbsp;
+			<button class='btn ewButton' name='mySecondBtn' id='mySecondtBtn' type='submit'>
+			My Second Button @ add
+			</button>&nbsp;
+			<button class='btn ewButton' name='myThirdBtn' id='myThirdBtn' type='submit'>
+			My Third Button @ add
+			</button>";
 	}
 
 	// Page Data Rendered event
@@ -1386,6 +1391,16 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		// Example:
 		//$footer = "your footer";
 
+		$footer = "
+			<button class='btn ewButton' name='myFirstBtn' id='myFirstBtn' type='submit'>
+			My First Button @ add
+			</button>&nbsp;
+			<button class='btn ewButton' name='mySecondBtn' id='mySecondtBtn' type='submit'>
+			My Second Button @ add
+			</button>&nbsp;
+			<button class='btn ewButton' name='myThirdBtn' id='myThirdBtn' type='submit'>
+			My Third Button @ add
+			</button>";
 	}
 
 	// Form Custom Validate event
