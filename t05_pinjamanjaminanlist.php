@@ -418,9 +418,6 @@ class ct05_pinjamanjaminan_list extends ct05_pinjamanjaminan {
 
 		// Set up list options
 		$this->SetupListOptions();
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
 		$this->pinjaman_id->SetVisibility();
 		$this->jaminan_id->SetVisibility();
 
@@ -749,7 +746,6 @@ class ct05_pinjamanjaminan_list extends ct05_pinjamanjaminan {
 		if (@$_GET["order"] <> "") {
 			$this->CurrentOrder = @$_GET["order"];
 			$this->CurrentOrderType = @$_GET["ordertype"];
-			$this->UpdateSort($this->id, $bCtrl); // id
 			$this->UpdateSort($this->pinjaman_id, $bCtrl); // pinjaman_id
 			$this->UpdateSort($this->jaminan_id, $bCtrl); // jaminan_id
 			$this->setStartRecordNumber(1); // Reset start position
@@ -789,7 +785,6 @@ class ct05_pinjamanjaminan_list extends ct05_pinjamanjaminan {
 				$sOrderBy = "";
 				$this->setSessionOrderBy($sOrderBy);
 				$this->setSessionOrderByList($sOrderBy);
-				$this->id->setSort("");
 				$this->pinjaman_id->setSort("");
 				$this->jaminan_id->setSort("");
 			}
@@ -1348,11 +1343,6 @@ class ct05_pinjamanjaminan_list extends ct05_pinjamanjaminan {
 		}
 		$this->jaminan_id->ViewCustomAttributes = "";
 
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
-
 			// pinjaman_id
 			$this->pinjaman_id->LinkCustomAttributes = "";
 			$this->pinjaman_id->HrefValue = "";
@@ -1785,15 +1775,6 @@ $t05_pinjamanjaminan_list->RenderListOptions();
 // Render list options (header, left)
 $t05_pinjamanjaminan_list->ListOptions->Render("header", "left");
 ?>
-<?php if ($t05_pinjamanjaminan->id->Visible) { // id ?>
-	<?php if ($t05_pinjamanjaminan->SortUrl($t05_pinjamanjaminan->id) == "") { ?>
-		<th data-name="id" class="<?php echo $t05_pinjamanjaminan->id->HeaderCellClass() ?>"><div id="elh_t05_pinjamanjaminan_id" class="t05_pinjamanjaminan_id"><div class="ewTableHeaderCaption"><?php echo $t05_pinjamanjaminan->id->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="id" class="<?php echo $t05_pinjamanjaminan->id->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t05_pinjamanjaminan->SortUrl($t05_pinjamanjaminan->id) ?>',2);"><div id="elh_t05_pinjamanjaminan_id" class="t05_pinjamanjaminan_id">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t05_pinjamanjaminan->id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t05_pinjamanjaminan->id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t05_pinjamanjaminan->id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
 <?php if ($t05_pinjamanjaminan->pinjaman_id->Visible) { // pinjaman_id ?>
 	<?php if ($t05_pinjamanjaminan->SortUrl($t05_pinjamanjaminan->pinjaman_id) == "") { ?>
 		<th data-name="pinjaman_id" class="<?php echo $t05_pinjamanjaminan->pinjaman_id->HeaderCellClass() ?>"><div id="elh_t05_pinjamanjaminan_pinjaman_id" class="t05_pinjamanjaminan_pinjaman_id"><div class="ewTableHeaderCaption"><?php echo $t05_pinjamanjaminan->pinjaman_id->FldCaption() ?></div></div></th>
@@ -1877,14 +1858,6 @@ while ($t05_pinjamanjaminan_list->RecCnt < $t05_pinjamanjaminan_list->StopRec) {
 // Render list options (body, left)
 $t05_pinjamanjaminan_list->ListOptions->Render("body", "left", $t05_pinjamanjaminan_list->RowCnt);
 ?>
-	<?php if ($t05_pinjamanjaminan->id->Visible) { // id ?>
-		<td data-name="id"<?php echo $t05_pinjamanjaminan->id->CellAttributes() ?>>
-<span id="el<?php echo $t05_pinjamanjaminan_list->RowCnt ?>_t05_pinjamanjaminan_id" class="t05_pinjamanjaminan_id">
-<span<?php echo $t05_pinjamanjaminan->id->ViewAttributes() ?>>
-<?php echo $t05_pinjamanjaminan->id->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
 	<?php if ($t05_pinjamanjaminan->pinjaman_id->Visible) { // pinjaman_id ?>
 		<td data-name="pinjaman_id"<?php echo $t05_pinjamanjaminan->pinjaman_id->CellAttributes() ?>>
 <span id="el<?php echo $t05_pinjamanjaminan_list->RowCnt ?>_t05_pinjamanjaminan_pinjaman_id" class="t05_pinjamanjaminan_pinjaman_id">

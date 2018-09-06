@@ -355,9 +355,6 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 
 		// Set up list options
 		$this->SetupListOptions();
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
 		$this->pinjaman_id->SetVisibility();
 		$this->jaminan_id->SetVisibility();
 
@@ -1244,8 +1241,6 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 		// Load from form
 		global $objForm;
 		$objForm->FormName = $this->FormName;
-		if (!$this->id->FldIsDetailKey && $this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
-			$this->id->setFormValue($objForm->GetValue("x_id"));
 		if (!$this->pinjaman_id->FldIsDetailKey) {
 			$this->pinjaman_id->setFormValue($objForm->GetValue("x_pinjaman_id"));
 		}
@@ -1254,6 +1249,8 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 			$this->jaminan_id->setFormValue($objForm->GetValue("x_jaminan_id"));
 		}
 		$this->jaminan_id->setOldValue($objForm->GetValue("o_jaminan_id"));
+		if (!$this->id->FldIsDetailKey && $this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
+			$this->id->setFormValue($objForm->GetValue("x_id"));
 	}
 
 	// Restore form values
@@ -1437,11 +1434,6 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 		}
 		$this->jaminan_id->ViewCustomAttributes = "";
 
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
-
 			// pinjaman_id
 			$this->pinjaman_id->LinkCustomAttributes = "";
 			$this->pinjaman_id->HrefValue = "";
@@ -1453,9 +1445,7 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 			$this->jaminan_id->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
 
-			// id
 			// pinjaman_id
-
 			$this->pinjaman_id->EditAttrs["class"] = "form-control";
 			$this->pinjaman_id->EditCustomAttributes = "";
 			if ($this->pinjaman_id->getSessionValue() <> "") {
@@ -1494,12 +1484,8 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 			$this->jaminan_id->EditValue = $arwrk;
 
 			// Add refer script
-			// id
-
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-
 			// pinjaman_id
+
 			$this->pinjaman_id->LinkCustomAttributes = "";
 			$this->pinjaman_id->HrefValue = "";
 
@@ -1507,12 +1493,6 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 			$this->jaminan_id->LinkCustomAttributes = "";
 			$this->jaminan_id->HrefValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
-
-			// id
-			$this->id->EditAttrs["class"] = "form-control";
-			$this->id->EditCustomAttributes = "";
-			$this->id->EditValue = $this->id->CurrentValue;
-			$this->id->ViewCustomAttributes = "";
 
 			// pinjaman_id
 			$this->pinjaman_id->EditAttrs["class"] = "form-control";
@@ -1553,12 +1533,8 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 			$this->jaminan_id->EditValue = $arwrk;
 
 			// Edit refer script
-			// id
-
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-
 			// pinjaman_id
+
 			$this->pinjaman_id->LinkCustomAttributes = "";
 			$this->pinjaman_id->HrefValue = "";
 

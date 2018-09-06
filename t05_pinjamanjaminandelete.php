@@ -330,9 +330,6 @@ class ct05_pinjamanjaminan_delete extends ct05_pinjamanjaminan {
 		// 
 
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
 		$this->pinjaman_id->SetVisibility();
 		$this->jaminan_id->SetVisibility();
 
@@ -596,11 +593,6 @@ class ct05_pinjamanjaminan_delete extends ct05_pinjamanjaminan {
 		}
 		}
 		$this->jaminan_id->ViewCustomAttributes = "";
-
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
 
 			// pinjaman_id
 			$this->pinjaman_id->LinkCustomAttributes = "";
@@ -915,9 +907,6 @@ $t05_pinjamanjaminan_delete->ShowMessage();
 <table class="table ewTable">
 	<thead>
 	<tr class="ewTableHeader">
-<?php if ($t05_pinjamanjaminan->id->Visible) { // id ?>
-		<th class="<?php echo $t05_pinjamanjaminan->id->HeaderCellClass() ?>"><span id="elh_t05_pinjamanjaminan_id" class="t05_pinjamanjaminan_id"><?php echo $t05_pinjamanjaminan->id->FldCaption() ?></span></th>
-<?php } ?>
 <?php if ($t05_pinjamanjaminan->pinjaman_id->Visible) { // pinjaman_id ?>
 		<th class="<?php echo $t05_pinjamanjaminan->pinjaman_id->HeaderCellClass() ?>"><span id="elh_t05_pinjamanjaminan_pinjaman_id" class="t05_pinjamanjaminan_pinjaman_id"><?php echo $t05_pinjamanjaminan->pinjaman_id->FldCaption() ?></span></th>
 <?php } ?>
@@ -945,14 +934,6 @@ while (!$t05_pinjamanjaminan_delete->Recordset->EOF) {
 	$t05_pinjamanjaminan_delete->RenderRow();
 ?>
 	<tr<?php echo $t05_pinjamanjaminan->RowAttributes() ?>>
-<?php if ($t05_pinjamanjaminan->id->Visible) { // id ?>
-		<td<?php echo $t05_pinjamanjaminan->id->CellAttributes() ?>>
-<span id="el<?php echo $t05_pinjamanjaminan_delete->RowCnt ?>_t05_pinjamanjaminan_id" class="t05_pinjamanjaminan_id">
-<span<?php echo $t05_pinjamanjaminan->id->ViewAttributes() ?>>
-<?php echo $t05_pinjamanjaminan->id->ListViewValue() ?></span>
-</span>
-</td>
-<?php } ?>
 <?php if ($t05_pinjamanjaminan->pinjaman_id->Visible) { // pinjaman_id ?>
 		<td<?php echo $t05_pinjamanjaminan->pinjaman_id->CellAttributes() ?>>
 <span id="el<?php echo $t05_pinjamanjaminan_delete->RowCnt ?>_t05_pinjamanjaminan_pinjaman_id" class="t05_pinjamanjaminan_pinjaman_id">

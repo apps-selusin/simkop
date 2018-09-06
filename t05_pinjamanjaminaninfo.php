@@ -861,7 +861,6 @@ class ct05_pinjamanjaminan extends cTable {
 			if ($Doc->Horizontal) { // Horizontal format, write header
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
-					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
 					if ($this->pinjaman_id->Exportable) $Doc->ExportCaption($this->pinjaman_id);
 					if ($this->jaminan_id->Exportable) $Doc->ExportCaption($this->jaminan_id);
 				} else {
@@ -899,7 +898,6 @@ class ct05_pinjamanjaminan extends cTable {
 				if (!$Doc->ExportCustom) {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
-						if ($this->id->Exportable) $Doc->ExportField($this->id);
 						if ($this->pinjaman_id->Exportable) $Doc->ExportField($this->pinjaman_id);
 						if ($this->jaminan_id->Exportable) $Doc->ExportField($this->jaminan_id);
 					} else {

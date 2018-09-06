@@ -2250,6 +2250,11 @@ class ct04_angsuran_grid extends ct04_angsuran {
 	function Page_Render() {
 
 		//echo "Page Render";
+		$this->OtherOptions["addedit"]->UseDropDownButton = FALSE; // jangan gunakan style DropDownButton
+		$my_options = &$this->OtherOptions; // pastikan menggunakan area OtherOptions
+		$my_option = $my_options["addedit"]; // dekat tombol addedit
+		$my_item = &$my_option->Add("mynewbutton"); // tambahkan tombol baru
+		$my_item->Body = "<a class=\"ewAddEdit ewAdd\" title=\"Your Title\" data-caption=\"Your Caption\" href=\"yourpage.php\">My New Button @ angsuranlist</a>"; // definisikan link, style, dan caption tombol
 	}
 
 	// Page Data Rendering event

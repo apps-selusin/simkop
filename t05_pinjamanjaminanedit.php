@@ -335,9 +335,6 @@ class ct05_pinjamanjaminan_edit extends ct05_pinjamanjaminan {
 
 		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
 		$this->pinjaman_id->SetVisibility();
 		$this->jaminan_id->SetVisibility();
 
@@ -627,14 +624,14 @@ class ct05_pinjamanjaminan_edit extends ct05_pinjamanjaminan {
 
 		// Load from form
 		global $objForm;
-		if (!$this->id->FldIsDetailKey)
-			$this->id->setFormValue($objForm->GetValue("x_id"));
 		if (!$this->pinjaman_id->FldIsDetailKey) {
 			$this->pinjaman_id->setFormValue($objForm->GetValue("x_pinjaman_id"));
 		}
 		if (!$this->jaminan_id->FldIsDetailKey) {
 			$this->jaminan_id->setFormValue($objForm->GetValue("x_jaminan_id"));
 		}
+		if (!$this->id->FldIsDetailKey)
+			$this->id->setFormValue($objForm->GetValue("x_id"));
 	}
 
 	// Restore form values
@@ -806,11 +803,6 @@ class ct05_pinjamanjaminan_edit extends ct05_pinjamanjaminan {
 		}
 		$this->jaminan_id->ViewCustomAttributes = "";
 
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
-
 			// pinjaman_id
 			$this->pinjaman_id->LinkCustomAttributes = "";
 			$this->pinjaman_id->HrefValue = "";
@@ -821,12 +813,6 @@ class ct05_pinjamanjaminan_edit extends ct05_pinjamanjaminan {
 			$this->jaminan_id->HrefValue = "";
 			$this->jaminan_id->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
-
-			// id
-			$this->id->EditAttrs["class"] = "form-control";
-			$this->id->EditCustomAttributes = "";
-			$this->id->EditValue = $this->id->CurrentValue;
-			$this->id->ViewCustomAttributes = "";
 
 			// pinjaman_id
 			$this->pinjaman_id->EditAttrs["class"] = "form-control";
@@ -866,12 +852,8 @@ class ct05_pinjamanjaminan_edit extends ct05_pinjamanjaminan {
 			$this->jaminan_id->EditValue = $arwrk;
 
 			// Edit refer script
-			// id
-
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-
 			// pinjaman_id
+
 			$this->pinjaman_id->LinkCustomAttributes = "";
 			$this->pinjaman_id->HrefValue = "";
 
@@ -1297,18 +1279,6 @@ $t05_pinjamanjaminan_edit->ShowMessage();
 <input type="hidden" name="fk_id" value="<?php echo $t05_pinjamanjaminan->pinjaman_id->getSessionValue() ?>">
 <?php } ?>
 <div class="ewEditDiv"><!-- page* -->
-<?php if ($t05_pinjamanjaminan->id->Visible) { // id ?>
-	<div id="r_id" class="form-group">
-		<label id="elh_t05_pinjamanjaminan_id" class="<?php echo $t05_pinjamanjaminan_edit->LeftColumnClass ?>"><?php echo $t05_pinjamanjaminan->id->FldCaption() ?></label>
-		<div class="<?php echo $t05_pinjamanjaminan_edit->RightColumnClass ?>"><div<?php echo $t05_pinjamanjaminan->id->CellAttributes() ?>>
-<span id="el_t05_pinjamanjaminan_id">
-<span<?php echo $t05_pinjamanjaminan->id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t05_pinjamanjaminan->id->EditValue ?></p></span>
-</span>
-<input type="hidden" data-table="t05_pinjamanjaminan" data-field="x_id" name="x_id" id="x_id" value="<?php echo ew_HtmlEncode($t05_pinjamanjaminan->id->CurrentValue) ?>">
-<?php echo $t05_pinjamanjaminan->id->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
 <?php if ($t05_pinjamanjaminan->pinjaman_id->Visible) { // pinjaman_id ?>
 	<div id="r_pinjaman_id" class="form-group">
 		<label id="elh_t05_pinjamanjaminan_pinjaman_id" for="x_pinjaman_id" class="<?php echo $t05_pinjamanjaminan_edit->LeftColumnClass ?>"><?php echo $t05_pinjamanjaminan->pinjaman_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
@@ -1345,6 +1315,7 @@ $t05_pinjamanjaminan_edit->ShowMessage();
 	</div>
 <?php } ?>
 </div><!-- /page* -->
+<input type="hidden" data-table="t05_pinjamanjaminan" data-field="x_id" name="x_id" id="x_id" value="<?php echo ew_HtmlEncode($t05_pinjamanjaminan->id->CurrentValue) ?>">
 <?php if (!$t05_pinjamanjaminan_edit->IsModal) { ?>
 <div class="form-group"><!-- buttons .form-group -->
 	<div class="<?php echo $t05_pinjamanjaminan_edit->OffsetColumnClass ?>"><!-- buttons offset -->
