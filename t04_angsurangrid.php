@@ -586,13 +586,13 @@ $t04_angsuran_grid->ListOptions->Render("body", "left", $t04_angsuran_grid->RowC
 		<td data-name="TanggalBayar"<?php echo $t04_angsuran->TanggalBayar->CellAttributes() ?>>
 <?php if ($t04_angsuran->RowType == EW_ROWTYPE_ADD) { // Add record ?>
 <span id="el<?php echo $t04_angsuran_grid->RowCnt ?>_t04_angsuran_TanggalBayar" class="form-group t04_angsuran_TanggalBayar">
-<input type="text" data-table="t04_angsuran" data-field="x_TanggalBayar" data-format="7" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" size="5" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TanggalBayar->EditValue ?>"<?php echo $t04_angsuran->TanggalBayar->EditAttributes() ?>>
+<input type="text" data-table="t04_angsuran" data-field="x_TanggalBayar" data-format="7" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" size="7" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TanggalBayar->EditValue ?>"<?php echo $t04_angsuran->TanggalBayar->EditAttributes() ?>>
 </span>
 <input type="hidden" data-table="t04_angsuran" data-field="x_TanggalBayar" name="o<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" id="o<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" value="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->OldValue) ?>">
 <?php } ?>
 <?php if ($t04_angsuran->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
 <span id="el<?php echo $t04_angsuran_grid->RowCnt ?>_t04_angsuran_TanggalBayar" class="form-group t04_angsuran_TanggalBayar">
-<input type="text" data-table="t04_angsuran" data-field="x_TanggalBayar" data-format="7" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" size="5" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TanggalBayar->EditValue ?>"<?php echo $t04_angsuran->TanggalBayar->EditAttributes() ?>>
+<input type="text" data-table="t04_angsuran" data-field="x_TanggalBayar" data-format="7" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" size="7" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TanggalBayar->EditValue ?>"<?php echo $t04_angsuran->TanggalBayar->EditAttributes() ?>>
 </span>
 <?php } ?>
 <?php if ($t04_angsuran->RowType == EW_ROWTYPE_VIEW) { // View record ?>
@@ -836,7 +836,7 @@ $t04_angsuran_grid->ListOptions->Render("body", "left", $t04_angsuran_grid->RowI
 		<td data-name="TanggalBayar">
 <?php if ($t04_angsuran->CurrentAction <> "F") { ?>
 <span id="el$rowindex$_t04_angsuran_TanggalBayar" class="form-group t04_angsuran_TanggalBayar">
-<input type="text" data-table="t04_angsuran" data-field="x_TanggalBayar" data-format="7" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" size="5" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TanggalBayar->EditValue ?>"<?php echo $t04_angsuran->TanggalBayar->EditAttributes() ?>>
+<input type="text" data-table="t04_angsuran" data-field="x_TanggalBayar" data-format="7" name="x<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" id="x<?php echo $t04_angsuran_grid->RowIndex ?>_TanggalBayar" size="7" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TanggalBayar->EditValue ?>"<?php echo $t04_angsuran->TanggalBayar->EditAttributes() ?>>
 </span>
 <?php } else { ?>
 <span id="el$rowindex$_t04_angsuran_TanggalBayar" class="form-group t04_angsuran_TanggalBayar">
