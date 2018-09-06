@@ -4,7 +4,6 @@
 $RootMenu = new cMenu("RootMenu", TRUE);
 $RootMenu->AddMenuItem(5, "mi_cf01_home_php", $Language->MenuPhrase("5", "MenuText"), "cf01_home.php", -1, "", AllowListMenu('{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}cf01_home.php'), FALSE, TRUE, "");
 $RootMenu->AddMenuItem(9, "mi_t03_pinjaman", $Language->MenuPhrase("9", "MenuText"), "t03_pinjamanlist.php", -1, "", AllowListMenu('{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}t03_pinjaman'), FALSE, FALSE, "");
-$RootMenu->AddMenuItem(10, "mi_t04_angsuran", $Language->MenuPhrase("10", "MenuText"), "t04_angsuranlist.php?cmd=resetall", -1, "", AllowListMenu('{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}t04_angsuran'), FALSE, FALSE, "");
 $RootMenu->AddMenuItem(15, "mci_Setup", $Language->MenuPhrase("15", "MenuText"), "", -1, "", IsLoggedIn(), FALSE, TRUE, "");
 $RootMenu->AddMenuItem(6, "mi_t01_nasabah", $Language->MenuPhrase("6", "MenuText"), "t01_nasabahlist.php", 15, "", AllowListMenu('{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}t01_nasabah'), FALSE, FALSE, "");
 $RootMenu->AddMenuItem(7, "mci_User", $Language->MenuPhrase("7", "MenuText"), "", 15, "", IsLoggedIn(), FALSE, TRUE, "");
