@@ -406,9 +406,7 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		// 
 		// Security = null;
 		// 
-		// Create form object
 
-		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
 
 		// Get grid add count
@@ -618,71 +616,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 			if ($this->Export == "")
 				$this->SetupBreadcrumb();
 
-			// Check QueryString parameters
-			if (@$_GET["a"] <> "") {
-				$this->CurrentAction = $_GET["a"];
-
-				// Clear inline mode
-				if ($this->CurrentAction == "cancel")
-					$this->ClearInlineMode();
-
-				// Switch to grid edit mode
-				if ($this->CurrentAction == "gridedit")
-					$this->GridEditMode();
-
-				// Switch to inline edit mode
-				if ($this->CurrentAction == "edit")
-					$this->InlineEditMode();
-
-				// Switch to inline add mode
-				if ($this->CurrentAction == "add" || $this->CurrentAction == "copy")
-					$this->InlineAddMode();
-
-				// Switch to grid add mode
-				if ($this->CurrentAction == "gridadd")
-					$this->GridAddMode();
-			} else {
-				if (@$_POST["a_list"] <> "") {
-					$this->CurrentAction = $_POST["a_list"]; // Get action
-
-					// Grid Update
-					if (($this->CurrentAction == "gridupdate" || $this->CurrentAction == "gridoverwrite") && @$_SESSION[EW_SESSION_INLINE_MODE] == "gridedit") {
-						if ($this->ValidateGridForm()) {
-							$bGridUpdate = $this->GridUpdate();
-						} else {
-							$bGridUpdate = FALSE;
-							$this->setFailureMessage($gsFormError);
-						}
-						if (!$bGridUpdate) {
-							$this->EventCancelled = TRUE;
-							$this->CurrentAction = "gridedit"; // Stay in Grid Edit mode
-						}
-					}
-
-					// Inline Update
-					if (($this->CurrentAction == "update" || $this->CurrentAction == "overwrite") && @$_SESSION[EW_SESSION_INLINE_MODE] == "edit")
-						$this->InlineUpdate();
-
-					// Insert Inline
-					if ($this->CurrentAction == "insert" && @$_SESSION[EW_SESSION_INLINE_MODE] == "add")
-						$this->InlineInsert();
-
-					// Grid Insert
-					if ($this->CurrentAction == "gridinsert" && @$_SESSION[EW_SESSION_INLINE_MODE] == "gridadd") {
-						if ($this->ValidateGridForm()) {
-							$bGridInsert = $this->GridInsert();
-						} else {
-							$bGridInsert = FALSE;
-							$this->setFailureMessage($gsFormError);
-						}
-						if (!$bGridInsert) {
-							$this->EventCancelled = TRUE;
-							$this->CurrentAction = "gridadd"; // Stay in Grid Add mode
-						}
-					}
-				}
-			}
-
 			// Hide list options
 			if ($this->Export <> "") {
 				$this->ListOptions->HideAllOptions(array("sequence"));
@@ -704,14 +637,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 			if ($this->Export <> "") {
 				foreach ($this->OtherOptions as &$option)
 					$option->HideAllOptions();
-			}
-
-			// Show grid delete link for grid add / grid edit
-			if ($this->AllowAddDeleteRow) {
-				if ($this->CurrentAction == "gridadd" || $this->CurrentAction == "gridedit") {
-					$item = $this->ListOptions->GetItem("griddelete");
-					if ($item) $item->Visible = TRUE;
-				}
 			}
 
 			// Get default search criteria
@@ -826,237 +751,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		}
 	}
 
-	// Exit inline mode
-	function ClearInlineMode() {
-		$this->setKey("id", ""); // Clear inline edit key
-		$this->Pinjaman->FormValue = ""; // Clear form value
-		$this->Denda->FormValue = ""; // Clear form value
-		$this->JumlahAngsuran->FormValue = ""; // Clear form value
-		$this->LastAction = $this->CurrentAction; // Save last action
-		$this->CurrentAction = ""; // Clear action
-		$_SESSION[EW_SESSION_INLINE_MODE] = ""; // Clear inline mode
-	}
-
-	// Switch to Grid Add mode
-	function GridAddMode() {
-		$_SESSION[EW_SESSION_INLINE_MODE] = "gridadd"; // Enabled grid add
-	}
-
-	// Switch to Grid Edit mode
-	function GridEditMode() {
-		$_SESSION[EW_SESSION_INLINE_MODE] = "gridedit"; // Enable grid edit
-	}
-
-	// Switch to Inline Edit mode
-	function InlineEditMode() {
-		global $Security, $Language;
-		if (!$Security->CanEdit())
-			$this->Page_Terminate("login.php"); // Go to login page
-		$bInlineEdit = TRUE;
-		if (isset($_GET["id"])) {
-			$this->id->setQueryStringValue($_GET["id"]);
-		} else {
-			$bInlineEdit = FALSE;
-		}
-		if ($bInlineEdit) {
-			if ($this->LoadRow()) {
-				$this->setKey("id", $this->id->CurrentValue); // Set up inline edit key
-				$_SESSION[EW_SESSION_INLINE_MODE] = "edit"; // Enable inline edit
-			}
-		}
-	}
-
-	// Perform update to Inline Edit record
-	function InlineUpdate() {
-		global $Language, $objForm, $gsFormError;
-		$objForm->Index = 1;
-		$this->LoadFormValues(); // Get form values
-
-		// Validate form
-		$bInlineUpdate = TRUE;
-		if (!$this->ValidateForm()) {
-			$bInlineUpdate = FALSE; // Form error, reset action
-			$this->setFailureMessage($gsFormError);
-		} else {
-			$bInlineUpdate = FALSE;
-			$rowkey = strval($objForm->GetValue($this->FormKeyName));
-			if ($this->SetupKeyValues($rowkey)) { // Set up key values
-				if ($this->CheckInlineEditKey()) { // Check key
-					$this->SendEmail = TRUE; // Send email on update success
-					$bInlineUpdate = $this->EditRow(); // Update record
-				} else {
-					$bInlineUpdate = FALSE;
-				}
-			}
-		}
-		if ($bInlineUpdate) { // Update success
-			if ($this->getSuccessMessage() == "")
-				$this->setSuccessMessage($Language->Phrase("UpdateSuccess")); // Set up success message
-			$this->ClearInlineMode(); // Clear inline edit mode
-		} else {
-			if ($this->getFailureMessage() == "")
-				$this->setFailureMessage($Language->Phrase("UpdateFailed")); // Set update failed message
-			$this->EventCancelled = TRUE; // Cancel event
-			$this->CurrentAction = "edit"; // Stay in edit mode
-		}
-	}
-
-	// Check Inline Edit key
-	function CheckInlineEditKey() {
-
-		//CheckInlineEditKey = True
-		if (strval($this->getKey("id")) <> strval($this->id->CurrentValue))
-			return FALSE;
-		return TRUE;
-	}
-
-	// Switch to Inline Add mode
-	function InlineAddMode() {
-		global $Security, $Language;
-		if (!$Security->CanAdd())
-			$this->Page_Terminate("login.php"); // Return to login page
-		if ($this->CurrentAction == "copy") {
-			if (@$_GET["id"] <> "") {
-				$this->id->setQueryStringValue($_GET["id"]);
-				$this->setKey("id", $this->id->CurrentValue); // Set up key
-			} else {
-				$this->setKey("id", ""); // Clear key
-				$this->CurrentAction = "add";
-			}
-		}
-		$_SESSION[EW_SESSION_INLINE_MODE] = "add"; // Enable inline add
-	}
-
-	// Perform update to Inline Add/Copy record
-	function InlineInsert() {
-		global $Language, $objForm, $gsFormError;
-		$this->LoadOldRecord(); // Load old record
-		$objForm->Index = 0;
-		$this->LoadFormValues(); // Get form values
-
-		// Validate form
-		if (!$this->ValidateForm()) {
-			$this->setFailureMessage($gsFormError); // Set validation error message
-			$this->EventCancelled = TRUE; // Set event cancelled
-			$this->CurrentAction = "add"; // Stay in add mode
-			return;
-		}
-		$this->SendEmail = TRUE; // Send email on add success
-		if ($this->AddRow($this->OldRecordset)) { // Add record
-			if ($this->getSuccessMessage() == "")
-				$this->setSuccessMessage($Language->Phrase("AddSuccess")); // Set up add success message
-			$this->ClearInlineMode(); // Clear inline add mode
-		} else { // Add failed
-			$this->EventCancelled = TRUE; // Set event cancelled
-			$this->CurrentAction = "add"; // Stay in add mode
-		}
-	}
-
-	// Perform update to grid
-	function GridUpdate() {
-		global $Language, $objForm, $gsFormError;
-		$bGridUpdate = TRUE;
-
-		// Get old recordset
-		$this->CurrentFilter = $this->BuildKeyFilter();
-		if ($this->CurrentFilter == "")
-			$this->CurrentFilter = "0=1";
-		$sSql = $this->SQL();
-		$conn = &$this->Connection();
-		if ($rs = $conn->Execute($sSql)) {
-			$rsold = $rs->GetRows();
-			$rs->Close();
-		}
-
-		// Call Grid Updating event
-		if (!$this->Grid_Updating($rsold)) {
-			if ($this->getFailureMessage() == "")
-				$this->setFailureMessage($Language->Phrase("GridEditCancelled")); // Set grid edit cancelled message
-			return FALSE;
-		}
-
-		// Begin transaction
-		$conn->BeginTrans();
-		if ($this->AuditTrailOnEdit) $this->WriteAuditTrailDummy($Language->Phrase("BatchUpdateBegin")); // Batch update begin
-		$sKey = "";
-
-		// Update row index and get row key
-		$objForm->Index = -1;
-		$rowcnt = strval($objForm->GetValue($this->FormKeyCountName));
-		if ($rowcnt == "" || !is_numeric($rowcnt))
-			$rowcnt = 0;
-
-		// Update all rows based on key
-		for ($rowindex = 1; $rowindex <= $rowcnt; $rowindex++) {
-			$objForm->Index = $rowindex;
-			$rowkey = strval($objForm->GetValue($this->FormKeyName));
-			$rowaction = strval($objForm->GetValue($this->FormActionName));
-
-			// Load all values and keys
-			if ($rowaction <> "insertdelete") { // Skip insert then deleted rows
-				$this->LoadFormValues(); // Get form values
-				if ($rowaction == "" || $rowaction == "edit" || $rowaction == "delete") {
-					$bGridUpdate = $this->SetupKeyValues($rowkey); // Set up key values
-				} else {
-					$bGridUpdate = TRUE;
-				}
-
-				// Skip empty row
-				if ($rowaction == "insert" && $this->EmptyRow()) {
-
-					// No action required
-				// Validate form and insert/update/delete record
-
-				} elseif ($bGridUpdate) {
-					if ($rowaction == "delete") {
-						$this->CurrentFilter = $this->KeyFilter();
-						$bGridUpdate = $this->DeleteRows(); // Delete this row
-					} else if (!$this->ValidateForm()) {
-						$bGridUpdate = FALSE; // Form error, reset action
-						$this->setFailureMessage($gsFormError);
-					} else {
-						if ($rowaction == "insert") {
-							$bGridUpdate = $this->AddRow(); // Insert this row
-						} else {
-							if ($rowkey <> "") {
-								$this->SendEmail = FALSE; // Do not send email on update success
-								$bGridUpdate = $this->EditRow(); // Update this row
-							}
-						} // End update
-					}
-				}
-				if ($bGridUpdate) {
-					if ($sKey <> "") $sKey .= ", ";
-					$sKey .= $rowkey;
-				} else {
-					break;
-				}
-			}
-		}
-		if ($bGridUpdate) {
-			$conn->CommitTrans(); // Commit transaction
-
-			// Get new recordset
-			if ($rs = $conn->Execute($sSql)) {
-				$rsnew = $rs->GetRows();
-				$rs->Close();
-			}
-
-			// Call Grid_Updated event
-			$this->Grid_Updated($rsold, $rsnew);
-			if ($this->AuditTrailOnEdit) $this->WriteAuditTrailDummy($Language->Phrase("BatchUpdateSuccess")); // Batch update success
-			if ($this->getSuccessMessage() == "")
-				$this->setSuccessMessage($Language->Phrase("UpdateSuccess")); // Set up update success message
-			$this->ClearInlineMode(); // Clear inline edit mode
-		} else {
-			$conn->RollbackTrans(); // Rollback transaction
-			if ($this->AuditTrailOnEdit) $this->WriteAuditTrailDummy($Language->Phrase("BatchUpdateRollback")); // Batch update rollback
-			if ($this->getFailureMessage() == "")
-				$this->setFailureMessage($Language->Phrase("UpdateFailed")); // Set update failed message
-		}
-		return $bGridUpdate;
-	}
-
 	// Build filter for all keys
 	function BuildKeyFilter() {
 		global $objForm;
@@ -1093,192 +787,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 				return FALSE;
 		}
 		return TRUE;
-	}
-
-	// Perform Grid Add
-	function GridInsert() {
-		global $Language, $objForm, $gsFormError;
-		$rowindex = 1;
-		$bGridInsert = FALSE;
-		$conn = &$this->Connection();
-
-		// Call Grid Inserting event
-		if (!$this->Grid_Inserting()) {
-			if ($this->getFailureMessage() == "") {
-				$this->setFailureMessage($Language->Phrase("GridAddCancelled")); // Set grid add cancelled message
-			}
-			return FALSE;
-		}
-
-		// Begin transaction
-		$conn->BeginTrans();
-
-		// Init key filter
-		$sWrkFilter = "";
-		$addcnt = 0;
-		if ($this->AuditTrailOnAdd) $this->WriteAuditTrailDummy($Language->Phrase("BatchInsertBegin")); // Batch insert begin
-		$sKey = "";
-
-		// Get row count
-		$objForm->Index = -1;
-		$rowcnt = strval($objForm->GetValue($this->FormKeyCountName));
-		if ($rowcnt == "" || !is_numeric($rowcnt))
-			$rowcnt = 0;
-
-		// Insert all rows
-		for ($rowindex = 1; $rowindex <= $rowcnt; $rowindex++) {
-
-			// Load current row values
-			$objForm->Index = $rowindex;
-			$rowaction = strval($objForm->GetValue($this->FormActionName));
-			if ($rowaction <> "" && $rowaction <> "insert")
-				continue; // Skip
-			$this->LoadFormValues(); // Get form values
-			if (!$this->EmptyRow()) {
-				$addcnt++;
-				$this->SendEmail = FALSE; // Do not send email on insert success
-
-				// Validate form
-				if (!$this->ValidateForm()) {
-					$bGridInsert = FALSE; // Form error, reset action
-					$this->setFailureMessage($gsFormError);
-				} else {
-					$bGridInsert = $this->AddRow($this->OldRecordset); // Insert this row
-				}
-				if ($bGridInsert) {
-					if ($sKey <> "") $sKey .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
-					$sKey .= $this->id->CurrentValue;
-
-					// Add filter for this record
-					$sFilter = $this->KeyFilter();
-					if ($sWrkFilter <> "") $sWrkFilter .= " OR ";
-					$sWrkFilter .= $sFilter;
-				} else {
-					break;
-				}
-			}
-		}
-		if ($addcnt == 0) { // No record inserted
-			$this->setFailureMessage($Language->Phrase("NoAddRecord"));
-			$bGridInsert = FALSE;
-		}
-		if ($bGridInsert) {
-			$conn->CommitTrans(); // Commit transaction
-
-			// Get new recordset
-			$this->CurrentFilter = $sWrkFilter;
-			$sSql = $this->SQL();
-			if ($rs = $conn->Execute($sSql)) {
-				$rsnew = $rs->GetRows();
-				$rs->Close();
-			}
-
-			// Call Grid_Inserted event
-			$this->Grid_Inserted($rsnew);
-			if ($this->AuditTrailOnAdd) $this->WriteAuditTrailDummy($Language->Phrase("BatchInsertSuccess")); // Batch insert success
-			if ($this->getSuccessMessage() == "")
-				$this->setSuccessMessage($Language->Phrase("InsertSuccess")); // Set up insert success message
-			$this->ClearInlineMode(); // Clear grid add mode
-		} else {
-			$conn->RollbackTrans(); // Rollback transaction
-			if ($this->AuditTrailOnAdd) $this->WriteAuditTrailDummy($Language->Phrase("BatchInsertRollback")); // Batch insert rollback
-			if ($this->getFailureMessage() == "") {
-				$this->setFailureMessage($Language->Phrase("InsertFailed")); // Set insert failed message
-			}
-		}
-		return $bGridInsert;
-	}
-
-	// Check if empty row
-	function EmptyRow() {
-		global $objForm;
-		if ($objForm->HasValue("x_NoKontrak") && $objForm->HasValue("o_NoKontrak") && $this->NoKontrak->CurrentValue <> $this->NoKontrak->OldValue)
-			return FALSE;
-		if ($objForm->HasValue("x_TglKontrak") && $objForm->HasValue("o_TglKontrak") && $this->TglKontrak->CurrentValue <> $this->TglKontrak->OldValue)
-			return FALSE;
-		if ($objForm->HasValue("x_nasabah_id") && $objForm->HasValue("o_nasabah_id") && $this->nasabah_id->CurrentValue <> $this->nasabah_id->OldValue)
-			return FALSE;
-		if ($objForm->HasValue("x_Pinjaman") && $objForm->HasValue("o_Pinjaman") && $this->Pinjaman->CurrentValue <> $this->Pinjaman->OldValue)
-			return FALSE;
-		if ($objForm->HasValue("x_Denda") && $objForm->HasValue("o_Denda") && $this->Denda->CurrentValue <> $this->Denda->OldValue)
-			return FALSE;
-		if ($objForm->HasValue("x_DispensasiDenda") && $objForm->HasValue("o_DispensasiDenda") && $this->DispensasiDenda->CurrentValue <> $this->DispensasiDenda->OldValue)
-			return FALSE;
-		if ($objForm->HasValue("x_LamaAngsuran") && $objForm->HasValue("o_LamaAngsuran") && $this->LamaAngsuran->CurrentValue <> $this->LamaAngsuran->OldValue)
-			return FALSE;
-		if ($objForm->HasValue("x_JumlahAngsuran") && $objForm->HasValue("o_JumlahAngsuran") && $this->JumlahAngsuran->CurrentValue <> $this->JumlahAngsuran->OldValue)
-			return FALSE;
-		if ($objForm->HasValue("x_NoKontrakRefTo") && $objForm->HasValue("o_NoKontrakRefTo") && $this->NoKontrakRefTo->CurrentValue <> $this->NoKontrakRefTo->OldValue)
-			return FALSE;
-		return TRUE;
-	}
-
-	// Validate grid form
-	function ValidateGridForm() {
-		global $objForm;
-
-		// Get row count
-		$objForm->Index = -1;
-		$rowcnt = strval($objForm->GetValue($this->FormKeyCountName));
-		if ($rowcnt == "" || !is_numeric($rowcnt))
-			$rowcnt = 0;
-
-		// Validate all records
-		for ($rowindex = 1; $rowindex <= $rowcnt; $rowindex++) {
-
-			// Load current row values
-			$objForm->Index = $rowindex;
-			$rowaction = strval($objForm->GetValue($this->FormActionName));
-			if ($rowaction <> "delete" && $rowaction <> "insertdelete") {
-				$this->LoadFormValues(); // Get form values
-				if ($rowaction == "insert" && $this->EmptyRow()) {
-
-					// Ignore
-				} else if (!$this->ValidateForm()) {
-					return FALSE;
-				}
-			}
-		}
-		return TRUE;
-	}
-
-	// Get all form values of the grid
-	function GetGridFormValues() {
-		global $objForm;
-
-		// Get row count
-		$objForm->Index = -1;
-		$rowcnt = strval($objForm->GetValue($this->FormKeyCountName));
-		if ($rowcnt == "" || !is_numeric($rowcnt))
-			$rowcnt = 0;
-		$rows = array();
-
-		// Loop through all records
-		for ($rowindex = 1; $rowindex <= $rowcnt; $rowindex++) {
-
-			// Load current row values
-			$objForm->Index = $rowindex;
-			$rowaction = strval($objForm->GetValue($this->FormActionName));
-			if ($rowaction <> "delete" && $rowaction <> "insertdelete") {
-				$this->LoadFormValues(); // Get form values
-				if ($rowaction == "insert" && $this->EmptyRow()) {
-
-					// Ignore
-				} else {
-					$rows[] = $this->GetFieldValues("FormValue"); // Return row as array
-				}
-			}
-		}
-		return $rows; // Return as array of array
-	}
-
-	// Restore form values for current row
-	function RestoreCurrentRowFormValues($idx) {
-		global $objForm;
-
-		// Get row based on current index
-		$objForm->Index = $idx;
-		$this->LoadFormValues(); // Load form values
 	}
 
 	// Get list of filters
@@ -1641,14 +1149,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 	function SetupListOptions() {
 		global $Security, $Language;
 
-		// "griddelete"
-		if ($this->AllowAddDeleteRow) {
-			$item = &$this->ListOptions->Add("griddelete");
-			$item->CssClass = "text-nowrap";
-			$item->OnLeft = TRUE;
-			$item->Visible = FALSE; // Default hidden
-		}
-
 		// Add group option item
 		$item = &$this->ListOptions->Add($this->ListOptions->GroupOptionName);
 		$item->Body = "";
@@ -1759,66 +1259,9 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		// Call ListOptions_Rendering event
 		$this->ListOptions_Rendering();
 
-		// Set up row action and key
-		if (is_numeric($this->RowIndex) && $this->CurrentMode <> "view") {
-			$objForm->Index = $this->RowIndex;
-			$ActionName = str_replace("k_", "k" . $this->RowIndex . "_", $this->FormActionName);
-			$OldKeyName = str_replace("k_", "k" . $this->RowIndex . "_", $this->FormOldKeyName);
-			$KeyName = str_replace("k_", "k" . $this->RowIndex . "_", $this->FormKeyName);
-			$BlankRowName = str_replace("k_", "k" . $this->RowIndex . "_", $this->FormBlankRowName);
-			if ($this->RowAction <> "")
-				$this->MultiSelectKey .= "<input type=\"hidden\" name=\"" . $ActionName . "\" id=\"" . $ActionName . "\" value=\"" . $this->RowAction . "\">";
-			if ($this->RowAction == "delete") {
-				$rowkey = $objForm->GetValue($this->FormKeyName);
-				$this->SetupKeyValues($rowkey);
-			}
-			if ($this->RowAction == "insert" && $this->CurrentAction == "F" && $this->EmptyRow())
-				$this->MultiSelectKey .= "<input type=\"hidden\" name=\"" . $BlankRowName . "\" id=\"" . $BlankRowName . "\" value=\"1\">";
-		}
-
-		// "delete"
-		if ($this->AllowAddDeleteRow) {
-			if ($this->CurrentAction == "gridadd" || $this->CurrentAction == "gridedit") {
-				$option = &$this->ListOptions;
-				$option->UseButtonGroup = TRUE; // Use button group for grid delete button
-				$option->UseImageAndText = TRUE; // Use image and text for grid delete button
-				$oListOpt = &$option->Items["griddelete"];
-				if (!$Security->CanDelete() && is_numeric($this->RowIndex) && ($this->RowAction == "" || $this->RowAction == "edit")) { // Do not allow delete existing record
-					$oListOpt->Body = "&nbsp;";
-				} else {
-					$oListOpt->Body = "<a class=\"ewGridLink ewGridDelete\" title=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" onclick=\"return ew_DeleteGridRow(this, " . $this->RowIndex . ");\">" . $Language->Phrase("DeleteLink") . "</a>";
-				}
-			}
-		}
-
 		// "sequence"
 		$oListOpt = &$this->ListOptions->Items["sequence"];
 		$oListOpt->Body = ew_FormatSeqNo($this->RecCnt);
-
-		// "copy"
-		$oListOpt = &$this->ListOptions->Items["copy"];
-		if (($this->CurrentAction == "add" || $this->CurrentAction == "copy") && $this->RowType == EW_ROWTYPE_ADD) { // Inline Add/Copy
-			$this->ListOptions->CustomItem = "copy"; // Show copy column only
-			$cancelurl = $this->AddMasterUrl($this->PageUrl() . "a=cancel");
-			$oListOpt->Body = "<div" . (($oListOpt->OnLeft) ? " style=\"text-align: right\"" : "") . ">" .
-				"<a class=\"ewGridLink ewInlineInsert\" title=\"" . ew_HtmlTitle($Language->Phrase("InsertLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("InsertLink")) . "\" href=\"\" onclick=\"return ewForms(this).Submit('" . $this->PageName() . "');\">" . $Language->Phrase("InsertLink") . "</a>&nbsp;" .
-				"<a class=\"ewGridLink ewInlineCancel\" title=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" href=\"" . $cancelurl . "\">" . $Language->Phrase("CancelLink") . "</a>" .
-				"<input type=\"hidden\" name=\"a_list\" id=\"a_list\" value=\"insert\"></div>";
-			return;
-		}
-
-		// "edit"
-		$oListOpt = &$this->ListOptions->Items["edit"];
-		if ($this->CurrentAction == "edit" && $this->RowType == EW_ROWTYPE_EDIT) { // Inline-Edit
-			$this->ListOptions->CustomItem = "edit"; // Show edit column only
-			$cancelurl = $this->AddMasterUrl($this->PageUrl() . "a=cancel");
-				$oListOpt->Body = "<div" . (($oListOpt->OnLeft) ? " style=\"text-align: right\"" : "") . ">" .
-					"<a class=\"ewGridLink ewInlineUpdate\" title=\"" . ew_HtmlTitle($Language->Phrase("UpdateLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("UpdateLink")) . "\" href=\"\" onclick=\"return ewForms(this).Submit('" . ew_UrlAddHash($this->PageName(), "r" . $this->RowCnt . "_" . $this->TableVar) . "');\">" . $Language->Phrase("UpdateLink") . "</a>&nbsp;" .
-					"<a class=\"ewGridLink ewInlineCancel\" title=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" href=\"" . $cancelurl . "\">" . $Language->Phrase("CancelLink") . "</a>" .
-					"<input type=\"hidden\" name=\"a_list\" id=\"a_list\" value=\"update\"></div>";
-			$oListOpt->Body .= "<input type=\"hidden\" name=\"k" . $this->RowIndex . "_key\" id=\"k" . $this->RowIndex . "_key\" value=\"" . ew_HtmlEncode($this->id->CurrentValue) . "\">";
-			return;
-		}
 
 		// "view"
 		$oListOpt = &$this->ListOptions->Items["view"];
@@ -1834,7 +1277,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$editcaption = ew_HtmlTitle($Language->Phrase("EditLink"));
 		if ($Security->CanEdit()) {
 			$oListOpt->Body = "<a class=\"ewRowLink ewEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("EditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("EditLink")) . "\" href=\"" . ew_HtmlEncode($this->EditUrl) . "\">" . $Language->Phrase("EditLink") . "</a>";
-			$oListOpt->Body .= "<a class=\"ewRowLink ewInlineEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("InlineEditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("InlineEditLink")) . "\" href=\"" . ew_HtmlEncode(ew_UrlAddHash($this->InlineEditUrl, "r" . $this->RowCnt . "_" . $this->TableVar)) . "\">" . $Language->Phrase("InlineEditLink") . "</a>";
 		} else {
 			$oListOpt->Body = "";
 		}
@@ -1844,7 +1286,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$copycaption = ew_HtmlTitle($Language->Phrase("CopyLink"));
 		if ($Security->CanAdd()) {
 			$oListOpt->Body = "<a class=\"ewRowLink ewCopy\" title=\"" . $copycaption . "\" data-caption=\"" . $copycaption . "\" href=\"" . ew_HtmlEncode($this->CopyUrl) . "\">" . $Language->Phrase("CopyLink") . "</a>";
-			$oListOpt->Body .= "<a class=\"ewRowLink ewInlineCopy\" title=\"" . ew_HtmlTitle($Language->Phrase("InlineCopyLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("InlineCopyLink")) . "\" href=\"" . ew_HtmlEncode($this->InlineCopyUrl) . "\">" . $Language->Phrase("InlineCopyLink") . "</a>";
 		} else {
 			$oListOpt->Body = "";
 		}
@@ -1986,9 +1427,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		// "checkbox"
 		$oListOpt = &$this->ListOptions->Items["checkbox"];
 		$oListOpt->Body = "<input type=\"checkbox\" name=\"key_m[]\" class=\"ewMultiSelect\" value=\"" . ew_HtmlEncode($this->id->CurrentValue) . "\" onclick=\"ew_ClickMultiCheckbox(event);\">";
-		if ($this->CurrentAction == "gridedit" && is_numeric($this->RowIndex)) {
-			$this->MultiSelectKey .= "<input type=\"hidden\" name=\"" . $KeyName . "\" id=\"" . $KeyName . "\" value=\"" . $this->id->CurrentValue . "\">";
-		}
 		$this->RenderListOptionsExt();
 
 		// Call ListOptions_Rendered event
@@ -2006,14 +1444,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$addcaption = ew_HtmlTitle($Language->Phrase("AddLink"));
 		$item->Body = "<a class=\"ewAddEdit ewAdd\" title=\"" . $addcaption . "\" data-caption=\"" . $addcaption . "\" href=\"" . ew_HtmlEncode($this->AddUrl) . "\">" . $Language->Phrase("AddLink") . "</a>";
 		$item->Visible = ($this->AddUrl <> "" && $Security->CanAdd());
-
-		// Inline Add
-		$item = &$option->Add("inlineadd");
-		$item->Body = "<a class=\"ewAddEdit ewInlineAdd\" title=\"" . ew_HtmlTitle($Language->Phrase("InlineAddLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("InlineAddLink")) . "\" href=\"" . ew_HtmlEncode($this->InlineAddUrl) . "\">" .$Language->Phrase("InlineAddLink") . "</a>";
-		$item->Visible = ($this->InlineAddUrl <> "" && $Security->CanAdd());
-		$item = &$option->Add("gridadd");
-		$item->Body = "<a class=\"ewAddEdit ewGridAdd\" title=\"" . ew_HtmlTitle($Language->Phrase("GridAddLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridAddLink")) . "\" href=\"" . ew_HtmlEncode($this->GridAddUrl) . "\">" . $Language->Phrase("GridAddLink") . "</a>";
-		$item->Visible = ($this->GridAddUrl <> "" && $Security->CanAdd());
 		$option = $options["detail"];
 		$DetailTableLink = "";
 		$item = &$option->Add("detailadd_t04_angsuran");
@@ -2051,12 +1481,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 					$item->Visible = FALSE;
 			}
 		}
-
-		// Add grid edit
-		$option = $options["addedit"];
-		$item = &$option->Add("gridedit");
-		$item->Body = "<a class=\"ewAddEdit ewGridEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("GridEditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridEditLink")) . "\" href=\"" . ew_HtmlEncode($this->GridEditUrl) . "\">" . $Language->Phrase("GridEditLink") . "</a>";
-		$item->Visible = ($this->GridEditUrl <> "" && $Security->CanEdit());
 		$option = $options["action"];
 
 		// Set up options default
@@ -2094,7 +1518,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 	function RenderOtherOptions() {
 		global $Language, $Security;
 		$options = &$this->OtherOptions;
-		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "gridedit") { // Not grid add/edit mode
 			$option = &$options["action"];
 
 			// Set up list action buttons
@@ -2116,56 +1539,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 				$option = &$options["action"];
 				$option->HideAllOptions();
 			}
-		} else { // Grid add/edit mode
-
-			// Hide all options first
-			foreach ($options as &$option)
-				$option->HideAllOptions();
-			if ($this->CurrentAction == "gridadd") {
-				if ($this->AllowAddDeleteRow) {
-
-					// Add add blank row
-					$option = &$options["addedit"];
-					$option->UseDropDownButton = FALSE;
-					$option->UseImageAndText = TRUE;
-					$item = &$option->Add("addblankrow");
-					$item->Body = "<a class=\"ewAddEdit ewAddBlankRow\" title=\"" . ew_HtmlTitle($Language->Phrase("AddBlankRow")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("AddBlankRow")) . "\" href=\"javascript:void(0);\" onclick=\"ew_AddGridRow(this);\">" . $Language->Phrase("AddBlankRow") . "</a>";
-					$item->Visible = $Security->CanAdd();
-				}
-				$option = &$options["action"];
-				$option->UseDropDownButton = FALSE;
-				$option->UseImageAndText = TRUE;
-
-				// Add grid insert
-				$item = &$option->Add("gridinsert");
-				$item->Body = "<a class=\"ewAction ewGridInsert\" title=\"" . ew_HtmlTitle($Language->Phrase("GridInsertLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridInsertLink")) . "\" href=\"\" onclick=\"return ewForms(this).Submit('" . $this->PageName() . "');\">" . $Language->Phrase("GridInsertLink") . "</a>";
-
-				// Add grid cancel
-				$item = &$option->Add("gridcancel");
-				$cancelurl = $this->AddMasterUrl($this->PageUrl() . "a=cancel");
-				$item->Body = "<a class=\"ewAction ewGridCancel\" title=\"" . ew_HtmlTitle($Language->Phrase("GridCancelLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridCancelLink")) . "\" href=\"" . $cancelurl . "\">" . $Language->Phrase("GridCancelLink") . "</a>";
-			}
-			if ($this->CurrentAction == "gridedit") {
-				if ($this->AllowAddDeleteRow) {
-
-					// Add add blank row
-					$option = &$options["addedit"];
-					$option->UseDropDownButton = FALSE;
-					$option->UseImageAndText = TRUE;
-					$item = &$option->Add("addblankrow");
-					$item->Body = "<a class=\"ewAddEdit ewAddBlankRow\" title=\"" . ew_HtmlTitle($Language->Phrase("AddBlankRow")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("AddBlankRow")) . "\" href=\"javascript:void(0);\" onclick=\"ew_AddGridRow(this);\">" . $Language->Phrase("AddBlankRow") . "</a>";
-					$item->Visible = $Security->CanAdd();
-				}
-				$option = &$options["action"];
-				$option->UseDropDownButton = FALSE;
-				$option->UseImageAndText = TRUE;
-					$item = &$option->Add("gridsave");
-					$item->Body = "<a class=\"ewAction ewGridSave\" title=\"" . ew_HtmlTitle($Language->Phrase("GridSaveLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridSaveLink")) . "\" href=\"\" onclick=\"return ewForms(this).Submit('" . $this->PageName() . "');\">" . $Language->Phrase("GridSaveLink") . "</a>";
-					$item = &$option->Add("gridcancel");
-					$cancelurl = $this->AddMasterUrl($this->PageUrl() . "a=cancel");
-					$item->Body = "<a class=\"ewAction ewGridCancel\" title=\"" . ew_HtmlTitle($Language->Phrase("GridCancelLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridCancelLink")) . "\" href=\"" . $cancelurl . "\">" . $Language->Phrase("GridCancelLink") . "</a>";
-			}
-		}
 	}
 
 	// Process list action
@@ -2330,98 +1703,11 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		}
 	}
 
-	// Load default values
-	function LoadDefaultValues() {
-		$this->id->CurrentValue = NULL;
-		$this->id->OldValue = $this->id->CurrentValue;
-		$this->NoKontrak->CurrentValue = NULL;
-		$this->NoKontrak->OldValue = $this->NoKontrak->CurrentValue;
-		$this->TglKontrak->CurrentValue = NULL;
-		$this->TglKontrak->OldValue = $this->TglKontrak->CurrentValue;
-		$this->nasabah_id->CurrentValue = NULL;
-		$this->nasabah_id->OldValue = $this->nasabah_id->CurrentValue;
-		$this->Pinjaman->CurrentValue = NULL;
-		$this->Pinjaman->OldValue = $this->Pinjaman->CurrentValue;
-		$this->Denda->CurrentValue = NULL;
-		$this->Denda->OldValue = $this->Denda->CurrentValue;
-		$this->DispensasiDenda->CurrentValue = NULL;
-		$this->DispensasiDenda->OldValue = $this->DispensasiDenda->CurrentValue;
-		$this->LamaAngsuran->CurrentValue = NULL;
-		$this->LamaAngsuran->OldValue = $this->LamaAngsuran->CurrentValue;
-		$this->JumlahAngsuran->CurrentValue = NULL;
-		$this->JumlahAngsuran->OldValue = $this->JumlahAngsuran->CurrentValue;
-		$this->NoKontrakRefTo->CurrentValue = NULL;
-		$this->NoKontrakRefTo->OldValue = $this->NoKontrakRefTo->CurrentValue;
-	}
-
 	// Load basic search values
 	function LoadBasicSearchValues() {
 		$this->BasicSearch->Keyword = @$_GET[EW_TABLE_BASIC_SEARCH];
 		if ($this->BasicSearch->Keyword <> "" && $this->Command == "") $this->Command = "search";
 		$this->BasicSearch->Type = @$_GET[EW_TABLE_BASIC_SEARCH_TYPE];
-	}
-
-	// Load form values
-	function LoadFormValues() {
-
-		// Load from form
-		global $objForm;
-		if (!$this->NoKontrak->FldIsDetailKey) {
-			$this->NoKontrak->setFormValue($objForm->GetValue("x_NoKontrak"));
-		}
-		$this->NoKontrak->setOldValue($objForm->GetValue("o_NoKontrak"));
-		if (!$this->TglKontrak->FldIsDetailKey) {
-			$this->TglKontrak->setFormValue($objForm->GetValue("x_TglKontrak"));
-			$this->TglKontrak->CurrentValue = ew_UnFormatDateTime($this->TglKontrak->CurrentValue, 7);
-		}
-		$this->TglKontrak->setOldValue($objForm->GetValue("o_TglKontrak"));
-		if (!$this->nasabah_id->FldIsDetailKey) {
-			$this->nasabah_id->setFormValue($objForm->GetValue("x_nasabah_id"));
-		}
-		$this->nasabah_id->setOldValue($objForm->GetValue("o_nasabah_id"));
-		if (!$this->Pinjaman->FldIsDetailKey) {
-			$this->Pinjaman->setFormValue($objForm->GetValue("x_Pinjaman"));
-		}
-		$this->Pinjaman->setOldValue($objForm->GetValue("o_Pinjaman"));
-		if (!$this->Denda->FldIsDetailKey) {
-			$this->Denda->setFormValue($objForm->GetValue("x_Denda"));
-		}
-		$this->Denda->setOldValue($objForm->GetValue("o_Denda"));
-		if (!$this->DispensasiDenda->FldIsDetailKey) {
-			$this->DispensasiDenda->setFormValue($objForm->GetValue("x_DispensasiDenda"));
-		}
-		$this->DispensasiDenda->setOldValue($objForm->GetValue("o_DispensasiDenda"));
-		if (!$this->LamaAngsuran->FldIsDetailKey) {
-			$this->LamaAngsuran->setFormValue($objForm->GetValue("x_LamaAngsuran"));
-		}
-		$this->LamaAngsuran->setOldValue($objForm->GetValue("o_LamaAngsuran"));
-		if (!$this->JumlahAngsuran->FldIsDetailKey) {
-			$this->JumlahAngsuran->setFormValue($objForm->GetValue("x_JumlahAngsuran"));
-		}
-		$this->JumlahAngsuran->setOldValue($objForm->GetValue("o_JumlahAngsuran"));
-		if (!$this->NoKontrakRefTo->FldIsDetailKey) {
-			$this->NoKontrakRefTo->setFormValue($objForm->GetValue("x_NoKontrakRefTo"));
-		}
-		$this->NoKontrakRefTo->setOldValue($objForm->GetValue("o_NoKontrakRefTo"));
-		if (!$this->id->FldIsDetailKey && $this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
-			$this->id->setFormValue($objForm->GetValue("x_id"));
-	}
-
-	// Restore form values
-	function RestoreFormValues() {
-		global $objForm;
-		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
-			$this->id->CurrentValue = $this->id->FormValue;
-		$this->NoKontrak->CurrentValue = $this->NoKontrak->FormValue;
-		$this->TglKontrak->CurrentValue = $this->TglKontrak->FormValue;
-		$this->TglKontrak->CurrentValue = ew_UnFormatDateTime($this->TglKontrak->CurrentValue, 7);
-		$this->nasabah_id->CurrentValue = $this->nasabah_id->FormValue;
-		$this->Pinjaman->CurrentValue = $this->Pinjaman->FormValue;
-		$this->Denda->CurrentValue = $this->Denda->FormValue;
-		$this->DispensasiDenda->CurrentValue = $this->DispensasiDenda->FormValue;
-		$this->LamaAngsuran->CurrentValue = $this->LamaAngsuran->FormValue;
-		$this->JumlahAngsuran->CurrentValue = $this->JumlahAngsuran->FormValue;
-		$this->NoKontrakRefTo->CurrentValue = $this->NoKontrakRefTo->FormValue;
 	}
 
 	// Load recordset
@@ -2502,18 +1788,17 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 
 	// Return a row with default values
 	function NewRow() {
-		$this->LoadDefaultValues();
 		$row = array();
-		$row['id'] = $this->id->CurrentValue;
-		$row['NoKontrak'] = $this->NoKontrak->CurrentValue;
-		$row['TglKontrak'] = $this->TglKontrak->CurrentValue;
-		$row['nasabah_id'] = $this->nasabah_id->CurrentValue;
-		$row['Pinjaman'] = $this->Pinjaman->CurrentValue;
-		$row['Denda'] = $this->Denda->CurrentValue;
-		$row['DispensasiDenda'] = $this->DispensasiDenda->CurrentValue;
-		$row['LamaAngsuran'] = $this->LamaAngsuran->CurrentValue;
-		$row['JumlahAngsuran'] = $this->JumlahAngsuran->CurrentValue;
-		$row['NoKontrakRefTo'] = $this->NoKontrakRefTo->CurrentValue;
+		$row['id'] = NULL;
+		$row['NoKontrak'] = NULL;
+		$row['TglKontrak'] = NULL;
+		$row['nasabah_id'] = NULL;
+		$row['Pinjaman'] = NULL;
+		$row['Denda'] = NULL;
+		$row['DispensasiDenda'] = NULL;
+		$row['LamaAngsuran'] = NULL;
+		$row['JumlahAngsuran'] = NULL;
+		$row['NoKontrakRefTo'] = NULL;
 		return $row;
 	}
 
@@ -2716,560 +2001,11 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 			$this->NoKontrakRefTo->LinkCustomAttributes = "";
 			$this->NoKontrakRefTo->HrefValue = "";
 			$this->NoKontrakRefTo->TooltipValue = "";
-		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
-
-			// NoKontrak
-			$this->NoKontrak->EditAttrs["class"] = "form-control";
-			$this->NoKontrak->EditCustomAttributes = "";
-			$this->NoKontrak->EditValue = ew_HtmlEncode($this->NoKontrak->CurrentValue);
-			$this->NoKontrak->PlaceHolder = ew_RemoveHtml($this->NoKontrak->FldCaption());
-
-			// TglKontrak
-			$this->TglKontrak->EditAttrs["class"] = "form-control";
-			$this->TglKontrak->EditCustomAttributes = "";
-			$this->TglKontrak->EditValue = ew_HtmlEncode(ew_FormatDateTime($this->TglKontrak->CurrentValue, 7));
-			$this->TglKontrak->PlaceHolder = ew_RemoveHtml($this->TglKontrak->FldCaption());
-
-			// nasabah_id
-			$this->nasabah_id->EditCustomAttributes = "";
-			if (trim(strval($this->nasabah_id->CurrentValue)) == "") {
-				$sFilterWrk = "0=1";
-			} else {
-				$sFilterWrk = "`id`" . ew_SearchString("=", $this->nasabah_id->CurrentValue, EW_DATATYPE_NUMBER, "");
-			}
-			$sSqlWrk = "SELECT `id`, `Customer` AS `DispFld`, `NoTelpHp` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld`, '' AS `SelectFilterFld`, '' AS `SelectFilterFld2`, '' AS `SelectFilterFld3`, '' AS `SelectFilterFld4` FROM `t01_nasabah`";
-			$sWhereWrk = "";
-			$this->nasabah_id->LookupFilters = array("dx1" => '`Customer`', "dx2" => '`NoTelpHp`');
-			ew_AddFilter($sWhereWrk, $sFilterWrk);
-			$this->Lookup_Selecting($this->nasabah_id, $sWhereWrk); // Call Lookup Selecting
-			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-			$rswrk = Conn()->Execute($sSqlWrk);
-			if ($rswrk && !$rswrk->EOF) { // Lookup values found
-				$arwrk = array();
-				$arwrk[1] = ew_HtmlEncode($rswrk->fields('DispFld'));
-				$arwrk[2] = ew_HtmlEncode($rswrk->fields('Disp2Fld'));
-				$this->nasabah_id->ViewValue = $this->nasabah_id->DisplayValue($arwrk);
-			} else {
-				$this->nasabah_id->ViewValue = $Language->Phrase("PleaseSelect");
-			}
-			$arwrk = ($rswrk) ? $rswrk->GetRows() : array();
-			if ($rswrk) $rswrk->Close();
-			$this->nasabah_id->EditValue = $arwrk;
-
-			// Pinjaman
-			$this->Pinjaman->EditAttrs["class"] = "form-control";
-			$this->Pinjaman->EditCustomAttributes = "";
-			$this->Pinjaman->EditValue = ew_HtmlEncode($this->Pinjaman->CurrentValue);
-			$this->Pinjaman->PlaceHolder = ew_RemoveHtml($this->Pinjaman->FldCaption());
-			if (strval($this->Pinjaman->EditValue) <> "" && is_numeric($this->Pinjaman->EditValue)) {
-			$this->Pinjaman->EditValue = ew_FormatNumber($this->Pinjaman->EditValue, -2, -2, -2, -2);
-			$this->Pinjaman->OldValue = $this->Pinjaman->EditValue;
-			}
-
-			// Denda
-			$this->Denda->EditAttrs["class"] = "form-control";
-			$this->Denda->EditCustomAttributes = "";
-			$this->Denda->EditValue = ew_HtmlEncode($this->Denda->CurrentValue);
-			$this->Denda->PlaceHolder = ew_RemoveHtml($this->Denda->FldCaption());
-			if (strval($this->Denda->EditValue) <> "" && is_numeric($this->Denda->EditValue)) {
-			$this->Denda->EditValue = ew_FormatNumber($this->Denda->EditValue, -2, -2, -2, -2);
-			$this->Denda->OldValue = $this->Denda->EditValue;
-			}
-
-			// DispensasiDenda
-			$this->DispensasiDenda->EditAttrs["class"] = "form-control";
-			$this->DispensasiDenda->EditCustomAttributes = "";
-			$this->DispensasiDenda->EditValue = ew_HtmlEncode($this->DispensasiDenda->CurrentValue);
-			$this->DispensasiDenda->PlaceHolder = ew_RemoveHtml($this->DispensasiDenda->FldCaption());
-
-			// LamaAngsuran
-			$this->LamaAngsuran->EditAttrs["class"] = "form-control";
-			$this->LamaAngsuran->EditCustomAttributes = "";
-			$this->LamaAngsuran->EditValue = ew_HtmlEncode($this->LamaAngsuran->CurrentValue);
-			$this->LamaAngsuran->PlaceHolder = ew_RemoveHtml($this->LamaAngsuran->FldCaption());
-
-			// JumlahAngsuran
-			$this->JumlahAngsuran->EditAttrs["class"] = "form-control";
-			$this->JumlahAngsuran->EditCustomAttributes = "";
-			$this->JumlahAngsuran->EditValue = ew_HtmlEncode($this->JumlahAngsuran->CurrentValue);
-			$this->JumlahAngsuran->PlaceHolder = ew_RemoveHtml($this->JumlahAngsuran->FldCaption());
-			if (strval($this->JumlahAngsuran->EditValue) <> "" && is_numeric($this->JumlahAngsuran->EditValue)) {
-			$this->JumlahAngsuran->EditValue = ew_FormatNumber($this->JumlahAngsuran->EditValue, -2, -2, -2, -2);
-			$this->JumlahAngsuran->OldValue = $this->JumlahAngsuran->EditValue;
-			}
-
-			// NoKontrakRefTo
-			$this->NoKontrakRefTo->EditAttrs["class"] = "form-control";
-			$this->NoKontrakRefTo->EditCustomAttributes = "";
-			$this->NoKontrakRefTo->EditValue = ew_HtmlEncode($this->NoKontrakRefTo->CurrentValue);
-			$this->NoKontrakRefTo->PlaceHolder = ew_RemoveHtml($this->NoKontrakRefTo->FldCaption());
-
-			// Add refer script
-			// NoKontrak
-
-			$this->NoKontrak->LinkCustomAttributes = "";
-			$this->NoKontrak->HrefValue = "";
-
-			// TglKontrak
-			$this->TglKontrak->LinkCustomAttributes = "";
-			$this->TglKontrak->HrefValue = "";
-
-			// nasabah_id
-			$this->nasabah_id->LinkCustomAttributes = "";
-			$this->nasabah_id->HrefValue = "";
-
-			// Pinjaman
-			$this->Pinjaman->LinkCustomAttributes = "";
-			$this->Pinjaman->HrefValue = "";
-
-			// Denda
-			$this->Denda->LinkCustomAttributes = "";
-			$this->Denda->HrefValue = "";
-
-			// DispensasiDenda
-			$this->DispensasiDenda->LinkCustomAttributes = "";
-			$this->DispensasiDenda->HrefValue = "";
-
-			// LamaAngsuran
-			$this->LamaAngsuran->LinkCustomAttributes = "";
-			$this->LamaAngsuran->HrefValue = "";
-
-			// JumlahAngsuran
-			$this->JumlahAngsuran->LinkCustomAttributes = "";
-			$this->JumlahAngsuran->HrefValue = "";
-
-			// NoKontrakRefTo
-			$this->NoKontrakRefTo->LinkCustomAttributes = "";
-			$this->NoKontrakRefTo->HrefValue = "";
-		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
-
-			// NoKontrak
-			$this->NoKontrak->EditAttrs["class"] = "form-control";
-			$this->NoKontrak->EditCustomAttributes = "";
-			$this->NoKontrak->EditValue = ew_HtmlEncode($this->NoKontrak->CurrentValue);
-			$this->NoKontrak->PlaceHolder = ew_RemoveHtml($this->NoKontrak->FldCaption());
-
-			// TglKontrak
-			$this->TglKontrak->EditAttrs["class"] = "form-control";
-			$this->TglKontrak->EditCustomAttributes = "";
-			$this->TglKontrak->EditValue = ew_HtmlEncode(ew_FormatDateTime($this->TglKontrak->CurrentValue, 7));
-			$this->TglKontrak->PlaceHolder = ew_RemoveHtml($this->TglKontrak->FldCaption());
-
-			// nasabah_id
-			$this->nasabah_id->EditCustomAttributes = "";
-			if (trim(strval($this->nasabah_id->CurrentValue)) == "") {
-				$sFilterWrk = "0=1";
-			} else {
-				$sFilterWrk = "`id`" . ew_SearchString("=", $this->nasabah_id->CurrentValue, EW_DATATYPE_NUMBER, "");
-			}
-			$sSqlWrk = "SELECT `id`, `Customer` AS `DispFld`, `NoTelpHp` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld`, '' AS `SelectFilterFld`, '' AS `SelectFilterFld2`, '' AS `SelectFilterFld3`, '' AS `SelectFilterFld4` FROM `t01_nasabah`";
-			$sWhereWrk = "";
-			$this->nasabah_id->LookupFilters = array("dx1" => '`Customer`', "dx2" => '`NoTelpHp`');
-			ew_AddFilter($sWhereWrk, $sFilterWrk);
-			$this->Lookup_Selecting($this->nasabah_id, $sWhereWrk); // Call Lookup Selecting
-			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-			$rswrk = Conn()->Execute($sSqlWrk);
-			if ($rswrk && !$rswrk->EOF) { // Lookup values found
-				$arwrk = array();
-				$arwrk[1] = ew_HtmlEncode($rswrk->fields('DispFld'));
-				$arwrk[2] = ew_HtmlEncode($rswrk->fields('Disp2Fld'));
-				$this->nasabah_id->ViewValue = $this->nasabah_id->DisplayValue($arwrk);
-			} else {
-				$this->nasabah_id->ViewValue = $Language->Phrase("PleaseSelect");
-			}
-			$arwrk = ($rswrk) ? $rswrk->GetRows() : array();
-			if ($rswrk) $rswrk->Close();
-			$this->nasabah_id->EditValue = $arwrk;
-
-			// Pinjaman
-			$this->Pinjaman->EditAttrs["class"] = "form-control";
-			$this->Pinjaman->EditCustomAttributes = "";
-			$this->Pinjaman->EditValue = ew_HtmlEncode($this->Pinjaman->CurrentValue);
-			$this->Pinjaman->PlaceHolder = ew_RemoveHtml($this->Pinjaman->FldCaption());
-			if (strval($this->Pinjaman->EditValue) <> "" && is_numeric($this->Pinjaman->EditValue)) {
-			$this->Pinjaman->EditValue = ew_FormatNumber($this->Pinjaman->EditValue, -2, -2, -2, -2);
-			$this->Pinjaman->OldValue = $this->Pinjaman->EditValue;
-			}
-
-			// Denda
-			$this->Denda->EditAttrs["class"] = "form-control";
-			$this->Denda->EditCustomAttributes = "";
-			$this->Denda->EditValue = ew_HtmlEncode($this->Denda->CurrentValue);
-			$this->Denda->PlaceHolder = ew_RemoveHtml($this->Denda->FldCaption());
-			if (strval($this->Denda->EditValue) <> "" && is_numeric($this->Denda->EditValue)) {
-			$this->Denda->EditValue = ew_FormatNumber($this->Denda->EditValue, -2, -2, -2, -2);
-			$this->Denda->OldValue = $this->Denda->EditValue;
-			}
-
-			// DispensasiDenda
-			$this->DispensasiDenda->EditAttrs["class"] = "form-control";
-			$this->DispensasiDenda->EditCustomAttributes = "";
-			$this->DispensasiDenda->EditValue = ew_HtmlEncode($this->DispensasiDenda->CurrentValue);
-			$this->DispensasiDenda->PlaceHolder = ew_RemoveHtml($this->DispensasiDenda->FldCaption());
-
-			// LamaAngsuran
-			$this->LamaAngsuran->EditAttrs["class"] = "form-control";
-			$this->LamaAngsuran->EditCustomAttributes = "";
-			$this->LamaAngsuran->EditValue = ew_HtmlEncode($this->LamaAngsuran->CurrentValue);
-			$this->LamaAngsuran->PlaceHolder = ew_RemoveHtml($this->LamaAngsuran->FldCaption());
-
-			// JumlahAngsuran
-			$this->JumlahAngsuran->EditAttrs["class"] = "form-control";
-			$this->JumlahAngsuran->EditCustomAttributes = "";
-			$this->JumlahAngsuran->EditValue = ew_HtmlEncode($this->JumlahAngsuran->CurrentValue);
-			$this->JumlahAngsuran->PlaceHolder = ew_RemoveHtml($this->JumlahAngsuran->FldCaption());
-			if (strval($this->JumlahAngsuran->EditValue) <> "" && is_numeric($this->JumlahAngsuran->EditValue)) {
-			$this->JumlahAngsuran->EditValue = ew_FormatNumber($this->JumlahAngsuran->EditValue, -2, -2, -2, -2);
-			$this->JumlahAngsuran->OldValue = $this->JumlahAngsuran->EditValue;
-			}
-
-			// NoKontrakRefTo
-			$this->NoKontrakRefTo->EditAttrs["class"] = "form-control";
-			$this->NoKontrakRefTo->EditCustomAttributes = "";
-			$this->NoKontrakRefTo->EditValue = ew_HtmlEncode($this->NoKontrakRefTo->CurrentValue);
-			$this->NoKontrakRefTo->PlaceHolder = ew_RemoveHtml($this->NoKontrakRefTo->FldCaption());
-
-			// Edit refer script
-			// NoKontrak
-
-			$this->NoKontrak->LinkCustomAttributes = "";
-			$this->NoKontrak->HrefValue = "";
-
-			// TglKontrak
-			$this->TglKontrak->LinkCustomAttributes = "";
-			$this->TglKontrak->HrefValue = "";
-
-			// nasabah_id
-			$this->nasabah_id->LinkCustomAttributes = "";
-			$this->nasabah_id->HrefValue = "";
-
-			// Pinjaman
-			$this->Pinjaman->LinkCustomAttributes = "";
-			$this->Pinjaman->HrefValue = "";
-
-			// Denda
-			$this->Denda->LinkCustomAttributes = "";
-			$this->Denda->HrefValue = "";
-
-			// DispensasiDenda
-			$this->DispensasiDenda->LinkCustomAttributes = "";
-			$this->DispensasiDenda->HrefValue = "";
-
-			// LamaAngsuran
-			$this->LamaAngsuran->LinkCustomAttributes = "";
-			$this->LamaAngsuran->HrefValue = "";
-
-			// JumlahAngsuran
-			$this->JumlahAngsuran->LinkCustomAttributes = "";
-			$this->JumlahAngsuran->HrefValue = "";
-
-			// NoKontrakRefTo
-			$this->NoKontrakRefTo->LinkCustomAttributes = "";
-			$this->NoKontrakRefTo->HrefValue = "";
 		}
-		if ($this->RowType == EW_ROWTYPE_ADD || $this->RowType == EW_ROWTYPE_EDIT || $this->RowType == EW_ROWTYPE_SEARCH) // Add/Edit/Search row
-			$this->SetupFieldTitles();
 
 		// Call Row Rendered event
 		if ($this->RowType <> EW_ROWTYPE_AGGREGATEINIT)
 			$this->Row_Rendered();
-	}
-
-	// Validate form
-	function ValidateForm() {
-		global $Language, $gsFormError;
-
-		// Initialize form error message
-		$gsFormError = "";
-
-		// Check if validation required
-		if (!EW_SERVER_VALIDATE)
-			return ($gsFormError == "");
-		if (!$this->NoKontrak->FldIsDetailKey && !is_null($this->NoKontrak->FormValue) && $this->NoKontrak->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->NoKontrak->FldCaption(), $this->NoKontrak->ReqErrMsg));
-		}
-		if (!$this->TglKontrak->FldIsDetailKey && !is_null($this->TglKontrak->FormValue) && $this->TglKontrak->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->TglKontrak->FldCaption(), $this->TglKontrak->ReqErrMsg));
-		}
-		if (!ew_CheckEuroDate($this->TglKontrak->FormValue)) {
-			ew_AddMessage($gsFormError, $this->TglKontrak->FldErrMsg());
-		}
-		if (!$this->nasabah_id->FldIsDetailKey && !is_null($this->nasabah_id->FormValue) && $this->nasabah_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->nasabah_id->FldCaption(), $this->nasabah_id->ReqErrMsg));
-		}
-		if (!$this->Pinjaman->FldIsDetailKey && !is_null($this->Pinjaman->FormValue) && $this->Pinjaman->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->Pinjaman->FldCaption(), $this->Pinjaman->ReqErrMsg));
-		}
-		if (!ew_CheckNumber($this->Pinjaman->FormValue)) {
-			ew_AddMessage($gsFormError, $this->Pinjaman->FldErrMsg());
-		}
-		if (!$this->Denda->FldIsDetailKey && !is_null($this->Denda->FormValue) && $this->Denda->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->Denda->FldCaption(), $this->Denda->ReqErrMsg));
-		}
-		if (!ew_CheckNumber($this->Denda->FormValue)) {
-			ew_AddMessage($gsFormError, $this->Denda->FldErrMsg());
-		}
-		if (!$this->DispensasiDenda->FldIsDetailKey && !is_null($this->DispensasiDenda->FormValue) && $this->DispensasiDenda->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->DispensasiDenda->FldCaption(), $this->DispensasiDenda->ReqErrMsg));
-		}
-		if (!ew_CheckInteger($this->DispensasiDenda->FormValue)) {
-			ew_AddMessage($gsFormError, $this->DispensasiDenda->FldErrMsg());
-		}
-		if (!$this->LamaAngsuran->FldIsDetailKey && !is_null($this->LamaAngsuran->FormValue) && $this->LamaAngsuran->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->LamaAngsuran->FldCaption(), $this->LamaAngsuran->ReqErrMsg));
-		}
-		if (!ew_CheckInteger($this->LamaAngsuran->FormValue)) {
-			ew_AddMessage($gsFormError, $this->LamaAngsuran->FldErrMsg());
-		}
-		if (!$this->JumlahAngsuran->FldIsDetailKey && !is_null($this->JumlahAngsuran->FormValue) && $this->JumlahAngsuran->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->JumlahAngsuran->FldCaption(), $this->JumlahAngsuran->ReqErrMsg));
-		}
-		if (!ew_CheckNumber($this->JumlahAngsuran->FormValue)) {
-			ew_AddMessage($gsFormError, $this->JumlahAngsuran->FldErrMsg());
-		}
-		if (!ew_CheckInteger($this->NoKontrakRefTo->FormValue)) {
-			ew_AddMessage($gsFormError, $this->NoKontrakRefTo->FldErrMsg());
-		}
-
-		// Return validate result
-		$ValidateForm = ($gsFormError == "");
-
-		// Call Form_CustomValidate event
-		$sFormCustomError = "";
-		$ValidateForm = $ValidateForm && $this->Form_CustomValidate($sFormCustomError);
-		if ($sFormCustomError <> "") {
-			ew_AddMessage($gsFormError, $sFormCustomError);
-		}
-		return $ValidateForm;
-	}
-
-	//
-	// Delete records based on current filter
-	//
-	function DeleteRows() {
-		global $Language, $Security;
-		if (!$Security->CanDelete()) {
-			$this->setFailureMessage($Language->Phrase("NoDeletePermission")); // No delete permission
-			return FALSE;
-		}
-		$DeleteRows = TRUE;
-		$sSql = $this->SQL();
-		$conn = &$this->Connection();
-		$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
-		$rs = $conn->Execute($sSql);
-		$conn->raiseErrorFn = '';
-		if ($rs === FALSE) {
-			return FALSE;
-		} elseif ($rs->EOF) {
-			$this->setFailureMessage($Language->Phrase("NoRecord")); // No record found
-			$rs->Close();
-			return FALSE;
-		}
-		$rows = ($rs) ? $rs->GetRows() : array();
-		if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteBegin")); // Batch delete begin
-
-		// Clone old rows
-		$rsold = $rows;
-		if ($rs)
-			$rs->Close();
-
-		// Call row deleting event
-		if ($DeleteRows) {
-			foreach ($rsold as $row) {
-				$DeleteRows = $this->Row_Deleting($row);
-				if (!$DeleteRows) break;
-			}
-		}
-		if ($DeleteRows) {
-			$sKey = "";
-			foreach ($rsold as $row) {
-				$sThisKey = "";
-				if ($sThisKey <> "") $sThisKey .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
-				$sThisKey .= $row['id'];
-				$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
-				$DeleteRows = $this->Delete($row); // Delete
-				$conn->raiseErrorFn = '';
-				if ($DeleteRows === FALSE)
-					break;
-				if ($sKey <> "") $sKey .= ", ";
-				$sKey .= $sThisKey;
-			}
-		}
-		if (!$DeleteRows) {
-
-			// Set up error message
-			if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
-
-				// Use the message, do nothing
-			} elseif ($this->CancelMessage <> "") {
-				$this->setFailureMessage($this->CancelMessage);
-				$this->CancelMessage = "";
-			} else {
-				$this->setFailureMessage($Language->Phrase("DeleteCancelled"));
-			}
-		}
-		if ($DeleteRows) {
-			if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteSuccess")); // Batch delete success
-		} else {
-		}
-
-		// Call Row Deleted event
-		if ($DeleteRows) {
-			foreach ($rsold as $row) {
-				$this->Row_Deleted($row);
-			}
-		}
-		return $DeleteRows;
-	}
-
-	// Update record based on key values
-	function EditRow() {
-		global $Security, $Language;
-		$sFilter = $this->KeyFilter();
-		$sFilter = $this->ApplyUserIDFilters($sFilter);
-		$conn = &$this->Connection();
-		$this->CurrentFilter = $sFilter;
-		$sSql = $this->SQL();
-		$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
-		$rs = $conn->Execute($sSql);
-		$conn->raiseErrorFn = '';
-		if ($rs === FALSE)
-			return FALSE;
-		if ($rs->EOF) {
-			$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record message
-			$EditRow = FALSE; // Update Failed
-		} else {
-
-			// Save old values
-			$rsold = &$rs->fields;
-			$this->LoadDbValues($rsold);
-			$rsnew = array();
-
-			// NoKontrak
-			$this->NoKontrak->SetDbValueDef($rsnew, $this->NoKontrak->CurrentValue, "", $this->NoKontrak->ReadOnly);
-
-			// TglKontrak
-			$this->TglKontrak->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TglKontrak->CurrentValue, 7), ew_CurrentDate(), $this->TglKontrak->ReadOnly);
-
-			// nasabah_id
-			$this->nasabah_id->SetDbValueDef($rsnew, $this->nasabah_id->CurrentValue, 0, $this->nasabah_id->ReadOnly);
-
-			// Pinjaman
-			$this->Pinjaman->SetDbValueDef($rsnew, $this->Pinjaman->CurrentValue, 0, $this->Pinjaman->ReadOnly);
-
-			// Denda
-			$this->Denda->SetDbValueDef($rsnew, $this->Denda->CurrentValue, 0, $this->Denda->ReadOnly);
-
-			// DispensasiDenda
-			$this->DispensasiDenda->SetDbValueDef($rsnew, $this->DispensasiDenda->CurrentValue, 0, $this->DispensasiDenda->ReadOnly);
-
-			// LamaAngsuran
-			$this->LamaAngsuran->SetDbValueDef($rsnew, $this->LamaAngsuran->CurrentValue, 0, $this->LamaAngsuran->ReadOnly);
-
-			// JumlahAngsuran
-			$this->JumlahAngsuran->SetDbValueDef($rsnew, $this->JumlahAngsuran->CurrentValue, 0, $this->JumlahAngsuran->ReadOnly);
-
-			// NoKontrakRefTo
-			$this->NoKontrakRefTo->SetDbValueDef($rsnew, $this->NoKontrakRefTo->CurrentValue, NULL, $this->NoKontrakRefTo->ReadOnly);
-
-			// Call Row Updating event
-			$bUpdateRow = $this->Row_Updating($rsold, $rsnew);
-			if ($bUpdateRow) {
-				$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
-				if (count($rsnew) > 0)
-					$EditRow = $this->Update($rsnew, "", $rsold);
-				else
-					$EditRow = TRUE; // No field to update
-				$conn->raiseErrorFn = '';
-				if ($EditRow) {
-				}
-			} else {
-				if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
-
-					// Use the message, do nothing
-				} elseif ($this->CancelMessage <> "") {
-					$this->setFailureMessage($this->CancelMessage);
-					$this->CancelMessage = "";
-				} else {
-					$this->setFailureMessage($Language->Phrase("UpdateCancelled"));
-				}
-				$EditRow = FALSE;
-			}
-		}
-
-		// Call Row_Updated event
-		if ($EditRow)
-			$this->Row_Updated($rsold, $rsnew);
-		$rs->Close();
-		return $EditRow;
-	}
-
-	// Add record
-	function AddRow($rsold = NULL) {
-		global $Language, $Security;
-		$conn = &$this->Connection();
-
-		// Load db values from rsold
-		$this->LoadDbValues($rsold);
-		if ($rsold) {
-		}
-		$rsnew = array();
-
-		// NoKontrak
-		$this->NoKontrak->SetDbValueDef($rsnew, $this->NoKontrak->CurrentValue, "", FALSE);
-
-		// TglKontrak
-		$this->TglKontrak->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TglKontrak->CurrentValue, 7), ew_CurrentDate(), FALSE);
-
-		// nasabah_id
-		$this->nasabah_id->SetDbValueDef($rsnew, $this->nasabah_id->CurrentValue, 0, FALSE);
-
-		// Pinjaman
-		$this->Pinjaman->SetDbValueDef($rsnew, $this->Pinjaman->CurrentValue, 0, FALSE);
-
-		// Denda
-		$this->Denda->SetDbValueDef($rsnew, $this->Denda->CurrentValue, 0, FALSE);
-
-		// DispensasiDenda
-		$this->DispensasiDenda->SetDbValueDef($rsnew, $this->DispensasiDenda->CurrentValue, 0, FALSE);
-
-		// LamaAngsuran
-		$this->LamaAngsuran->SetDbValueDef($rsnew, $this->LamaAngsuran->CurrentValue, 0, FALSE);
-
-		// JumlahAngsuran
-		$this->JumlahAngsuran->SetDbValueDef($rsnew, $this->JumlahAngsuran->CurrentValue, 0, FALSE);
-
-		// NoKontrakRefTo
-		$this->NoKontrakRefTo->SetDbValueDef($rsnew, $this->NoKontrakRefTo->CurrentValue, NULL, FALSE);
-
-		// Call Row Inserting event
-		$rs = ($rsold == NULL) ? NULL : $rsold->fields;
-		$bInsertRow = $this->Row_Inserting($rs, $rsnew);
-		if ($bInsertRow) {
-			$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
-			$AddRow = $this->Insert($rsnew);
-			$conn->raiseErrorFn = '';
-			if ($AddRow) {
-			}
-		} else {
-			if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
-
-				// Use the message, do nothing
-			} elseif ($this->CancelMessage <> "") {
-				$this->setFailureMessage($this->CancelMessage);
-				$this->CancelMessage = "";
-			} else {
-				$this->setFailureMessage($Language->Phrase("InsertCancelled"));
-			}
-			$AddRow = FALSE;
-		}
-		if ($AddRow) {
-
-			// Call Row Inserted event
-			$rs = ($rsold == NULL) ? NULL : $rsold->fields;
-			$this->Row_Inserted($rs, $rsnew);
-		}
-		return $AddRow;
 	}
 
 	// Set up Breadcrumb
@@ -3286,18 +2022,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		global $gsLanguage;
 		$pageId = $pageId ?: $this->PageID;
 		switch ($fld->FldVar) {
-		case "x_nasabah_id":
-			$sSqlWrk = "";
-			$sSqlWrk = "SELECT `id` AS `LinkFld`, `Customer` AS `DispFld`, `NoTelpHp` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t01_nasabah`";
-			$sWhereWrk = "{filter}";
-			$fld->LookupFilters = array("dx1" => '`Customer`', "dx2" => '`NoTelpHp`');
-			$fld->LookupFilters += array("s" => $sSqlWrk, "d" => "", "f0" => '`id` IN ({filter_value})', "t0" => "3", "fn0" => "");
-			$sSqlWrk = "";
-			$this->Lookup_Selecting($this->nasabah_id, $sWhereWrk); // Call Lookup Selecting
-			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-			if ($sSqlWrk <> "")
-				$fld->LookupFilters["s"] .= $sSqlWrk;
-			break;
 		}
 	}
 
@@ -3351,11 +2075,10 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 	function Page_Render() {
 
 		//echo "Page Render";
-		$this->OtherOptions["addedit"]->UseDropDownButton = FALSE; // jangan gunakan style DropDownButton
-		$my_options = &$this->OtherOptions; // pastikan menggunakan area OtherOptions
-		$my_option = $my_options["addedit"]; // dekat tombol addedit
-		$my_item = &$my_option->Add("mynewbutton"); // tambahkan tombol baru
-		$my_item->Body = "<a class=\"ewAddEdit ewAdd\" title=\"Your Title\" data-caption=\"Your Caption\" href=\"yourpage.php\">My New Button @ list</a>"; // definisikan link, style, dan caption tombol
+		// hapus button tambah data
+
+		$this->OtherOptions['addedit'] = new cListOptions();
+		$this->OtherOptions['addedit']->Body = "";
 	}
 
 	// Page Data Rendering event
@@ -3469,97 +2192,6 @@ var CurrentPageID = EW_PAGE_ID = "list";
 var CurrentForm = ft03_pinjamanlist = new ew_Form("ft03_pinjamanlist", "list");
 ft03_pinjamanlist.FormKeyCountName = '<?php echo $t03_pinjaman_list->FormKeyCountName ?>';
 
-// Validate form
-ft03_pinjamanlist.Validate = function() {
-	if (!this.ValidateRequired)
-		return true; // Ignore validation
-	var $ = jQuery, fobj = this.GetForm(), $fobj = $(fobj);
-	if ($fobj.find("#a_confirm").val() == "F")
-		return true;
-	var elm, felm, uelm, addcnt = 0;
-	var $k = $fobj.find("#" + this.FormKeyCountName); // Get key_count
-	var rowcnt = ($k[0]) ? parseInt($k.val(), 10) : 1;
-	var startcnt = (rowcnt == 0) ? 0 : 1; // Check rowcnt == 0 => Inline-Add
-	var gridinsert = $fobj.find("#a_list").val() == "gridinsert";
-	for (var i = startcnt; i <= rowcnt; i++) {
-		var infix = ($k[0]) ? String(i) : "";
-		$fobj.data("rowindex", infix);
-		var checkrow = (gridinsert) ? !this.EmptyRow(infix) : true;
-		if (checkrow) {
-			addcnt++;
-			elm = this.GetElements("x" + infix + "_NoKontrak");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->NoKontrak->FldCaption(), $t03_pinjaman->NoKontrak->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_TglKontrak");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->TglKontrak->FldCaption(), $t03_pinjaman->TglKontrak->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_TglKontrak");
-			if (elm && !ew_CheckEuroDate(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->TglKontrak->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_nasabah_id");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->nasabah_id->FldCaption(), $t03_pinjaman->nasabah_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_Pinjaman");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->Pinjaman->FldCaption(), $t03_pinjaman->Pinjaman->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_Pinjaman");
-			if (elm && !ew_CheckNumber(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->Pinjaman->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_Denda");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->Denda->FldCaption(), $t03_pinjaman->Denda->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_Denda");
-			if (elm && !ew_CheckNumber(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->Denda->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_DispensasiDenda");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->DispensasiDenda->FldCaption(), $t03_pinjaman->DispensasiDenda->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_DispensasiDenda");
-			if (elm && !ew_CheckInteger(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->DispensasiDenda->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_LamaAngsuran");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->LamaAngsuran->FldCaption(), $t03_pinjaman->LamaAngsuran->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_LamaAngsuran");
-			if (elm && !ew_CheckInteger(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->LamaAngsuran->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_JumlahAngsuran");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->JumlahAngsuran->FldCaption(), $t03_pinjaman->JumlahAngsuran->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_JumlahAngsuran");
-			if (elm && !ew_CheckNumber(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->JumlahAngsuran->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_NoKontrakRefTo");
-			if (elm && !ew_CheckInteger(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->NoKontrakRefTo->FldErrMsg()) ?>");
-
-			// Fire Form_CustomValidate event
-			if (!this.Form_CustomValidate(fobj))
-				return false;
-		} // End Grid Add checking
-	}
-	if (gridinsert && addcnt == 0) { // No row added
-		ew_Alert(ewLanguage.Phrase("NoAddRecord"));
-		return false;
-	}
-	return true;
-}
-
-// Check empty row
-ft03_pinjamanlist.EmptyRow = function(infix) {
-	var fobj = this.Form;
-	if (ew_ValueChanged(fobj, infix, "NoKontrak", false)) return false;
-	if (ew_ValueChanged(fobj, infix, "TglKontrak", false)) return false;
-	if (ew_ValueChanged(fobj, infix, "nasabah_id", false)) return false;
-	if (ew_ValueChanged(fobj, infix, "Pinjaman", false)) return false;
-	if (ew_ValueChanged(fobj, infix, "Denda", false)) return false;
-	if (ew_ValueChanged(fobj, infix, "DispensasiDenda", false)) return false;
-	if (ew_ValueChanged(fobj, infix, "LamaAngsuran", false)) return false;
-	if (ew_ValueChanged(fobj, infix, "JumlahAngsuran", false)) return false;
-	if (ew_ValueChanged(fobj, infix, "NoKontrakRefTo", false)) return false;
-	return true;
-}
-
 // Form_CustomValidate event
 ft03_pinjamanlist.Form_CustomValidate = 
  function(fobj) { // DO NOT CHANGE THIS LINE!
@@ -3595,13 +2227,6 @@ var CurrentSearchForm = ft03_pinjamanlistsrch = new ew_Form("ft03_pinjamanlistsr
 <div class="clearfix"></div>
 </div>
 <?php
-if ($t03_pinjaman->CurrentAction == "gridadd") {
-	$t03_pinjaman->CurrentFilter = "0=1";
-	$t03_pinjaman_list->StartRec = 1;
-	$t03_pinjaman_list->DisplayRecs = $t03_pinjaman->GridAddRowCount;
-	$t03_pinjaman_list->TotalRecs = $t03_pinjaman_list->DisplayRecs;
-	$t03_pinjaman_list->StopRec = $t03_pinjaman_list->DisplayRecs;
-} else {
 	$bSelectLimit = $t03_pinjaman_list->UseSelectLimit;
 	if ($bSelectLimit) {
 		if ($t03_pinjaman_list->TotalRecs <= 0)
@@ -3634,7 +2259,6 @@ if ($t03_pinjaman->CurrentAction == "gridadd") {
 		$searchsql = $t03_pinjaman_list->getSessionWhere();
 		$t03_pinjaman_list->WriteAuditTrailOnSearch($searchparm, $searchsql);
 	}
-}
 $t03_pinjaman_list->RenderOtherOptions();
 ?>
 <?php if ($Security->CanSearch()) { ?>
@@ -3749,7 +2373,7 @@ $t03_pinjaman_list->ShowMessage();
 <?php } ?>
 <input type="hidden" name="t" value="t03_pinjaman">
 <div id="gmp_t03_pinjaman" class="<?php if (ew_IsResponsiveLayout()) { ?>table-responsive <?php } ?>ewGridMiddlePanel">
-<?php if ($t03_pinjaman_list->TotalRecs > 0 || $t03_pinjaman->CurrentAction == "add" || $t03_pinjaman->CurrentAction == "copy" || $t03_pinjaman->CurrentAction == "gridedit") { ?>
+<?php if ($t03_pinjaman_list->TotalRecs > 0 || $t03_pinjaman->CurrentAction == "gridedit") { ?>
 <table id="tbl_t03_pinjamanlist" class="table ewTable">
 <thead>
 	<tr class="ewTableHeader">
@@ -3854,132 +2478,6 @@ $t03_pinjaman_list->ListOptions->Render("header", "right");
 </thead>
 <tbody>
 <?php
-	if ($t03_pinjaman->CurrentAction == "add" || $t03_pinjaman->CurrentAction == "copy") {
-		$t03_pinjaman_list->RowIndex = 0;
-		$t03_pinjaman_list->KeyCount = $t03_pinjaman_list->RowIndex;
-		if ($t03_pinjaman->CurrentAction == "copy" && !$t03_pinjaman_list->LoadRow())
-			$t03_pinjaman->CurrentAction = "add";
-		if ($t03_pinjaman->CurrentAction == "add")
-			$t03_pinjaman_list->LoadRowValues();
-		if ($t03_pinjaman->EventCancelled) // Insert failed
-			$t03_pinjaman_list->RestoreFormValues(); // Restore form values
-
-		// Set row properties
-		$t03_pinjaman->ResetAttrs();
-		$t03_pinjaman->RowAttrs = array_merge($t03_pinjaman->RowAttrs, array('data-rowindex'=>0, 'id'=>'r0_t03_pinjaman', 'data-rowtype'=>EW_ROWTYPE_ADD));
-		$t03_pinjaman->RowType = EW_ROWTYPE_ADD;
-
-		// Render row
-		$t03_pinjaman_list->RenderRow();
-
-		// Render list options
-		$t03_pinjaman_list->RenderListOptions();
-		$t03_pinjaman_list->StartRowCnt = 0;
-?>
-	<tr<?php echo $t03_pinjaman->RowAttributes() ?>>
-<?php
-
-// Render list options (body, left)
-$t03_pinjaman_list->ListOptions->Render("body", "left", $t03_pinjaman_list->RowCnt);
-?>
-	<?php if ($t03_pinjaman->NoKontrak->Visible) { // NoKontrak ?>
-		<td data-name="NoKontrak">
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_NoKontrak" class="form-group t03_pinjaman_NoKontrak">
-<input type="text" data-table="t03_pinjaman" data-field="x_NoKontrak" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrak->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->NoKontrak->EditValue ?>"<?php echo $t03_pinjaman->NoKontrak->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_NoKontrak" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrak->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->TglKontrak->Visible) { // TglKontrak ?>
-		<td data-name="TglKontrak">
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_TglKontrak" class="form-group t03_pinjaman_TglKontrak">
-<input type="text" data-table="t03_pinjaman" data-field="x_TglKontrak" data-format="7" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->TglKontrak->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->TglKontrak->EditValue ?>"<?php echo $t03_pinjaman->TglKontrak->EditAttributes() ?>>
-<?php if (!$t03_pinjaman->TglKontrak->ReadOnly && !$t03_pinjaman->TglKontrak->Disabled && !isset($t03_pinjaman->TglKontrak->EditAttrs["readonly"]) && !isset($t03_pinjaman->TglKontrak->EditAttrs["disabled"])) { ?>
-<script type="text/javascript">
-ew_CreateDateTimePicker("ft03_pinjamanlist", "x<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak", {"ignoreReadonly":true,"useCurrent":false,"format":7});
-</script>
-<?php } ?>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_TglKontrak" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" value="<?php echo ew_HtmlEncode($t03_pinjaman->TglKontrak->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->nasabah_id->Visible) { // nasabah_id ?>
-		<td data-name="nasabah_id">
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_nasabah_id" class="form-group t03_pinjaman_nasabah_id">
-<?php $t03_pinjaman->nasabah_id->EditAttrs["onchange"] = "ew_UpdateOpt.call(this); " . @$t03_pinjaman->nasabah_id->EditAttrs["onchange"]; ?>
-<span class="ewLookupList">
-	<span onclick="jQuery(this).parent().next(":not([disabled])").click();" tabindex="-1" class="form-control ewLookupText" id="lu_x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id"><?php echo (strval($t03_pinjaman->nasabah_id->ViewValue) == "" ? $Language->Phrase("PleaseSelect") : $t03_pinjaman->nasabah_id->ViewValue); ?></span>
-</span>
-<button type="button" title="<?php echo ew_HtmlEncode(str_replace("%s", ew_RemoveHtml($t03_pinjaman->nasabah_id->FldCaption()), $Language->Phrase("LookupLink", TRUE))) ?>" onclick="ew_ModalLookupShow({lnk:this,el:'x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id',m:0,n:10});" class="ewLookupBtn btn btn-default btn-sm"<?php echo (($t03_pinjaman->nasabah_id->ReadOnly || $t03_pinjaman->nasabah_id->Disabled) ? " disabled" : "")?>><span class="glyphicon glyphicon-search ewIcon"></span></button>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_nasabah_id" data-multiple="0" data-lookup="1" data-value-separator="<?php echo $t03_pinjaman->nasabah_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" value="<?php echo $t03_pinjaman->nasabah_id->CurrentValue ?>"<?php echo $t03_pinjaman->nasabah_id->EditAttributes() ?>>
-<?php if (AllowAdd(CurrentProjectID() . "t01_nasabah") && !$t03_pinjaman->nasabah_id->ReadOnly) { ?>
-<button type="button" title="<?php echo ew_HtmlTitle($Language->Phrase("AddLink")) . "&nbsp;" . $t03_pinjaman->nasabah_id->FldCaption() ?>" onclick="ew_AddOptDialogShow({lnk:this,el:'x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id',url:'t01_nasabahaddopt.php'});" class="ewAddOptBtn btn btn-default btn-sm" id="aol_x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id"><span class="glyphicon glyphicon-plus ewIcon"></span><span class="hide"><?php echo $Language->Phrase("AddLink") ?>&nbsp;<?php echo $t03_pinjaman->nasabah_id->FldCaption() ?></span></button>
-<?php } ?>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_nasabah_id" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t03_pinjaman->nasabah_id->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->Pinjaman->Visible) { // Pinjaman ?>
-		<td data-name="Pinjaman">
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_Pinjaman" class="form-group t03_pinjaman_Pinjaman">
-<input type="text" data-table="t03_pinjaman" data-field="x_Pinjaman" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Pinjaman->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Pinjaman->EditValue ?>"<?php echo $t03_pinjaman->Pinjaman->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_Pinjaman" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" value="<?php echo ew_HtmlEncode($t03_pinjaman->Pinjaman->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->Denda->Visible) { // Denda ?>
-		<td data-name="Denda">
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_Denda" class="form-group t03_pinjaman_Denda">
-<input type="text" data-table="t03_pinjaman" data-field="x_Denda" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Denda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Denda->EditValue ?>"<?php echo $t03_pinjaman->Denda->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_Denda" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" value="<?php echo ew_HtmlEncode($t03_pinjaman->Denda->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->DispensasiDenda->Visible) { // DispensasiDenda ?>
-		<td data-name="DispensasiDenda">
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_DispensasiDenda" class="form-group t03_pinjaman_DispensasiDenda">
-<input type="text" data-table="t03_pinjaman" data-field="x_DispensasiDenda" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->DispensasiDenda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->DispensasiDenda->EditValue ?>"<?php echo $t03_pinjaman->DispensasiDenda->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_DispensasiDenda" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" value="<?php echo ew_HtmlEncode($t03_pinjaman->DispensasiDenda->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->LamaAngsuran->Visible) { // LamaAngsuran ?>
-		<td data-name="LamaAngsuran">
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_LamaAngsuran" class="form-group t03_pinjaman_LamaAngsuran">
-<input type="text" data-table="t03_pinjaman" data-field="x_LamaAngsuran" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->LamaAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->LamaAngsuran->EditValue ?>"<?php echo $t03_pinjaman->LamaAngsuran->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_LamaAngsuran" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" value="<?php echo ew_HtmlEncode($t03_pinjaman->LamaAngsuran->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->JumlahAngsuran->Visible) { // JumlahAngsuran ?>
-		<td data-name="JumlahAngsuran">
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_JumlahAngsuran" class="form-group t03_pinjaman_JumlahAngsuran">
-<input type="text" data-table="t03_pinjaman" data-field="x_JumlahAngsuran" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->JumlahAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->JumlahAngsuran->EditValue ?>"<?php echo $t03_pinjaman->JumlahAngsuran->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_JumlahAngsuran" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" value="<?php echo ew_HtmlEncode($t03_pinjaman->JumlahAngsuran->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->NoKontrakRefTo->Visible) { // NoKontrakRefTo ?>
-		<td data-name="NoKontrakRefTo">
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_NoKontrakRefTo" class="form-group t03_pinjaman_NoKontrakRefTo">
-<input type="text" data-table="t03_pinjaman" data-field="x_NoKontrakRefTo" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrakRefTo->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->NoKontrakRefTo->EditValue ?>"<?php echo $t03_pinjaman->NoKontrakRefTo->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_NoKontrakRefTo" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" value="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrakRefTo->OldValue) ?>">
-</td>
-	<?php } ?>
-<?php
-
-// Render list options (body, right)
-$t03_pinjaman_list->ListOptions->Render("body", "right", $t03_pinjaman_list->RowCnt);
-?>
-<script type="text/javascript">
-ft03_pinjamanlist.UpdateOpts(<?php echo $t03_pinjaman_list->RowIndex ?>);
-</script>
-	</tr>
-<?php
-}
-?>
-<?php
 if ($t03_pinjaman->ExportAll && $t03_pinjaman->Export <> "") {
 	$t03_pinjaman_list->StopRec = $t03_pinjaman_list->TotalRecs;
 } else {
@@ -3989,15 +2487,6 @@ if ($t03_pinjaman->ExportAll && $t03_pinjaman->Export <> "") {
 		$t03_pinjaman_list->StopRec = $t03_pinjaman_list->StartRec + $t03_pinjaman_list->DisplayRecs - 1;
 	else
 		$t03_pinjaman_list->StopRec = $t03_pinjaman_list->TotalRecs;
-}
-
-// Restore number of post back records
-if ($objForm) {
-	$objForm->Index = -1;
-	if ($objForm->HasValue($t03_pinjaman_list->FormKeyCountName) && ($t03_pinjaman->CurrentAction == "gridadd" || $t03_pinjaman->CurrentAction == "gridedit" || $t03_pinjaman->CurrentAction == "F")) {
-		$t03_pinjaman_list->KeyCount = $objForm->GetValue($t03_pinjaman_list->FormKeyCountName);
-		$t03_pinjaman_list->StopRec = $t03_pinjaman_list->StartRec + $t03_pinjaman_list->KeyCount - 1;
-	}
 }
 $t03_pinjaman_list->RecCnt = $t03_pinjaman_list->StartRec - 1;
 if ($t03_pinjaman_list->Recordset && !$t03_pinjaman_list->Recordset->EOF) {
@@ -4013,27 +2502,10 @@ if ($t03_pinjaman_list->Recordset && !$t03_pinjaman_list->Recordset->EOF) {
 $t03_pinjaman->RowType = EW_ROWTYPE_AGGREGATEINIT;
 $t03_pinjaman->ResetAttrs();
 $t03_pinjaman_list->RenderRow();
-$t03_pinjaman_list->EditRowCnt = 0;
-if ($t03_pinjaman->CurrentAction == "edit")
-	$t03_pinjaman_list->RowIndex = 1;
-if ($t03_pinjaman->CurrentAction == "gridadd")
-	$t03_pinjaman_list->RowIndex = 0;
-if ($t03_pinjaman->CurrentAction == "gridedit")
-	$t03_pinjaman_list->RowIndex = 0;
 while ($t03_pinjaman_list->RecCnt < $t03_pinjaman_list->StopRec) {
 	$t03_pinjaman_list->RecCnt++;
 	if (intval($t03_pinjaman_list->RecCnt) >= intval($t03_pinjaman_list->StartRec)) {
 		$t03_pinjaman_list->RowCnt++;
-		if ($t03_pinjaman->CurrentAction == "gridadd" || $t03_pinjaman->CurrentAction == "gridedit" || $t03_pinjaman->CurrentAction == "F") {
-			$t03_pinjaman_list->RowIndex++;
-			$objForm->Index = $t03_pinjaman_list->RowIndex;
-			if ($objForm->HasValue($t03_pinjaman_list->FormActionName))
-				$t03_pinjaman_list->RowAction = strval($objForm->GetValue($t03_pinjaman_list->FormActionName));
-			elseif ($t03_pinjaman->CurrentAction == "gridadd")
-				$t03_pinjaman_list->RowAction = "insert";
-			else
-				$t03_pinjaman_list->RowAction = "";
-		}
 
 		// Set up key count
 		$t03_pinjaman_list->KeyCount = $t03_pinjaman_list->RowIndex;
@@ -4042,37 +2514,10 @@ while ($t03_pinjaman_list->RecCnt < $t03_pinjaman_list->StopRec) {
 		$t03_pinjaman->ResetAttrs();
 		$t03_pinjaman->CssClass = "";
 		if ($t03_pinjaman->CurrentAction == "gridadd") {
-			$t03_pinjaman_list->LoadRowValues(); // Load default values
 		} else {
 			$t03_pinjaman_list->LoadRowValues($t03_pinjaman_list->Recordset); // Load row values
 		}
 		$t03_pinjaman->RowType = EW_ROWTYPE_VIEW; // Render view
-		if ($t03_pinjaman->CurrentAction == "gridadd") // Grid add
-			$t03_pinjaman->RowType = EW_ROWTYPE_ADD; // Render add
-		if ($t03_pinjaman->CurrentAction == "gridadd" && $t03_pinjaman->EventCancelled && !$objForm->HasValue("k_blankrow")) // Insert failed
-			$t03_pinjaman_list->RestoreCurrentRowFormValues($t03_pinjaman_list->RowIndex); // Restore form values
-		if ($t03_pinjaman->CurrentAction == "edit") {
-			if ($t03_pinjaman_list->CheckInlineEditKey() && $t03_pinjaman_list->EditRowCnt == 0) { // Inline edit
-				$t03_pinjaman->RowType = EW_ROWTYPE_EDIT; // Render edit
-			}
-		}
-		if ($t03_pinjaman->CurrentAction == "gridedit") { // Grid edit
-			if ($t03_pinjaman->EventCancelled) {
-				$t03_pinjaman_list->RestoreCurrentRowFormValues($t03_pinjaman_list->RowIndex); // Restore form values
-			}
-			if ($t03_pinjaman_list->RowAction == "insert")
-				$t03_pinjaman->RowType = EW_ROWTYPE_ADD; // Render add
-			else
-				$t03_pinjaman->RowType = EW_ROWTYPE_EDIT; // Render edit
-		}
-		if ($t03_pinjaman->CurrentAction == "edit" && $t03_pinjaman->RowType == EW_ROWTYPE_EDIT && $t03_pinjaman->EventCancelled) { // Update failed
-			$objForm->Index = 1;
-			$t03_pinjaman_list->RestoreFormValues(); // Restore form values
-		}
-		if ($t03_pinjaman->CurrentAction == "gridedit" && ($t03_pinjaman->RowType == EW_ROWTYPE_EDIT || $t03_pinjaman->RowType == EW_ROWTYPE_ADD) && $t03_pinjaman->EventCancelled) // Update failed
-			$t03_pinjaman_list->RestoreCurrentRowFormValues($t03_pinjaman_list->RowIndex); // Restore form values
-		if ($t03_pinjaman->RowType == EW_ROWTYPE_EDIT) // Edit row
-			$t03_pinjaman_list->EditRowCnt++;
 
 		// Set up row id / data-rowindex
 		$t03_pinjaman->RowAttrs = array_merge($t03_pinjaman->RowAttrs, array('data-rowindex'=>$t03_pinjaman_list->RowCnt, 'id'=>'r' . $t03_pinjaman_list->RowCnt . '_t03_pinjaman', 'data-rowtype'=>$t03_pinjaman->RowType));
@@ -4082,9 +2527,6 @@ while ($t03_pinjaman_list->RecCnt < $t03_pinjaman_list->StopRec) {
 
 		// Render list options
 		$t03_pinjaman_list->RenderListOptions();
-
-		// Skip delete row / empty row for confirm page
-		if ($t03_pinjaman_list->RowAction <> "delete" && $t03_pinjaman_list->RowAction <> "insertdelete" && !($t03_pinjaman_list->RowAction == "insert" && $t03_pinjaman->CurrentAction == "F" && $t03_pinjaman_list->EmptyRow())) {
 ?>
 	<tr<?php echo $t03_pinjaman->RowAttributes() ?>>
 <?php
@@ -4094,224 +2536,74 @@ $t03_pinjaman_list->ListOptions->Render("body", "left", $t03_pinjaman_list->RowC
 ?>
 	<?php if ($t03_pinjaman->NoKontrak->Visible) { // NoKontrak ?>
 		<td data-name="NoKontrak"<?php echo $t03_pinjaman->NoKontrak->CellAttributes() ?>>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_NoKontrak" class="form-group t03_pinjaman_NoKontrak">
-<input type="text" data-table="t03_pinjaman" data-field="x_NoKontrak" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrak->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->NoKontrak->EditValue ?>"<?php echo $t03_pinjaman->NoKontrak->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_NoKontrak" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrak->OldValue) ?>">
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_NoKontrak" class="form-group t03_pinjaman_NoKontrak">
-<input type="text" data-table="t03_pinjaman" data-field="x_NoKontrak" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrak->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->NoKontrak->EditValue ?>"<?php echo $t03_pinjaman->NoKontrak->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_NoKontrak" class="t03_pinjaman_NoKontrak">
 <span<?php echo $t03_pinjaman->NoKontrak->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->NoKontrak->ListViewValue() ?></span>
 </span>
-<?php } ?>
 </td>
 	<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_id" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_id" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t03_pinjaman->id->CurrentValue) ?>">
-<input type="hidden" data-table="t03_pinjaman" data-field="x_id" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_id" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t03_pinjaman->id->OldValue) ?>">
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_EDIT || $t03_pinjaman->CurrentMode == "edit") { ?>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_id" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_id" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t03_pinjaman->id->CurrentValue) ?>">
-<?php } ?>
 	<?php if ($t03_pinjaman->TglKontrak->Visible) { // TglKontrak ?>
 		<td data-name="TglKontrak"<?php echo $t03_pinjaman->TglKontrak->CellAttributes() ?>>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_TglKontrak" class="form-group t03_pinjaman_TglKontrak">
-<input type="text" data-table="t03_pinjaman" data-field="x_TglKontrak" data-format="7" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->TglKontrak->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->TglKontrak->EditValue ?>"<?php echo $t03_pinjaman->TglKontrak->EditAttributes() ?>>
-<?php if (!$t03_pinjaman->TglKontrak->ReadOnly && !$t03_pinjaman->TglKontrak->Disabled && !isset($t03_pinjaman->TglKontrak->EditAttrs["readonly"]) && !isset($t03_pinjaman->TglKontrak->EditAttrs["disabled"])) { ?>
-<script type="text/javascript">
-ew_CreateDateTimePicker("ft03_pinjamanlist", "x<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak", {"ignoreReadonly":true,"useCurrent":false,"format":7});
-</script>
-<?php } ?>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_TglKontrak" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" value="<?php echo ew_HtmlEncode($t03_pinjaman->TglKontrak->OldValue) ?>">
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_TglKontrak" class="form-group t03_pinjaman_TglKontrak">
-<input type="text" data-table="t03_pinjaman" data-field="x_TglKontrak" data-format="7" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->TglKontrak->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->TglKontrak->EditValue ?>"<?php echo $t03_pinjaman->TglKontrak->EditAttributes() ?>>
-<?php if (!$t03_pinjaman->TglKontrak->ReadOnly && !$t03_pinjaman->TglKontrak->Disabled && !isset($t03_pinjaman->TglKontrak->EditAttrs["readonly"]) && !isset($t03_pinjaman->TglKontrak->EditAttrs["disabled"])) { ?>
-<script type="text/javascript">
-ew_CreateDateTimePicker("ft03_pinjamanlist", "x<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak", {"ignoreReadonly":true,"useCurrent":false,"format":7});
-</script>
-<?php } ?>
-</span>
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_TglKontrak" class="t03_pinjaman_TglKontrak">
 <span<?php echo $t03_pinjaman->TglKontrak->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->TglKontrak->ListViewValue() ?></span>
 </span>
-<?php } ?>
 </td>
 	<?php } ?>
 	<?php if ($t03_pinjaman->nasabah_id->Visible) { // nasabah_id ?>
 		<td data-name="nasabah_id"<?php echo $t03_pinjaman->nasabah_id->CellAttributes() ?>>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_nasabah_id" class="form-group t03_pinjaman_nasabah_id">
-<?php $t03_pinjaman->nasabah_id->EditAttrs["onchange"] = "ew_UpdateOpt.call(this); " . @$t03_pinjaman->nasabah_id->EditAttrs["onchange"]; ?>
-<span class="ewLookupList">
-	<span onclick="jQuery(this).parent().next(":not([disabled])").click();" tabindex="-1" class="form-control ewLookupText" id="lu_x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id"><?php echo (strval($t03_pinjaman->nasabah_id->ViewValue) == "" ? $Language->Phrase("PleaseSelect") : $t03_pinjaman->nasabah_id->ViewValue); ?></span>
-</span>
-<button type="button" title="<?php echo ew_HtmlEncode(str_replace("%s", ew_RemoveHtml($t03_pinjaman->nasabah_id->FldCaption()), $Language->Phrase("LookupLink", TRUE))) ?>" onclick="ew_ModalLookupShow({lnk:this,el:'x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id',m:0,n:10});" class="ewLookupBtn btn btn-default btn-sm"<?php echo (($t03_pinjaman->nasabah_id->ReadOnly || $t03_pinjaman->nasabah_id->Disabled) ? " disabled" : "")?>><span class="glyphicon glyphicon-search ewIcon"></span></button>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_nasabah_id" data-multiple="0" data-lookup="1" data-value-separator="<?php echo $t03_pinjaman->nasabah_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" value="<?php echo $t03_pinjaman->nasabah_id->CurrentValue ?>"<?php echo $t03_pinjaman->nasabah_id->EditAttributes() ?>>
-<?php if (AllowAdd(CurrentProjectID() . "t01_nasabah") && !$t03_pinjaman->nasabah_id->ReadOnly) { ?>
-<button type="button" title="<?php echo ew_HtmlTitle($Language->Phrase("AddLink")) . "&nbsp;" . $t03_pinjaman->nasabah_id->FldCaption() ?>" onclick="ew_AddOptDialogShow({lnk:this,el:'x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id',url:'t01_nasabahaddopt.php'});" class="ewAddOptBtn btn btn-default btn-sm" id="aol_x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id"><span class="glyphicon glyphicon-plus ewIcon"></span><span class="hide"><?php echo $Language->Phrase("AddLink") ?>&nbsp;<?php echo $t03_pinjaman->nasabah_id->FldCaption() ?></span></button>
-<?php } ?>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_nasabah_id" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t03_pinjaman->nasabah_id->OldValue) ?>">
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_nasabah_id" class="form-group t03_pinjaman_nasabah_id">
-<?php $t03_pinjaman->nasabah_id->EditAttrs["onchange"] = "ew_UpdateOpt.call(this); " . @$t03_pinjaman->nasabah_id->EditAttrs["onchange"]; ?>
-<span class="ewLookupList">
-	<span onclick="jQuery(this).parent().next(":not([disabled])").click();" tabindex="-1" class="form-control ewLookupText" id="lu_x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id"><?php echo (strval($t03_pinjaman->nasabah_id->ViewValue) == "" ? $Language->Phrase("PleaseSelect") : $t03_pinjaman->nasabah_id->ViewValue); ?></span>
-</span>
-<button type="button" title="<?php echo ew_HtmlEncode(str_replace("%s", ew_RemoveHtml($t03_pinjaman->nasabah_id->FldCaption()), $Language->Phrase("LookupLink", TRUE))) ?>" onclick="ew_ModalLookupShow({lnk:this,el:'x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id',m:0,n:10});" class="ewLookupBtn btn btn-default btn-sm"<?php echo (($t03_pinjaman->nasabah_id->ReadOnly || $t03_pinjaman->nasabah_id->Disabled) ? " disabled" : "")?>><span class="glyphicon glyphicon-search ewIcon"></span></button>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_nasabah_id" data-multiple="0" data-lookup="1" data-value-separator="<?php echo $t03_pinjaman->nasabah_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" value="<?php echo $t03_pinjaman->nasabah_id->CurrentValue ?>"<?php echo $t03_pinjaman->nasabah_id->EditAttributes() ?>>
-<?php if (AllowAdd(CurrentProjectID() . "t01_nasabah") && !$t03_pinjaman->nasabah_id->ReadOnly) { ?>
-<button type="button" title="<?php echo ew_HtmlTitle($Language->Phrase("AddLink")) . "&nbsp;" . $t03_pinjaman->nasabah_id->FldCaption() ?>" onclick="ew_AddOptDialogShow({lnk:this,el:'x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id',url:'t01_nasabahaddopt.php'});" class="ewAddOptBtn btn btn-default btn-sm" id="aol_x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id"><span class="glyphicon glyphicon-plus ewIcon"></span><span class="hide"><?php echo $Language->Phrase("AddLink") ?>&nbsp;<?php echo $t03_pinjaman->nasabah_id->FldCaption() ?></span></button>
-<?php } ?>
-</span>
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_nasabah_id" class="t03_pinjaman_nasabah_id">
 <span<?php echo $t03_pinjaman->nasabah_id->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->nasabah_id->ListViewValue() ?></span>
 </span>
-<?php } ?>
 </td>
 	<?php } ?>
 	<?php if ($t03_pinjaman->Pinjaman->Visible) { // Pinjaman ?>
 		<td data-name="Pinjaman"<?php echo $t03_pinjaman->Pinjaman->CellAttributes() ?>>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_Pinjaman" class="form-group t03_pinjaman_Pinjaman">
-<input type="text" data-table="t03_pinjaman" data-field="x_Pinjaman" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Pinjaman->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Pinjaman->EditValue ?>"<?php echo $t03_pinjaman->Pinjaman->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_Pinjaman" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" value="<?php echo ew_HtmlEncode($t03_pinjaman->Pinjaman->OldValue) ?>">
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_Pinjaman" class="form-group t03_pinjaman_Pinjaman">
-<input type="text" data-table="t03_pinjaman" data-field="x_Pinjaman" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Pinjaman->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Pinjaman->EditValue ?>"<?php echo $t03_pinjaman->Pinjaman->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_Pinjaman" class="t03_pinjaman_Pinjaman">
 <span<?php echo $t03_pinjaman->Pinjaman->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->Pinjaman->ListViewValue() ?></span>
 </span>
-<?php } ?>
 </td>
 	<?php } ?>
 	<?php if ($t03_pinjaman->Denda->Visible) { // Denda ?>
 		<td data-name="Denda"<?php echo $t03_pinjaman->Denda->CellAttributes() ?>>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_Denda" class="form-group t03_pinjaman_Denda">
-<input type="text" data-table="t03_pinjaman" data-field="x_Denda" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Denda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Denda->EditValue ?>"<?php echo $t03_pinjaman->Denda->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_Denda" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" value="<?php echo ew_HtmlEncode($t03_pinjaman->Denda->OldValue) ?>">
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_Denda" class="form-group t03_pinjaman_Denda">
-<input type="text" data-table="t03_pinjaman" data-field="x_Denda" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Denda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Denda->EditValue ?>"<?php echo $t03_pinjaman->Denda->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_Denda" class="t03_pinjaman_Denda">
 <span<?php echo $t03_pinjaman->Denda->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->Denda->ListViewValue() ?></span>
 </span>
-<?php } ?>
 </td>
 	<?php } ?>
 	<?php if ($t03_pinjaman->DispensasiDenda->Visible) { // DispensasiDenda ?>
 		<td data-name="DispensasiDenda"<?php echo $t03_pinjaman->DispensasiDenda->CellAttributes() ?>>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_DispensasiDenda" class="form-group t03_pinjaman_DispensasiDenda">
-<input type="text" data-table="t03_pinjaman" data-field="x_DispensasiDenda" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->DispensasiDenda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->DispensasiDenda->EditValue ?>"<?php echo $t03_pinjaman->DispensasiDenda->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_DispensasiDenda" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" value="<?php echo ew_HtmlEncode($t03_pinjaman->DispensasiDenda->OldValue) ?>">
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_DispensasiDenda" class="form-group t03_pinjaman_DispensasiDenda">
-<input type="text" data-table="t03_pinjaman" data-field="x_DispensasiDenda" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->DispensasiDenda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->DispensasiDenda->EditValue ?>"<?php echo $t03_pinjaman->DispensasiDenda->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_DispensasiDenda" class="t03_pinjaman_DispensasiDenda">
 <span<?php echo $t03_pinjaman->DispensasiDenda->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->DispensasiDenda->ListViewValue() ?></span>
 </span>
-<?php } ?>
 </td>
 	<?php } ?>
 	<?php if ($t03_pinjaman->LamaAngsuran->Visible) { // LamaAngsuran ?>
 		<td data-name="LamaAngsuran"<?php echo $t03_pinjaman->LamaAngsuran->CellAttributes() ?>>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_LamaAngsuran" class="form-group t03_pinjaman_LamaAngsuran">
-<input type="text" data-table="t03_pinjaman" data-field="x_LamaAngsuran" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->LamaAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->LamaAngsuran->EditValue ?>"<?php echo $t03_pinjaman->LamaAngsuran->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_LamaAngsuran" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" value="<?php echo ew_HtmlEncode($t03_pinjaman->LamaAngsuran->OldValue) ?>">
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_LamaAngsuran" class="form-group t03_pinjaman_LamaAngsuran">
-<input type="text" data-table="t03_pinjaman" data-field="x_LamaAngsuran" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->LamaAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->LamaAngsuran->EditValue ?>"<?php echo $t03_pinjaman->LamaAngsuran->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_LamaAngsuran" class="t03_pinjaman_LamaAngsuran">
 <span<?php echo $t03_pinjaman->LamaAngsuran->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->LamaAngsuran->ListViewValue() ?></span>
 </span>
-<?php } ?>
 </td>
 	<?php } ?>
 	<?php if ($t03_pinjaman->JumlahAngsuran->Visible) { // JumlahAngsuran ?>
 		<td data-name="JumlahAngsuran"<?php echo $t03_pinjaman->JumlahAngsuran->CellAttributes() ?>>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_JumlahAngsuran" class="form-group t03_pinjaman_JumlahAngsuran">
-<input type="text" data-table="t03_pinjaman" data-field="x_JumlahAngsuran" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->JumlahAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->JumlahAngsuran->EditValue ?>"<?php echo $t03_pinjaman->JumlahAngsuran->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_JumlahAngsuran" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" value="<?php echo ew_HtmlEncode($t03_pinjaman->JumlahAngsuran->OldValue) ?>">
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_JumlahAngsuran" class="form-group t03_pinjaman_JumlahAngsuran">
-<input type="text" data-table="t03_pinjaman" data-field="x_JumlahAngsuran" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->JumlahAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->JumlahAngsuran->EditValue ?>"<?php echo $t03_pinjaman->JumlahAngsuran->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_JumlahAngsuran" class="t03_pinjaman_JumlahAngsuran">
 <span<?php echo $t03_pinjaman->JumlahAngsuran->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->JumlahAngsuran->ListViewValue() ?></span>
 </span>
-<?php } ?>
 </td>
 	<?php } ?>
 	<?php if ($t03_pinjaman->NoKontrakRefTo->Visible) { // NoKontrakRefTo ?>
 		<td data-name="NoKontrakRefTo"<?php echo $t03_pinjaman->NoKontrakRefTo->CellAttributes() ?>>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_NoKontrakRefTo" class="form-group t03_pinjaman_NoKontrakRefTo">
-<input type="text" data-table="t03_pinjaman" data-field="x_NoKontrakRefTo" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrakRefTo->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->NoKontrakRefTo->EditValue ?>"<?php echo $t03_pinjaman->NoKontrakRefTo->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_NoKontrakRefTo" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" value="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrakRefTo->OldValue) ?>">
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_NoKontrakRefTo" class="form-group t03_pinjaman_NoKontrakRefTo">
-<input type="text" data-table="t03_pinjaman" data-field="x_NoKontrakRefTo" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrakRefTo->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->NoKontrakRefTo->EditValue ?>"<?php echo $t03_pinjaman->NoKontrakRefTo->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_NoKontrakRefTo" class="t03_pinjaman_NoKontrakRefTo">
 <span<?php echo $t03_pinjaman->NoKontrakRefTo->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->NoKontrakRefTo->ListViewValue() ?></span>
 </span>
-<?php } ?>
 </td>
 	<?php } ?>
 <?php
@@ -4320,157 +2612,14 @@ ew_CreateDateTimePicker("ft03_pinjamanlist", "x<?php echo $t03_pinjaman_list->Ro
 $t03_pinjaman_list->ListOptions->Render("body", "right", $t03_pinjaman_list->RowCnt);
 ?>
 	</tr>
-<?php if ($t03_pinjaman->RowType == EW_ROWTYPE_ADD || $t03_pinjaman->RowType == EW_ROWTYPE_EDIT) { ?>
-<script type="text/javascript">
-ft03_pinjamanlist.UpdateOpts(<?php echo $t03_pinjaman_list->RowIndex ?>);
-</script>
-<?php } ?>
 <?php
 	}
-	} // End delete row checking
 	if ($t03_pinjaman->CurrentAction <> "gridadd")
-		if (!$t03_pinjaman_list->Recordset->EOF) $t03_pinjaman_list->Recordset->MoveNext();
-}
-?>
-<?php
-	if ($t03_pinjaman->CurrentAction == "gridadd" || $t03_pinjaman->CurrentAction == "gridedit") {
-		$t03_pinjaman_list->RowIndex = '$rowindex$';
-		$t03_pinjaman_list->LoadRowValues();
-
-		// Set row properties
-		$t03_pinjaman->ResetAttrs();
-		$t03_pinjaman->RowAttrs = array_merge($t03_pinjaman->RowAttrs, array('data-rowindex'=>$t03_pinjaman_list->RowIndex, 'id'=>'r0_t03_pinjaman', 'data-rowtype'=>EW_ROWTYPE_ADD));
-		ew_AppendClass($t03_pinjaman->RowAttrs["class"], "ewTemplate");
-		$t03_pinjaman->RowType = EW_ROWTYPE_ADD;
-
-		// Render row
-		$t03_pinjaman_list->RenderRow();
-
-		// Render list options
-		$t03_pinjaman_list->RenderListOptions();
-		$t03_pinjaman_list->StartRowCnt = 0;
-?>
-	<tr<?php echo $t03_pinjaman->RowAttributes() ?>>
-<?php
-
-// Render list options (body, left)
-$t03_pinjaman_list->ListOptions->Render("body", "left", $t03_pinjaman_list->RowIndex);
-?>
-	<?php if ($t03_pinjaman->NoKontrak->Visible) { // NoKontrak ?>
-		<td data-name="NoKontrak">
-<span id="el$rowindex$_t03_pinjaman_NoKontrak" class="form-group t03_pinjaman_NoKontrak">
-<input type="text" data-table="t03_pinjaman" data-field="x_NoKontrak" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrak->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->NoKontrak->EditValue ?>"<?php echo $t03_pinjaman->NoKontrak->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_NoKontrak" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrak" value="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrak->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->TglKontrak->Visible) { // TglKontrak ?>
-		<td data-name="TglKontrak">
-<span id="el$rowindex$_t03_pinjaman_TglKontrak" class="form-group t03_pinjaman_TglKontrak">
-<input type="text" data-table="t03_pinjaman" data-field="x_TglKontrak" data-format="7" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->TglKontrak->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->TglKontrak->EditValue ?>"<?php echo $t03_pinjaman->TglKontrak->EditAttributes() ?>>
-<?php if (!$t03_pinjaman->TglKontrak->ReadOnly && !$t03_pinjaman->TglKontrak->Disabled && !isset($t03_pinjaman->TglKontrak->EditAttrs["readonly"]) && !isset($t03_pinjaman->TglKontrak->EditAttrs["disabled"])) { ?>
-<script type="text/javascript">
-ew_CreateDateTimePicker("ft03_pinjamanlist", "x<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak", {"ignoreReadonly":true,"useCurrent":false,"format":7});
-</script>
-<?php } ?>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_TglKontrak" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_TglKontrak" value="<?php echo ew_HtmlEncode($t03_pinjaman->TglKontrak->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->nasabah_id->Visible) { // nasabah_id ?>
-		<td data-name="nasabah_id">
-<span id="el$rowindex$_t03_pinjaman_nasabah_id" class="form-group t03_pinjaman_nasabah_id">
-<?php $t03_pinjaman->nasabah_id->EditAttrs["onchange"] = "ew_UpdateOpt.call(this); " . @$t03_pinjaman->nasabah_id->EditAttrs["onchange"]; ?>
-<span class="ewLookupList">
-	<span onclick="jQuery(this).parent().next(":not([disabled])").click();" tabindex="-1" class="form-control ewLookupText" id="lu_x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id"><?php echo (strval($t03_pinjaman->nasabah_id->ViewValue) == "" ? $Language->Phrase("PleaseSelect") : $t03_pinjaman->nasabah_id->ViewValue); ?></span>
-</span>
-<button type="button" title="<?php echo ew_HtmlEncode(str_replace("%s", ew_RemoveHtml($t03_pinjaman->nasabah_id->FldCaption()), $Language->Phrase("LookupLink", TRUE))) ?>" onclick="ew_ModalLookupShow({lnk:this,el:'x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id',m:0,n:10});" class="ewLookupBtn btn btn-default btn-sm"<?php echo (($t03_pinjaman->nasabah_id->ReadOnly || $t03_pinjaman->nasabah_id->Disabled) ? " disabled" : "")?>><span class="glyphicon glyphicon-search ewIcon"></span></button>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_nasabah_id" data-multiple="0" data-lookup="1" data-value-separator="<?php echo $t03_pinjaman->nasabah_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" value="<?php echo $t03_pinjaman->nasabah_id->CurrentValue ?>"<?php echo $t03_pinjaman->nasabah_id->EditAttributes() ?>>
-<?php if (AllowAdd(CurrentProjectID() . "t01_nasabah") && !$t03_pinjaman->nasabah_id->ReadOnly) { ?>
-<button type="button" title="<?php echo ew_HtmlTitle($Language->Phrase("AddLink")) . "&nbsp;" . $t03_pinjaman->nasabah_id->FldCaption() ?>" onclick="ew_AddOptDialogShow({lnk:this,el:'x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id',url:'t01_nasabahaddopt.php'});" class="ewAddOptBtn btn btn-default btn-sm" id="aol_x<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id"><span class="glyphicon glyphicon-plus ewIcon"></span><span class="hide"><?php echo $Language->Phrase("AddLink") ?>&nbsp;<?php echo $t03_pinjaman->nasabah_id->FldCaption() ?></span></button>
-<?php } ?>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_nasabah_id" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_nasabah_id" value="<?php echo ew_HtmlEncode($t03_pinjaman->nasabah_id->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->Pinjaman->Visible) { // Pinjaman ?>
-		<td data-name="Pinjaman">
-<span id="el$rowindex$_t03_pinjaman_Pinjaman" class="form-group t03_pinjaman_Pinjaman">
-<input type="text" data-table="t03_pinjaman" data-field="x_Pinjaman" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Pinjaman->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Pinjaman->EditValue ?>"<?php echo $t03_pinjaman->Pinjaman->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_Pinjaman" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_Pinjaman" value="<?php echo ew_HtmlEncode($t03_pinjaman->Pinjaman->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->Denda->Visible) { // Denda ?>
-		<td data-name="Denda">
-<span id="el$rowindex$_t03_pinjaman_Denda" class="form-group t03_pinjaman_Denda">
-<input type="text" data-table="t03_pinjaman" data-field="x_Denda" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Denda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Denda->EditValue ?>"<?php echo $t03_pinjaman->Denda->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_Denda" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_Denda" value="<?php echo ew_HtmlEncode($t03_pinjaman->Denda->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->DispensasiDenda->Visible) { // DispensasiDenda ?>
-		<td data-name="DispensasiDenda">
-<span id="el$rowindex$_t03_pinjaman_DispensasiDenda" class="form-group t03_pinjaman_DispensasiDenda">
-<input type="text" data-table="t03_pinjaman" data-field="x_DispensasiDenda" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->DispensasiDenda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->DispensasiDenda->EditValue ?>"<?php echo $t03_pinjaman->DispensasiDenda->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_DispensasiDenda" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_DispensasiDenda" value="<?php echo ew_HtmlEncode($t03_pinjaman->DispensasiDenda->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->LamaAngsuran->Visible) { // LamaAngsuran ?>
-		<td data-name="LamaAngsuran">
-<span id="el$rowindex$_t03_pinjaman_LamaAngsuran" class="form-group t03_pinjaman_LamaAngsuran">
-<input type="text" data-table="t03_pinjaman" data-field="x_LamaAngsuran" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->LamaAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->LamaAngsuran->EditValue ?>"<?php echo $t03_pinjaman->LamaAngsuran->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_LamaAngsuran" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_LamaAngsuran" value="<?php echo ew_HtmlEncode($t03_pinjaman->LamaAngsuran->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->JumlahAngsuran->Visible) { // JumlahAngsuran ?>
-		<td data-name="JumlahAngsuran">
-<span id="el$rowindex$_t03_pinjaman_JumlahAngsuran" class="form-group t03_pinjaman_JumlahAngsuran">
-<input type="text" data-table="t03_pinjaman" data-field="x_JumlahAngsuran" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->JumlahAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->JumlahAngsuran->EditValue ?>"<?php echo $t03_pinjaman->JumlahAngsuran->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_JumlahAngsuran" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_JumlahAngsuran" value="<?php echo ew_HtmlEncode($t03_pinjaman->JumlahAngsuran->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->NoKontrakRefTo->Visible) { // NoKontrakRefTo ?>
-		<td data-name="NoKontrakRefTo">
-<span id="el$rowindex$_t03_pinjaman_NoKontrakRefTo" class="form-group t03_pinjaman_NoKontrakRefTo">
-<input type="text" data-table="t03_pinjaman" data-field="x_NoKontrakRefTo" name="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" id="x<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrakRefTo->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->NoKontrakRefTo->EditValue ?>"<?php echo $t03_pinjaman->NoKontrakRefTo->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t03_pinjaman" data-field="x_NoKontrakRefTo" name="o<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" id="o<?php echo $t03_pinjaman_list->RowIndex ?>_NoKontrakRefTo" value="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrakRefTo->OldValue) ?>">
-</td>
-	<?php } ?>
-<?php
-
-// Render list options (body, right)
-$t03_pinjaman_list->ListOptions->Render("body", "right", $t03_pinjaman_list->RowIndex);
-?>
-<script type="text/javascript">
-ft03_pinjamanlist.UpdateOpts(<?php echo $t03_pinjaman_list->RowIndex ?>);
-</script>
-	</tr>
-<?php
+		$t03_pinjaman_list->Recordset->MoveNext();
 }
 ?>
 </tbody>
 </table>
-<?php } ?>
-<?php if ($t03_pinjaman->CurrentAction == "add" || $t03_pinjaman->CurrentAction == "copy") { ?>
-<input type="hidden" name="<?php echo $t03_pinjaman_list->FormKeyCountName ?>" id="<?php echo $t03_pinjaman_list->FormKeyCountName ?>" value="<?php echo $t03_pinjaman_list->KeyCount ?>">
-<?php } ?>
-<?php if ($t03_pinjaman->CurrentAction == "gridadd") { ?>
-<input type="hidden" name="a_list" id="a_list" value="gridinsert">
-<input type="hidden" name="<?php echo $t03_pinjaman_list->FormKeyCountName ?>" id="<?php echo $t03_pinjaman_list->FormKeyCountName ?>" value="<?php echo $t03_pinjaman_list->KeyCount ?>">
-<?php echo $t03_pinjaman_list->MultiSelectKey ?>
-<?php } ?>
-<?php if ($t03_pinjaman->CurrentAction == "edit") { ?>
-<input type="hidden" name="<?php echo $t03_pinjaman_list->FormKeyCountName ?>" id="<?php echo $t03_pinjaman_list->FormKeyCountName ?>" value="<?php echo $t03_pinjaman_list->KeyCount ?>">
-<?php } ?>
-<?php if ($t03_pinjaman->CurrentAction == "gridedit") { ?>
-<input type="hidden" name="a_list" id="a_list" value="gridupdate">
-<input type="hidden" name="<?php echo $t03_pinjaman_list->FormKeyCountName ?>" id="<?php echo $t03_pinjaman_list->FormKeyCountName ?>" value="<?php echo $t03_pinjaman_list->KeyCount ?>">
-<?php echo $t03_pinjaman_list->MultiSelectKey ?>
 <?php } ?>
 <?php if ($t03_pinjaman->CurrentAction == "") { ?>
 <input type="hidden" name="a_list" id="a_list" value="">

@@ -1359,10 +1359,10 @@ class ct03_pinjaman extends cTable {
 		// Enter your code here
 		// To cancel, set return value to FALSE
 
-		$q = "select count(id) from t02_angsuran where nasabah_id = ".$rsold->fields["id"]."";
-		$t02_reccount = ew_ExecuteScalar($q);
-		if ($t02_reccount > 0) {
-			$this->setFailureMessage("Data Rincian Angsuran sudah terbentuk, Data Lama Angsuran tidak bisa diubah !");
+		$q = "select count(id) from t04_angsuran where nasabah_id = ".$rsold->fields["id"]."";
+		$t04_reccount = ew_ExecuteScalar($q);
+		if ($t04_reccount > 0) {
+			$this->setFailureMessage("Data Rincian Angsuran sudah terbentuk, tidak bisa diubah !");
 			return FALSE;
 		}
 		return TRUE;

@@ -834,12 +834,6 @@ class ct04_angsuran_list extends ct04_angsuran {
 		$item->Visible = $Security->CanView();
 		$item->OnLeft = TRUE;
 
-		// "edit"
-		$item = &$this->ListOptions->Add("edit");
-		$item->CssClass = "text-nowrap";
-		$item->Visible = $Security->CanEdit();
-		$item->OnLeft = TRUE;
-
 		// List actions
 		$item = &$this->ListOptions->Add("listactions");
 		$item->CssClass = "text-nowrap";
@@ -898,15 +892,6 @@ class ct04_angsuran_list extends ct04_angsuran {
 		$viewcaption = ew_HtmlTitle($Language->Phrase("ViewLink"));
 		if ($Security->CanView()) {
 			$oListOpt->Body = "<a class=\"ewRowLink ewView\" title=\"" . $viewcaption . "\" data-caption=\"" . $viewcaption . "\" href=\"" . ew_HtmlEncode($this->ViewUrl) . "\">" . $Language->Phrase("ViewLink") . "</a>";
-		} else {
-			$oListOpt->Body = "";
-		}
-
-		// "edit"
-		$oListOpt = &$this->ListOptions->Items["edit"];
-		$editcaption = ew_HtmlTitle($Language->Phrase("EditLink"));
-		if ($Security->CanEdit()) {
-			$oListOpt->Body = "<a class=\"ewRowLink ewEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("EditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("EditLink")) . "\" href=\"" . ew_HtmlEncode($this->EditUrl) . "\">" . $Language->Phrase("EditLink") . "</a>";
 		} else {
 			$oListOpt->Body = "";
 		}
@@ -1600,11 +1585,6 @@ class ct04_angsuran_list extends ct04_angsuran {
 	function Page_Render() {
 
 		//echo "Page Render";
-		$this->OtherOptions["addedit"]->UseDropDownButton = FALSE; // jangan gunakan style DropDownButton
-		$my_options = &$this->OtherOptions; // pastikan menggunakan area OtherOptions
-		$my_option = $my_options["addedit"]; // dekat tombol addedit
-		$my_item = &$my_option->Add("mynewbutton"); // tambahkan tombol baru
-		$my_item->Body = "<a class=\"ewAddEdit ewAdd\" title=\"Your Title\" data-caption=\"Your Caption\" href=\"yourpage.php\">My New Button @ angsuranlist</a>"; // definisikan link, style, dan caption tombol
 	}
 
 	// Page Data Rendering event

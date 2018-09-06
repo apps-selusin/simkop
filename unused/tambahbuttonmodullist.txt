@@ -1,0 +1,5 @@
+	$this->OtherOptions["addedit"]->UseDropDownButton = FALSE; // jangan gunakan style DropDownButton
+	$my_options = &$this->OtherOptions; // pastikan menggunakan area OtherOptions
+	$my_option = $my_options["addedit"]; // dekat tombol addedit
+	$my_item = &$my_option->Add("mynewbutton"); // tambahkan tombol baru
+	$my_item->Body = "<a class=\"ewAddEdit ewAdd\" title=\"Your Title\" data-caption=\"Your Caption\" href=\"yourpage.php\">My New Button @ list</a>"; // definisikan link, style, dan caption tombol

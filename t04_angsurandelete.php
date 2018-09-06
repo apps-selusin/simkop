@@ -66,6 +66,12 @@ class ct04_angsuran_delete extends ct04_angsuran {
 		if ($this->UseTokenInUrl) $PageUrl .= "t=" . $this->TableVar . "&"; // Add page token
 		return $PageUrl;
 	}
+	var $AuditTrailOnAdd = TRUE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -324,10 +330,6 @@ class ct04_angsuran_delete extends ct04_angsuran {
 		// 
 
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
-		$this->pinjaman_id->SetVisibility();
 		$this->AngsuranKe->SetVisibility();
 		$this->AngsuranTanggal->SetVisibility();
 		$this->AngsuranPokok->SetVisibility();
@@ -678,16 +680,6 @@ class ct04_angsuran_delete extends ct04_angsuran {
 		$this->Keterangan->ViewValue = $this->Keterangan->CurrentValue;
 		$this->Keterangan->ViewCustomAttributes = "";
 
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-			$this->pinjaman_id->TooltipValue = "";
-
 			// AngsuranKe
 			$this->AngsuranKe->LinkCustomAttributes = "";
 			$this->AngsuranKe->HrefValue = "";
@@ -768,6 +760,7 @@ class ct04_angsuran_delete extends ct04_angsuran {
 		}
 		$rows = ($rs) ? $rs->GetRows() : array();
 		$conn->BeginTrans();
+		if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteBegin")); // Batch delete begin
 
 		// Clone old rows
 		$rsold = $rows;
@@ -811,8 +804,10 @@ class ct04_angsuran_delete extends ct04_angsuran {
 		}
 		if ($DeleteRows) {
 			$conn->CommitTrans(); // Commit the changes
+			if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteSuccess")); // Batch delete success
 		} else {
 			$conn->RollbackTrans(); // Rollback changes
+			if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteRollback")); // Batch delete rollback
 		}
 
 		// Call Row Deleted event
@@ -1036,12 +1031,6 @@ $t04_angsuran_delete->ShowMessage();
 <table class="table ewTable">
 	<thead>
 	<tr class="ewTableHeader">
-<?php if ($t04_angsuran->id->Visible) { // id ?>
-		<th class="<?php echo $t04_angsuran->id->HeaderCellClass() ?>"><span id="elh_t04_angsuran_id" class="t04_angsuran_id"><?php echo $t04_angsuran->id->FldCaption() ?></span></th>
-<?php } ?>
-<?php if ($t04_angsuran->pinjaman_id->Visible) { // pinjaman_id ?>
-		<th class="<?php echo $t04_angsuran->pinjaman_id->HeaderCellClass() ?>"><span id="elh_t04_angsuran_pinjaman_id" class="t04_angsuran_pinjaman_id"><?php echo $t04_angsuran->pinjaman_id->FldCaption() ?></span></th>
-<?php } ?>
 <?php if ($t04_angsuran->AngsuranKe->Visible) { // AngsuranKe ?>
 		<th class="<?php echo $t04_angsuran->AngsuranKe->HeaderCellClass() ?>"><span id="elh_t04_angsuran_AngsuranKe" class="t04_angsuran_AngsuranKe"><?php echo $t04_angsuran->AngsuranKe->FldCaption() ?></span></th>
 <?php } ?>
@@ -1093,22 +1082,6 @@ while (!$t04_angsuran_delete->Recordset->EOF) {
 	$t04_angsuran_delete->RenderRow();
 ?>
 	<tr<?php echo $t04_angsuran->RowAttributes() ?>>
-<?php if ($t04_angsuran->id->Visible) { // id ?>
-		<td<?php echo $t04_angsuran->id->CellAttributes() ?>>
-<span id="el<?php echo $t04_angsuran_delete->RowCnt ?>_t04_angsuran_id" class="t04_angsuran_id">
-<span<?php echo $t04_angsuran->id->ViewAttributes() ?>>
-<?php echo $t04_angsuran->id->ListViewValue() ?></span>
-</span>
-</td>
-<?php } ?>
-<?php if ($t04_angsuran->pinjaman_id->Visible) { // pinjaman_id ?>
-		<td<?php echo $t04_angsuran->pinjaman_id->CellAttributes() ?>>
-<span id="el<?php echo $t04_angsuran_delete->RowCnt ?>_t04_angsuran_pinjaman_id" class="t04_angsuran_pinjaman_id">
-<span<?php echo $t04_angsuran->pinjaman_id->ViewAttributes() ?>>
-<?php echo $t04_angsuran->pinjaman_id->ListViewValue() ?></span>
-</span>
-</td>
-<?php } ?>
 <?php if ($t04_angsuran->AngsuranKe->Visible) { // AngsuranKe ?>
 		<td<?php echo $t04_angsuran->AngsuranKe->CellAttributes() ?>>
 <span id="el<?php echo $t04_angsuran_delete->RowCnt ?>_t04_angsuran_AngsuranKe" class="t04_angsuran_AngsuranKe">

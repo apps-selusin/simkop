@@ -1469,16 +1469,6 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 		// Example:
 		//$footer = "your footer";
 
-		$footer = "
-		<button class='btn ewButton' name='myFirstBtn' id='myFirstBtn' type='submit'>
-		My First Button @ edit
-		</button>&nbsp;
-		<button class='btn ewButton' name='mySecondBtn' id='mySecondtBtn' type='submit'>
-		My Second Button @ edit
-		</button>&nbsp;
-		<button class='btn ewButton' name='myThirdBtn' id='myThirdBtn' type='submit'>
-		My Third Button @ edit
-		</button>";
 	}
 
 	// Form Custom Validate event
