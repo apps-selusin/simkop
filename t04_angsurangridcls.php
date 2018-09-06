@@ -1025,12 +1025,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		$item->OnLeft = TRUE;
 		$item->Visible = FALSE;
 
-		// "view"
-		$item = &$this->ListOptions->Add("view");
-		$item->CssClass = "text-nowrap";
-		$item->Visible = $Security->CanView();
-		$item->OnLeft = TRUE;
-
 		// "sequence"
 		$item = &$this->ListOptions->Add("sequence");
 		$item->CssClass = "text-nowrap";
@@ -1096,15 +1090,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		$oListOpt = &$this->ListOptions->Items["sequence"];
 		$oListOpt->Body = ew_FormatSeqNo($this->RecCnt);
 		if ($this->CurrentMode == "view") { // View mode
-
-		// "view"
-		$oListOpt = &$this->ListOptions->Items["view"];
-		$viewcaption = ew_HtmlTitle($Language->Phrase("ViewLink"));
-		if ($Security->CanView()) {
-			$oListOpt->Body = "<a class=\"ewRowLink ewView\" title=\"" . $viewcaption . "\" data-caption=\"" . $viewcaption . "\" href=\"" . ew_HtmlEncode($this->ViewUrl) . "\">" . $Language->Phrase("ViewLink") . "</a>";
-		} else {
-			$oListOpt->Body = "";
-		}
 		} // End View mode
 		if ($this->CurrentMode == "edit" && is_numeric($this->RowIndex)) {
 			$this->MultiSelectKey .= "<input type=\"hidden\" name=\"" . $KeyName . "\" id=\"" . $KeyName . "\" value=\"" . $this->id->CurrentValue . "\">";
@@ -1897,6 +1882,9 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		if (!ew_CheckNumber($this->SisaHutang->FormValue)) {
 			ew_AddMessage($gsFormError, $this->SisaHutang->FldErrMsg());
 		}
+		if (!$this->TanggalBayar->FldIsDetailKey && !is_null($this->TanggalBayar->FormValue) && $this->TanggalBayar->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->TanggalBayar->FldCaption(), $this->TanggalBayar->ReqErrMsg));
+		}
 		if (!ew_CheckEuroDate($this->TanggalBayar->FormValue)) {
 			ew_AddMessage($gsFormError, $this->TanggalBayar->FldErrMsg());
 		}
@@ -2040,7 +2028,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->SisaHutang->SetDbValueDef($rsnew, $this->SisaHutang->CurrentValue, 0, $this->SisaHutang->ReadOnly);
 
 			// TanggalBayar
-			$this->TanggalBayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TanggalBayar->CurrentValue, 7), NULL, $this->TanggalBayar->ReadOnly);
+			$this->TanggalBayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TanggalBayar->CurrentValue, 7), ew_CurrentDate(), $this->TanggalBayar->ReadOnly);
 
 			// TotalDenda
 			$this->TotalDenda->SetDbValueDef($rsnew, $this->TotalDenda->CurrentValue, NULL, $this->TotalDenda->ReadOnly);
@@ -2118,7 +2106,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		$this->SisaHutang->SetDbValueDef($rsnew, $this->SisaHutang->CurrentValue, 0, FALSE);
 
 		// TanggalBayar
-		$this->TanggalBayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TanggalBayar->CurrentValue, 7), NULL, FALSE);
+		$this->TanggalBayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TanggalBayar->CurrentValue, 7), ew_CurrentDate(), FALSE);
 
 		// TotalDenda
 		$this->TotalDenda->SetDbValueDef($rsnew, $this->TotalDenda->CurrentValue, NULL, FALSE);
