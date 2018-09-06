@@ -547,7 +547,7 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 				if ($this->AddRow($this->OldRecordset)) { // Add successful
 					if ($this->getSuccessMessage() == "")
 						$this->setSuccessMessage($Language->Phrase("AddSuccess")); // Set up success message
-					$sReturnUrl = $this->GetEditUrl();
+					$sReturnUrl = "t03_pinjamanedit.php?showdetail=t04_angsuran,t05_pinjamanjaminan&id=".urlencode($this->id->CurrentValue);
 					if (ew_GetPageName($sReturnUrl) == "t03_pinjamanlist.php")
 						$sReturnUrl = $this->AddMasterUrl($sReturnUrl); // List page, return to List page with correct master key if necessary
 					elseif (ew_GetPageName($sReturnUrl) == "t03_pinjamanview.php")
