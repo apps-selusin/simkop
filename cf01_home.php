@@ -344,7 +344,39 @@ $cf01_home_php->Page_Main();
 Page_Rendering();
 ?>
 <?php include_once "header.php" ?>
-<!-- %%Custom page content begin%% --><!-- %%Custom page content end%% --><?php if (EW_DEBUG_ENABLED) echo ew_DebugMsg(); ?>
+<style>
+.panel-heading a{
+  display:block;
+}
+
+.panel-heading a.collapsed {
+  background: url(http://upload.wikimedia.org/wikipedia/commons/3/36/Vector_skin_right_arrow.png) center right no-repeat;
+}
+
+.panel-heading a {
+  background: url(http://www.useragentman.com/blog/wp-content/themes/useragentman/images/widgets/downArrow.png) center right no-repeat;
+}
+</style>
+
+<?php
+	$db =& DbHelper(); // Create instance of the database helper class by DbHelper() (for main database) or DbHelper("<dbname>") (for linked databases) where <dbname> is database variable name
+?>
+
+<!-- log -->
+<div class="panel panel-default">
+	<div class="panel-heading"><strong><a class='collapsed' data-toggle="collapse" href="#log">Log</a></strong></div>
+	<div id="log" class="panel-collapse collapse out">
+		<div class="panel-body">
+			<div>
+<p>to do:<br/>
+1. log at home;<br/>
+2. rumus [jumlah angsuran];<br/>
+3. button refresh detail angsuran;<br/>
+			</div>
+		</div>
+	</div>
+</div>
+<?php if (EW_DEBUG_ENABLED) echo ew_DebugMsg(); ?>
 <?php include_once "footer.php" ?>
 <?php
 $cf01_home_php->Page_Terminate();
