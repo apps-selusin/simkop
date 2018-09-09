@@ -365,7 +365,7 @@ Page_Rendering();
 <!-- log -->
 <div class="panel panel-default">
 	<div class="panel-heading"><strong><a class='collapsed' data-toggle="collapse" href="#log">Log</a></strong></div>
-	<div id="log" class="panel-collapse collapse out">
+	<div id="log" class="panel-collapse collapse in">
 		<div class="panel-body">
 			<div>
 <p>to do:<br/>
