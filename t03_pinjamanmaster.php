@@ -4,12 +4,12 @@
 // TglKontrak
 // nasabah_id
 // Pinjaman
+// Bunga
 // Denda
 // DispensasiDenda
 // LamaAngsuran
 // JumlahAngsuran
 // NoKontrakRefTo
-// Bunga
 
 ?>
 <?php if ($t03_pinjaman->Visible) { ?>
@@ -56,6 +56,17 @@
 <span id="el_t03_pinjaman_Pinjaman">
 <span<?php echo $t03_pinjaman->Pinjaman->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->Pinjaman->ListViewValue() ?></span>
+</span>
+</td>
+		</tr>
+<?php } ?>
+<?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
+		<tr id="r_Bunga">
+			<td class="col-sm-2"><?php echo $t03_pinjaman->Bunga->FldCaption() ?></td>
+			<td<?php echo $t03_pinjaman->Bunga->CellAttributes() ?>>
+<span id="el_t03_pinjaman_Bunga">
+<span<?php echo $t03_pinjaman->Bunga->ViewAttributes() ?>>
+<?php echo $t03_pinjaman->Bunga->ListViewValue() ?></span>
 </span>
 </td>
 		</tr>
@@ -111,17 +122,6 @@
 <span id="el_t03_pinjaman_NoKontrakRefTo">
 <span<?php echo $t03_pinjaman->NoKontrakRefTo->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->NoKontrakRefTo->ListViewValue() ?></span>
-</span>
-</td>
-		</tr>
-<?php } ?>
-<?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
-		<tr id="r_Bunga">
-			<td class="col-sm-2"><?php echo $t03_pinjaman->Bunga->FldCaption() ?></td>
-			<td<?php echo $t03_pinjaman->Bunga->CellAttributes() ?>>
-<span id="el_t03_pinjaman_Bunga">
-<span<?php echo $t03_pinjaman->Bunga->ViewAttributes() ?>>
-<?php echo $t03_pinjaman->Bunga->ListViewValue() ?></span>
 </span>
 </td>
 		</tr>

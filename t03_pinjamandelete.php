@@ -330,12 +330,12 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$this->TglKontrak->SetVisibility();
 		$this->nasabah_id->SetVisibility();
 		$this->Pinjaman->SetVisibility();
+		$this->Bunga->SetVisibility();
 		$this->Denda->SetVisibility();
 		$this->DispensasiDenda->SetVisibility();
 		$this->LamaAngsuran->SetVisibility();
 		$this->JumlahAngsuran->SetVisibility();
 		$this->NoKontrakRefTo->SetVisibility();
-		$this->Bunga->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -525,12 +525,12 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 			$this->nasabah_id->VirtualValue = ""; // Clear value
 		}
 		$this->Pinjaman->setDbValue($row['Pinjaman']);
+		$this->Bunga->setDbValue($row['Bunga']);
 		$this->Denda->setDbValue($row['Denda']);
 		$this->DispensasiDenda->setDbValue($row['DispensasiDenda']);
 		$this->LamaAngsuran->setDbValue($row['LamaAngsuran']);
 		$this->JumlahAngsuran->setDbValue($row['JumlahAngsuran']);
 		$this->NoKontrakRefTo->setDbValue($row['NoKontrakRefTo']);
-		$this->Bunga->setDbValue($row['Bunga']);
 	}
 
 	// Return a row with default values
@@ -541,12 +541,12 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$row['TglKontrak'] = NULL;
 		$row['nasabah_id'] = NULL;
 		$row['Pinjaman'] = NULL;
+		$row['Bunga'] = NULL;
 		$row['Denda'] = NULL;
 		$row['DispensasiDenda'] = NULL;
 		$row['LamaAngsuran'] = NULL;
 		$row['JumlahAngsuran'] = NULL;
 		$row['NoKontrakRefTo'] = NULL;
-		$row['Bunga'] = NULL;
 		return $row;
 	}
 
@@ -560,12 +560,12 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$this->TglKontrak->DbValue = $row['TglKontrak'];
 		$this->nasabah_id->DbValue = $row['nasabah_id'];
 		$this->Pinjaman->DbValue = $row['Pinjaman'];
+		$this->Bunga->DbValue = $row['Bunga'];
 		$this->Denda->DbValue = $row['Denda'];
 		$this->DispensasiDenda->DbValue = $row['DispensasiDenda'];
 		$this->LamaAngsuran->DbValue = $row['LamaAngsuran'];
 		$this->JumlahAngsuran->DbValue = $row['JumlahAngsuran'];
 		$this->NoKontrakRefTo->DbValue = $row['NoKontrakRefTo'];
-		$this->Bunga->DbValue = $row['Bunga'];
 	}
 
 	// Render row values based on field settings
@@ -579,16 +579,16 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 			$this->Pinjaman->CurrentValue = ew_StrToFloat($this->Pinjaman->CurrentValue);
 
 		// Convert decimal values if posted back
+		if ($this->Bunga->FormValue == $this->Bunga->CurrentValue && is_numeric(ew_StrToFloat($this->Bunga->CurrentValue)))
+			$this->Bunga->CurrentValue = ew_StrToFloat($this->Bunga->CurrentValue);
+
+		// Convert decimal values if posted back
 		if ($this->Denda->FormValue == $this->Denda->CurrentValue && is_numeric(ew_StrToFloat($this->Denda->CurrentValue)))
 			$this->Denda->CurrentValue = ew_StrToFloat($this->Denda->CurrentValue);
 
 		// Convert decimal values if posted back
 		if ($this->JumlahAngsuran->FormValue == $this->JumlahAngsuran->CurrentValue && is_numeric(ew_StrToFloat($this->JumlahAngsuran->CurrentValue)))
 			$this->JumlahAngsuran->CurrentValue = ew_StrToFloat($this->JumlahAngsuran->CurrentValue);
-
-		// Convert decimal values if posted back
-		if ($this->Bunga->FormValue == $this->Bunga->CurrentValue && is_numeric(ew_StrToFloat($this->Bunga->CurrentValue)))
-			$this->Bunga->CurrentValue = ew_StrToFloat($this->Bunga->CurrentValue);
 
 		// Call Row_Rendering event
 		$this->Row_Rendering();
@@ -599,12 +599,12 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		// TglKontrak
 		// nasabah_id
 		// Pinjaman
+		// Bunga
 		// Denda
 		// DispensasiDenda
 		// LamaAngsuran
 		// JumlahAngsuran
 		// NoKontrakRefTo
-		// Bunga
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -655,6 +655,12 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$this->Pinjaman->CellCssStyle .= "text-align: right;";
 		$this->Pinjaman->ViewCustomAttributes = "";
 
+		// Bunga
+		$this->Bunga->ViewValue = $this->Bunga->CurrentValue;
+		$this->Bunga->ViewValue = ew_FormatNumber($this->Bunga->ViewValue, 3, -2, -2, -2);
+		$this->Bunga->CellCssStyle .= "text-align: right;";
+		$this->Bunga->ViewCustomAttributes = "";
+
 		// Denda
 		$this->Denda->ViewValue = $this->Denda->CurrentValue;
 		$this->Denda->ViewValue = ew_FormatNumber($this->Denda->ViewValue, 2, -2, -2, -2);
@@ -683,10 +689,6 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$this->NoKontrakRefTo->ViewValue = $this->NoKontrakRefTo->CurrentValue;
 		$this->NoKontrakRefTo->ViewCustomAttributes = "";
 
-		// Bunga
-		$this->Bunga->ViewValue = $this->Bunga->CurrentValue;
-		$this->Bunga->ViewCustomAttributes = "";
-
 			// NoKontrak
 			$this->NoKontrak->LinkCustomAttributes = "";
 			$this->NoKontrak->HrefValue = "";
@@ -706,6 +708,11 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 			$this->Pinjaman->LinkCustomAttributes = "";
 			$this->Pinjaman->HrefValue = "";
 			$this->Pinjaman->TooltipValue = "";
+
+			// Bunga
+			$this->Bunga->LinkCustomAttributes = "";
+			$this->Bunga->HrefValue = "";
+			$this->Bunga->TooltipValue = "";
 
 			// Denda
 			$this->Denda->LinkCustomAttributes = "";
@@ -731,11 +738,6 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 			$this->NoKontrakRefTo->LinkCustomAttributes = "";
 			$this->NoKontrakRefTo->HrefValue = "";
 			$this->NoKontrakRefTo->TooltipValue = "";
-
-			// Bunga
-			$this->Bunga->LinkCustomAttributes = "";
-			$this->Bunga->HrefValue = "";
-			$this->Bunga->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -990,6 +992,9 @@ $t03_pinjaman_delete->ShowMessage();
 <?php if ($t03_pinjaman->Pinjaman->Visible) { // Pinjaman ?>
 		<th class="<?php echo $t03_pinjaman->Pinjaman->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_Pinjaman" class="t03_pinjaman_Pinjaman"><?php echo $t03_pinjaman->Pinjaman->FldCaption() ?></span></th>
 <?php } ?>
+<?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
+		<th class="<?php echo $t03_pinjaman->Bunga->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_Bunga" class="t03_pinjaman_Bunga"><?php echo $t03_pinjaman->Bunga->FldCaption() ?></span></th>
+<?php } ?>
 <?php if ($t03_pinjaman->Denda->Visible) { // Denda ?>
 		<th class="<?php echo $t03_pinjaman->Denda->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_Denda" class="t03_pinjaman_Denda"><?php echo $t03_pinjaman->Denda->FldCaption() ?></span></th>
 <?php } ?>
@@ -1004,9 +1009,6 @@ $t03_pinjaman_delete->ShowMessage();
 <?php } ?>
 <?php if ($t03_pinjaman->NoKontrakRefTo->Visible) { // NoKontrakRefTo ?>
 		<th class="<?php echo $t03_pinjaman->NoKontrakRefTo->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_NoKontrakRefTo" class="t03_pinjaman_NoKontrakRefTo"><?php echo $t03_pinjaman->NoKontrakRefTo->FldCaption() ?></span></th>
-<?php } ?>
-<?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
-		<th class="<?php echo $t03_pinjaman->Bunga->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_Bunga" class="t03_pinjaman_Bunga"><?php echo $t03_pinjaman->Bunga->FldCaption() ?></span></th>
 <?php } ?>
 	</tr>
 	</thead>
@@ -1061,6 +1063,14 @@ while (!$t03_pinjaman_delete->Recordset->EOF) {
 </span>
 </td>
 <?php } ?>
+<?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
+		<td<?php echo $t03_pinjaman->Bunga->CellAttributes() ?>>
+<span id="el<?php echo $t03_pinjaman_delete->RowCnt ?>_t03_pinjaman_Bunga" class="t03_pinjaman_Bunga">
+<span<?php echo $t03_pinjaman->Bunga->ViewAttributes() ?>>
+<?php echo $t03_pinjaman->Bunga->ListViewValue() ?></span>
+</span>
+</td>
+<?php } ?>
 <?php if ($t03_pinjaman->Denda->Visible) { // Denda ?>
 		<td<?php echo $t03_pinjaman->Denda->CellAttributes() ?>>
 <span id="el<?php echo $t03_pinjaman_delete->RowCnt ?>_t03_pinjaman_Denda" class="t03_pinjaman_Denda">
@@ -1098,14 +1108,6 @@ while (!$t03_pinjaman_delete->Recordset->EOF) {
 <span id="el<?php echo $t03_pinjaman_delete->RowCnt ?>_t03_pinjaman_NoKontrakRefTo" class="t03_pinjaman_NoKontrakRefTo">
 <span<?php echo $t03_pinjaman->NoKontrakRefTo->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->NoKontrakRefTo->ListViewValue() ?></span>
-</span>
-</td>
-<?php } ?>
-<?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
-		<td<?php echo $t03_pinjaman->Bunga->CellAttributes() ?>>
-<span id="el<?php echo $t03_pinjaman_delete->RowCnt ?>_t03_pinjaman_Bunga" class="t03_pinjaman_Bunga">
-<span<?php echo $t03_pinjaman->Bunga->ViewAttributes() ?>>
-<?php echo $t03_pinjaman->Bunga->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>

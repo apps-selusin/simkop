@@ -420,12 +420,12 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$this->TglKontrak->SetVisibility();
 		$this->nasabah_id->SetVisibility();
 		$this->Pinjaman->SetVisibility();
+		$this->Bunga->SetVisibility();
 		$this->Denda->SetVisibility();
 		$this->DispensasiDenda->SetVisibility();
 		$this->LamaAngsuran->SetVisibility();
 		$this->JumlahAngsuran->SetVisibility();
 		$this->NoKontrakRefTo->SetVisibility();
-		$this->Bunga->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -802,12 +802,12 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$sFilterList = ew_Concat($sFilterList, $this->TglKontrak->AdvancedSearch->ToJson(), ","); // Field TglKontrak
 		$sFilterList = ew_Concat($sFilterList, $this->nasabah_id->AdvancedSearch->ToJson(), ","); // Field nasabah_id
 		$sFilterList = ew_Concat($sFilterList, $this->Pinjaman->AdvancedSearch->ToJson(), ","); // Field Pinjaman
+		$sFilterList = ew_Concat($sFilterList, $this->Bunga->AdvancedSearch->ToJson(), ","); // Field Bunga
 		$sFilterList = ew_Concat($sFilterList, $this->Denda->AdvancedSearch->ToJson(), ","); // Field Denda
 		$sFilterList = ew_Concat($sFilterList, $this->DispensasiDenda->AdvancedSearch->ToJson(), ","); // Field DispensasiDenda
 		$sFilterList = ew_Concat($sFilterList, $this->LamaAngsuran->AdvancedSearch->ToJson(), ","); // Field LamaAngsuran
 		$sFilterList = ew_Concat($sFilterList, $this->JumlahAngsuran->AdvancedSearch->ToJson(), ","); // Field JumlahAngsuran
 		$sFilterList = ew_Concat($sFilterList, $this->NoKontrakRefTo->AdvancedSearch->ToJson(), ","); // Field NoKontrakRefTo
-		$sFilterList = ew_Concat($sFilterList, $this->Bunga->AdvancedSearch->ToJson(), ","); // Field Bunga
 		if ($this->BasicSearch->Keyword <> "") {
 			$sWrk = "\"" . EW_TABLE_BASIC_SEARCH . "\":\"" . ew_JsEncode2($this->BasicSearch->Keyword) . "\",\"" . EW_TABLE_BASIC_SEARCH_TYPE . "\":\"" . ew_JsEncode2($this->BasicSearch->Type) . "\"";
 			$sFilterList = ew_Concat($sFilterList, $sWrk, ",");
@@ -892,6 +892,14 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$this->Pinjaman->AdvancedSearch->SearchOperator2 = @$filter["w_Pinjaman"];
 		$this->Pinjaman->AdvancedSearch->Save();
 
+		// Field Bunga
+		$this->Bunga->AdvancedSearch->SearchValue = @$filter["x_Bunga"];
+		$this->Bunga->AdvancedSearch->SearchOperator = @$filter["z_Bunga"];
+		$this->Bunga->AdvancedSearch->SearchCondition = @$filter["v_Bunga"];
+		$this->Bunga->AdvancedSearch->SearchValue2 = @$filter["y_Bunga"];
+		$this->Bunga->AdvancedSearch->SearchOperator2 = @$filter["w_Bunga"];
+		$this->Bunga->AdvancedSearch->Save();
+
 		// Field Denda
 		$this->Denda->AdvancedSearch->SearchValue = @$filter["x_Denda"];
 		$this->Denda->AdvancedSearch->SearchOperator = @$filter["z_Denda"];
@@ -931,14 +939,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$this->NoKontrakRefTo->AdvancedSearch->SearchValue2 = @$filter["y_NoKontrakRefTo"];
 		$this->NoKontrakRefTo->AdvancedSearch->SearchOperator2 = @$filter["w_NoKontrakRefTo"];
 		$this->NoKontrakRefTo->AdvancedSearch->Save();
-
-		// Field Bunga
-		$this->Bunga->AdvancedSearch->SearchValue = @$filter["x_Bunga"];
-		$this->Bunga->AdvancedSearch->SearchOperator = @$filter["z_Bunga"];
-		$this->Bunga->AdvancedSearch->SearchCondition = @$filter["v_Bunga"];
-		$this->Bunga->AdvancedSearch->SearchValue2 = @$filter["y_Bunga"];
-		$this->Bunga->AdvancedSearch->SearchOperator2 = @$filter["w_Bunga"];
-		$this->Bunga->AdvancedSearch->Save();
 		$this->BasicSearch->setKeyword(@$filter[EW_TABLE_BASIC_SEARCH]);
 		$this->BasicSearch->setType(@$filter[EW_TABLE_BASIC_SEARCH_TYPE]);
 	}
@@ -1100,12 +1100,12 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 			$this->UpdateSort($this->TglKontrak, $bCtrl); // TglKontrak
 			$this->UpdateSort($this->nasabah_id, $bCtrl); // nasabah_id
 			$this->UpdateSort($this->Pinjaman, $bCtrl); // Pinjaman
+			$this->UpdateSort($this->Bunga, $bCtrl); // Bunga
 			$this->UpdateSort($this->Denda, $bCtrl); // Denda
 			$this->UpdateSort($this->DispensasiDenda, $bCtrl); // DispensasiDenda
 			$this->UpdateSort($this->LamaAngsuran, $bCtrl); // LamaAngsuran
 			$this->UpdateSort($this->JumlahAngsuran, $bCtrl); // JumlahAngsuran
 			$this->UpdateSort($this->NoKontrakRefTo, $bCtrl); // NoKontrakRefTo
-			$this->UpdateSort($this->Bunga, $bCtrl); // Bunga
 			$this->setStartRecordNumber(1); // Reset start position
 		}
 	}
@@ -1143,12 +1143,12 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 				$this->TglKontrak->setSort("");
 				$this->nasabah_id->setSort("");
 				$this->Pinjaman->setSort("");
+				$this->Bunga->setSort("");
 				$this->Denda->setSort("");
 				$this->DispensasiDenda->setSort("");
 				$this->LamaAngsuran->setSort("");
 				$this->JumlahAngsuran->setSort("");
 				$this->NoKontrakRefTo->setSort("");
-				$this->Bunga->setSort("");
 			}
 
 			// Reset start position
@@ -1762,12 +1762,12 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 			$this->nasabah_id->VirtualValue = ""; // Clear value
 		}
 		$this->Pinjaman->setDbValue($row['Pinjaman']);
+		$this->Bunga->setDbValue($row['Bunga']);
 		$this->Denda->setDbValue($row['Denda']);
 		$this->DispensasiDenda->setDbValue($row['DispensasiDenda']);
 		$this->LamaAngsuran->setDbValue($row['LamaAngsuran']);
 		$this->JumlahAngsuran->setDbValue($row['JumlahAngsuran']);
 		$this->NoKontrakRefTo->setDbValue($row['NoKontrakRefTo']);
-		$this->Bunga->setDbValue($row['Bunga']);
 	}
 
 	// Return a row with default values
@@ -1778,12 +1778,12 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$row['TglKontrak'] = NULL;
 		$row['nasabah_id'] = NULL;
 		$row['Pinjaman'] = NULL;
+		$row['Bunga'] = NULL;
 		$row['Denda'] = NULL;
 		$row['DispensasiDenda'] = NULL;
 		$row['LamaAngsuran'] = NULL;
 		$row['JumlahAngsuran'] = NULL;
 		$row['NoKontrakRefTo'] = NULL;
-		$row['Bunga'] = NULL;
 		return $row;
 	}
 
@@ -1797,12 +1797,12 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$this->TglKontrak->DbValue = $row['TglKontrak'];
 		$this->nasabah_id->DbValue = $row['nasabah_id'];
 		$this->Pinjaman->DbValue = $row['Pinjaman'];
+		$this->Bunga->DbValue = $row['Bunga'];
 		$this->Denda->DbValue = $row['Denda'];
 		$this->DispensasiDenda->DbValue = $row['DispensasiDenda'];
 		$this->LamaAngsuran->DbValue = $row['LamaAngsuran'];
 		$this->JumlahAngsuran->DbValue = $row['JumlahAngsuran'];
 		$this->NoKontrakRefTo->DbValue = $row['NoKontrakRefTo'];
-		$this->Bunga->DbValue = $row['Bunga'];
 	}
 
 	// Load old record
@@ -1844,16 +1844,16 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 			$this->Pinjaman->CurrentValue = ew_StrToFloat($this->Pinjaman->CurrentValue);
 
 		// Convert decimal values if posted back
+		if ($this->Bunga->FormValue == $this->Bunga->CurrentValue && is_numeric(ew_StrToFloat($this->Bunga->CurrentValue)))
+			$this->Bunga->CurrentValue = ew_StrToFloat($this->Bunga->CurrentValue);
+
+		// Convert decimal values if posted back
 		if ($this->Denda->FormValue == $this->Denda->CurrentValue && is_numeric(ew_StrToFloat($this->Denda->CurrentValue)))
 			$this->Denda->CurrentValue = ew_StrToFloat($this->Denda->CurrentValue);
 
 		// Convert decimal values if posted back
 		if ($this->JumlahAngsuran->FormValue == $this->JumlahAngsuran->CurrentValue && is_numeric(ew_StrToFloat($this->JumlahAngsuran->CurrentValue)))
 			$this->JumlahAngsuran->CurrentValue = ew_StrToFloat($this->JumlahAngsuran->CurrentValue);
-
-		// Convert decimal values if posted back
-		if ($this->Bunga->FormValue == $this->Bunga->CurrentValue && is_numeric(ew_StrToFloat($this->Bunga->CurrentValue)))
-			$this->Bunga->CurrentValue = ew_StrToFloat($this->Bunga->CurrentValue);
 
 		// Call Row_Rendering event
 		$this->Row_Rendering();
@@ -1864,12 +1864,12 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		// TglKontrak
 		// nasabah_id
 		// Pinjaman
+		// Bunga
 		// Denda
 		// DispensasiDenda
 		// LamaAngsuran
 		// JumlahAngsuran
 		// NoKontrakRefTo
-		// Bunga
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -1920,6 +1920,12 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$this->Pinjaman->CellCssStyle .= "text-align: right;";
 		$this->Pinjaman->ViewCustomAttributes = "";
 
+		// Bunga
+		$this->Bunga->ViewValue = $this->Bunga->CurrentValue;
+		$this->Bunga->ViewValue = ew_FormatNumber($this->Bunga->ViewValue, 3, -2, -2, -2);
+		$this->Bunga->CellCssStyle .= "text-align: right;";
+		$this->Bunga->ViewCustomAttributes = "";
+
 		// Denda
 		$this->Denda->ViewValue = $this->Denda->CurrentValue;
 		$this->Denda->ViewValue = ew_FormatNumber($this->Denda->ViewValue, 2, -2, -2, -2);
@@ -1948,10 +1954,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$this->NoKontrakRefTo->ViewValue = $this->NoKontrakRefTo->CurrentValue;
 		$this->NoKontrakRefTo->ViewCustomAttributes = "";
 
-		// Bunga
-		$this->Bunga->ViewValue = $this->Bunga->CurrentValue;
-		$this->Bunga->ViewCustomAttributes = "";
-
 			// NoKontrak
 			$this->NoKontrak->LinkCustomAttributes = "";
 			$this->NoKontrak->HrefValue = "";
@@ -1971,6 +1973,11 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 			$this->Pinjaman->LinkCustomAttributes = "";
 			$this->Pinjaman->HrefValue = "";
 			$this->Pinjaman->TooltipValue = "";
+
+			// Bunga
+			$this->Bunga->LinkCustomAttributes = "";
+			$this->Bunga->HrefValue = "";
+			$this->Bunga->TooltipValue = "";
 
 			// Denda
 			$this->Denda->LinkCustomAttributes = "";
@@ -1996,11 +2003,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 			$this->NoKontrakRefTo->LinkCustomAttributes = "";
 			$this->NoKontrakRefTo->HrefValue = "";
 			$this->NoKontrakRefTo->TooltipValue = "";
-
-			// Bunga
-			$this->Bunga->LinkCustomAttributes = "";
-			$this->Bunga->HrefValue = "";
-			$this->Bunga->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -2424,6 +2426,15 @@ $t03_pinjaman_list->ListOptions->Render("header", "left");
 		</div></div></th>
 	<?php } ?>
 <?php } ?>
+<?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
+	<?php if ($t03_pinjaman->SortUrl($t03_pinjaman->Bunga) == "") { ?>
+		<th data-name="Bunga" class="<?php echo $t03_pinjaman->Bunga->HeaderCellClass() ?>"><div id="elh_t03_pinjaman_Bunga" class="t03_pinjaman_Bunga"><div class="ewTableHeaderCaption"><?php echo $t03_pinjaman->Bunga->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="Bunga" class="<?php echo $t03_pinjaman->Bunga->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t03_pinjaman->SortUrl($t03_pinjaman->Bunga) ?>',2);"><div id="elh_t03_pinjaman_Bunga" class="t03_pinjaman_Bunga">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t03_pinjaman->Bunga->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t03_pinjaman->Bunga->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t03_pinjaman->Bunga->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+		</div></div></th>
+	<?php } ?>
+<?php } ?>
 <?php if ($t03_pinjaman->Denda->Visible) { // Denda ?>
 	<?php if ($t03_pinjaman->SortUrl($t03_pinjaman->Denda) == "") { ?>
 		<th data-name="Denda" class="<?php echo $t03_pinjaman->Denda->HeaderCellClass() ?>"><div id="elh_t03_pinjaman_Denda" class="t03_pinjaman_Denda"><div class="ewTableHeaderCaption"><?php echo $t03_pinjaman->Denda->FldCaption() ?></div></div></th>
@@ -2466,15 +2477,6 @@ $t03_pinjaman_list->ListOptions->Render("header", "left");
 	<?php } else { ?>
 		<th data-name="NoKontrakRefTo" class="<?php echo $t03_pinjaman->NoKontrakRefTo->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t03_pinjaman->SortUrl($t03_pinjaman->NoKontrakRefTo) ?>',2);"><div id="elh_t03_pinjaman_NoKontrakRefTo" class="t03_pinjaman_NoKontrakRefTo">
 			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t03_pinjaman->NoKontrakRefTo->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t03_pinjaman->NoKontrakRefTo->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t03_pinjaman->NoKontrakRefTo->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
-<?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
-	<?php if ($t03_pinjaman->SortUrl($t03_pinjaman->Bunga) == "") { ?>
-		<th data-name="Bunga" class="<?php echo $t03_pinjaman->Bunga->HeaderCellClass() ?>"><div id="elh_t03_pinjaman_Bunga" class="t03_pinjaman_Bunga"><div class="ewTableHeaderCaption"><?php echo $t03_pinjaman->Bunga->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="Bunga" class="<?php echo $t03_pinjaman->Bunga->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t03_pinjaman->SortUrl($t03_pinjaman->Bunga) ?>',2);"><div id="elh_t03_pinjaman_Bunga" class="t03_pinjaman_Bunga">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t03_pinjaman->Bunga->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t03_pinjaman->Bunga->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t03_pinjaman->Bunga->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
 		</div></div></th>
 	<?php } ?>
 <?php } ?>
@@ -2575,6 +2577,14 @@ $t03_pinjaman_list->ListOptions->Render("body", "left", $t03_pinjaman_list->RowC
 </span>
 </td>
 	<?php } ?>
+	<?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
+		<td data-name="Bunga"<?php echo $t03_pinjaman->Bunga->CellAttributes() ?>>
+<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_Bunga" class="t03_pinjaman_Bunga">
+<span<?php echo $t03_pinjaman->Bunga->ViewAttributes() ?>>
+<?php echo $t03_pinjaman->Bunga->ListViewValue() ?></span>
+</span>
+</td>
+	<?php } ?>
 	<?php if ($t03_pinjaman->Denda->Visible) { // Denda ?>
 		<td data-name="Denda"<?php echo $t03_pinjaman->Denda->CellAttributes() ?>>
 <span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_Denda" class="t03_pinjaman_Denda">
@@ -2612,14 +2622,6 @@ $t03_pinjaman_list->ListOptions->Render("body", "left", $t03_pinjaman_list->RowC
 <span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_NoKontrakRefTo" class="t03_pinjaman_NoKontrakRefTo">
 <span<?php echo $t03_pinjaman->NoKontrakRefTo->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->NoKontrakRefTo->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
-	<?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
-		<td data-name="Bunga"<?php echo $t03_pinjaman->Bunga->CellAttributes() ?>>
-<span id="el<?php echo $t03_pinjaman_list->RowCnt ?>_t03_pinjaman_Bunga" class="t03_pinjaman_Bunga">
-<span<?php echo $t03_pinjaman->Bunga->ViewAttributes() ?>>
-<?php echo $t03_pinjaman->Bunga->ListViewValue() ?></span>
 </span>
 </td>
 	<?php } ?>
