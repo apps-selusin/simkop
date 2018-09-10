@@ -118,7 +118,36 @@ jQuery.get("<?php echo $EW_RELATIVE_PATH ?>phpjs/userevt14.js");
 
 // Write your global startup script here
 // document.write("page loaded");
+	// Table 't03_pinjaman' Field 'Pinjaman'
 
+	$('[data-table=t03_pinjaman][data-field=x_Pinjaman]').on(
+		{ // keys = event types, values = handler functions
+			"change keyup": function(e) {
+				var $row = $(this).fields();
+				var lama_angsuran = parseFloat($row["LamaAngsuran"].val());
+				var pinjaman_asli = $row["Pinjaman"].val();
+				var pinjaman_clean = pinjaman_asli.replace(/,/g, '');
+				var pinjaman = parseFloat(pinjaman_clean);
+				var jumlah_angsuran = pinjaman / lama_angsuran;
+				$row["JumlahAngsuran"].val(jumlah_angsuran);
+			}
+		}
+	);
+
+	// Table 't03_pinjaman' Field 'LamaAngsuran'
+	$('[data-table=t03_pinjaman][data-field=x_LamaAngsuran]').on(
+		{ // keys = event types, values = handler functions
+			"change keyup": function(e) {
+				var $row = $(this).fields();
+				var lama_angsuran = parseFloat($row["LamaAngsuran"].val());
+				var pinjaman_asli = $row["Pinjaman"].val();
+				var pinjaman_clean = pinjaman_asli.replace(/,/g, '');
+				var pinjaman = parseFloat(pinjaman_clean);
+				var jumlah_angsuran = pinjaman / lama_angsuran;
+				$row["JumlahAngsuran"].val(jumlah_angsuran);
+			}
+		}
+	);
 </script>
 </body>
 </html>
