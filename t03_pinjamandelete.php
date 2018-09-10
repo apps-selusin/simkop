@@ -335,6 +335,7 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$this->LamaAngsuran->SetVisibility();
 		$this->JumlahAngsuran->SetVisibility();
 		$this->NoKontrakRefTo->SetVisibility();
+		$this->Bunga->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -529,6 +530,7 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$this->LamaAngsuran->setDbValue($row['LamaAngsuran']);
 		$this->JumlahAngsuran->setDbValue($row['JumlahAngsuran']);
 		$this->NoKontrakRefTo->setDbValue($row['NoKontrakRefTo']);
+		$this->Bunga->setDbValue($row['Bunga']);
 	}
 
 	// Return a row with default values
@@ -544,6 +546,7 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$row['LamaAngsuran'] = NULL;
 		$row['JumlahAngsuran'] = NULL;
 		$row['NoKontrakRefTo'] = NULL;
+		$row['Bunga'] = NULL;
 		return $row;
 	}
 
@@ -562,6 +565,7 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$this->LamaAngsuran->DbValue = $row['LamaAngsuran'];
 		$this->JumlahAngsuran->DbValue = $row['JumlahAngsuran'];
 		$this->NoKontrakRefTo->DbValue = $row['NoKontrakRefTo'];
+		$this->Bunga->DbValue = $row['Bunga'];
 	}
 
 	// Render row values based on field settings
@@ -582,6 +586,10 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		if ($this->JumlahAngsuran->FormValue == $this->JumlahAngsuran->CurrentValue && is_numeric(ew_StrToFloat($this->JumlahAngsuran->CurrentValue)))
 			$this->JumlahAngsuran->CurrentValue = ew_StrToFloat($this->JumlahAngsuran->CurrentValue);
 
+		// Convert decimal values if posted back
+		if ($this->Bunga->FormValue == $this->Bunga->CurrentValue && is_numeric(ew_StrToFloat($this->Bunga->CurrentValue)))
+			$this->Bunga->CurrentValue = ew_StrToFloat($this->Bunga->CurrentValue);
+
 		// Call Row_Rendering event
 		$this->Row_Rendering();
 
@@ -596,6 +604,7 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		// LamaAngsuran
 		// JumlahAngsuran
 		// NoKontrakRefTo
+		// Bunga
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -674,6 +683,10 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$this->NoKontrakRefTo->ViewValue = $this->NoKontrakRefTo->CurrentValue;
 		$this->NoKontrakRefTo->ViewCustomAttributes = "";
 
+		// Bunga
+		$this->Bunga->ViewValue = $this->Bunga->CurrentValue;
+		$this->Bunga->ViewCustomAttributes = "";
+
 			// NoKontrak
 			$this->NoKontrak->LinkCustomAttributes = "";
 			$this->NoKontrak->HrefValue = "";
@@ -718,6 +731,11 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 			$this->NoKontrakRefTo->LinkCustomAttributes = "";
 			$this->NoKontrakRefTo->HrefValue = "";
 			$this->NoKontrakRefTo->TooltipValue = "";
+
+			// Bunga
+			$this->Bunga->LinkCustomAttributes = "";
+			$this->Bunga->HrefValue = "";
+			$this->Bunga->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -987,6 +1005,9 @@ $t03_pinjaman_delete->ShowMessage();
 <?php if ($t03_pinjaman->NoKontrakRefTo->Visible) { // NoKontrakRefTo ?>
 		<th class="<?php echo $t03_pinjaman->NoKontrakRefTo->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_NoKontrakRefTo" class="t03_pinjaman_NoKontrakRefTo"><?php echo $t03_pinjaman->NoKontrakRefTo->FldCaption() ?></span></th>
 <?php } ?>
+<?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
+		<th class="<?php echo $t03_pinjaman->Bunga->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_Bunga" class="t03_pinjaman_Bunga"><?php echo $t03_pinjaman->Bunga->FldCaption() ?></span></th>
+<?php } ?>
 	</tr>
 	</thead>
 	<tbody>
@@ -1077,6 +1098,14 @@ while (!$t03_pinjaman_delete->Recordset->EOF) {
 <span id="el<?php echo $t03_pinjaman_delete->RowCnt ?>_t03_pinjaman_NoKontrakRefTo" class="t03_pinjaman_NoKontrakRefTo">
 <span<?php echo $t03_pinjaman->NoKontrakRefTo->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->NoKontrakRefTo->ListViewValue() ?></span>
+</span>
+</td>
+<?php } ?>
+<?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
+		<td<?php echo $t03_pinjaman->Bunga->CellAttributes() ?>>
+<span id="el<?php echo $t03_pinjaman_delete->RowCnt ?>_t03_pinjaman_Bunga" class="t03_pinjaman_Bunga">
+<span<?php echo $t03_pinjaman->Bunga->ViewAttributes() ?>>
+<?php echo $t03_pinjaman->Bunga->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>

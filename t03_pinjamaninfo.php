@@ -23,6 +23,7 @@ class ct03_pinjaman extends cTable {
 	var $LamaAngsuran;
 	var $JumlahAngsuran;
 	var $NoKontrakRefTo;
+	var $Bunga;
 
 	//
 	// Table class constructor
@@ -116,6 +117,12 @@ class ct03_pinjaman extends cTable {
 		$this->NoKontrakRefTo->Sortable = TRUE; // Allow sort
 		$this->NoKontrakRefTo->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['NoKontrakRefTo'] = &$this->NoKontrakRefTo;
+
+		// Bunga
+		$this->Bunga = new cField('t03_pinjaman', 't03_pinjaman', 'x_Bunga', 'Bunga', '`Bunga`', '`Bunga`', 131, -1, FALSE, '`Bunga`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->Bunga->Sortable = TRUE; // Allow sort
+		$this->Bunga->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
+		$this->fields['Bunga'] = &$this->Bunga;
 	}
 
 	// Field Visibility
@@ -772,6 +779,7 @@ class ct03_pinjaman extends cTable {
 		$this->LamaAngsuran->setDbValue($rs->fields('LamaAngsuran'));
 		$this->JumlahAngsuran->setDbValue($rs->fields('JumlahAngsuran'));
 		$this->NoKontrakRefTo->setDbValue($rs->fields('NoKontrakRefTo'));
+		$this->Bunga->setDbValue($rs->fields('Bunga'));
 	}
 
 	// Render list row values
@@ -792,6 +800,7 @@ class ct03_pinjaman extends cTable {
 		// LamaAngsuran
 		// JumlahAngsuran
 		// NoKontrakRefTo
+		// Bunga
 		// id
 
 		$this->id->ViewValue = $this->id->CurrentValue;
@@ -868,6 +877,10 @@ class ct03_pinjaman extends cTable {
 		$this->NoKontrakRefTo->ViewValue = $this->NoKontrakRefTo->CurrentValue;
 		$this->NoKontrakRefTo->ViewCustomAttributes = "";
 
+		// Bunga
+		$this->Bunga->ViewValue = $this->Bunga->CurrentValue;
+		$this->Bunga->ViewCustomAttributes = "";
+
 		// id
 		$this->id->LinkCustomAttributes = "";
 		$this->id->HrefValue = "";
@@ -917,6 +930,11 @@ class ct03_pinjaman extends cTable {
 		$this->NoKontrakRefTo->LinkCustomAttributes = "";
 		$this->NoKontrakRefTo->HrefValue = "";
 		$this->NoKontrakRefTo->TooltipValue = "";
+
+		// Bunga
+		$this->Bunga->LinkCustomAttributes = "";
+		$this->Bunga->HrefValue = "";
+		$this->Bunga->TooltipValue = "";
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -993,6 +1011,13 @@ class ct03_pinjaman extends cTable {
 		$this->NoKontrakRefTo->EditValue = $this->NoKontrakRefTo->CurrentValue;
 		$this->NoKontrakRefTo->PlaceHolder = ew_RemoveHtml($this->NoKontrakRefTo->FldCaption());
 
+		// Bunga
+		$this->Bunga->EditAttrs["class"] = "form-control";
+		$this->Bunga->EditCustomAttributes = "";
+		$this->Bunga->EditValue = $this->Bunga->CurrentValue;
+		$this->Bunga->PlaceHolder = ew_RemoveHtml($this->Bunga->FldCaption());
+		if (strval($this->Bunga->EditValue) <> "" && is_numeric($this->Bunga->EditValue)) $this->Bunga->EditValue = ew_FormatNumber($this->Bunga->EditValue, -2, -1, -2, 0);
+
 		// Call Row Rendered event
 		$this->Row_Rendered();
 	}
@@ -1029,6 +1054,7 @@ class ct03_pinjaman extends cTable {
 					if ($this->LamaAngsuran->Exportable) $Doc->ExportCaption($this->LamaAngsuran);
 					if ($this->JumlahAngsuran->Exportable) $Doc->ExportCaption($this->JumlahAngsuran);
 					if ($this->NoKontrakRefTo->Exportable) $Doc->ExportCaption($this->NoKontrakRefTo);
+					if ($this->Bunga->Exportable) $Doc->ExportCaption($this->Bunga);
 				} else {
 					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
 					if ($this->NoKontrak->Exportable) $Doc->ExportCaption($this->NoKontrak);
@@ -1040,6 +1066,7 @@ class ct03_pinjaman extends cTable {
 					if ($this->LamaAngsuran->Exportable) $Doc->ExportCaption($this->LamaAngsuran);
 					if ($this->JumlahAngsuran->Exportable) $Doc->ExportCaption($this->JumlahAngsuran);
 					if ($this->NoKontrakRefTo->Exportable) $Doc->ExportCaption($this->NoKontrakRefTo);
+					if ($this->Bunga->Exportable) $Doc->ExportCaption($this->Bunga);
 				}
 				$Doc->EndExportRow();
 			}
@@ -1080,6 +1107,7 @@ class ct03_pinjaman extends cTable {
 						if ($this->LamaAngsuran->Exportable) $Doc->ExportField($this->LamaAngsuran);
 						if ($this->JumlahAngsuran->Exportable) $Doc->ExportField($this->JumlahAngsuran);
 						if ($this->NoKontrakRefTo->Exportable) $Doc->ExportField($this->NoKontrakRefTo);
+						if ($this->Bunga->Exportable) $Doc->ExportField($this->Bunga);
 					} else {
 						if ($this->id->Exportable) $Doc->ExportField($this->id);
 						if ($this->NoKontrak->Exportable) $Doc->ExportField($this->NoKontrak);
@@ -1091,6 +1119,7 @@ class ct03_pinjaman extends cTable {
 						if ($this->LamaAngsuran->Exportable) $Doc->ExportField($this->LamaAngsuran);
 						if ($this->JumlahAngsuran->Exportable) $Doc->ExportField($this->JumlahAngsuran);
 						if ($this->NoKontrakRefTo->Exportable) $Doc->ExportField($this->NoKontrakRefTo);
+						if ($this->Bunga->Exportable) $Doc->ExportField($this->Bunga);
 					}
 					$Doc->EndExportRow($RowCnt);
 				}

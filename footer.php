@@ -128,7 +128,9 @@ jQuery.get("<?php echo $EW_RELATIVE_PATH ?>phpjs/userevt14.js");
 				var pinjaman_asli = $row["Pinjaman"].val();
 				var pinjaman_clean = pinjaman_asli.replace(/,/g, '');
 				var pinjaman = parseFloat(pinjaman_clean);
-				var jumlah_angsuran = pinjaman / lama_angsuran;
+
+				//var jumlah_angsuran = pinjaman / lama_angsuran;
+				var jumlah_angsuran = (pinjaman / lama_angsuran) + (pinjaman * (2.25/100));
 				$row["JumlahAngsuran"].val(jumlah_angsuran);
 			}
 		}
@@ -143,7 +145,9 @@ jQuery.get("<?php echo $EW_RELATIVE_PATH ?>phpjs/userevt14.js");
 				var pinjaman_asli = $row["Pinjaman"].val();
 				var pinjaman_clean = pinjaman_asli.replace(/,/g, '');
 				var pinjaman = parseFloat(pinjaman_clean);
-				var jumlah_angsuran = pinjaman / lama_angsuran;
+
+				//var jumlah_angsuran = pinjaman / lama_angsuran;
+				var jumlah_angsuran = (pinjaman / lama_angsuran) + (pinjaman * (2.25/100));
 				$row["JumlahAngsuran"].val(jumlah_angsuran);
 			}
 		}

@@ -726,7 +726,7 @@
         <phrase id="fldcaption" value="Pinjaman" />
       </field>
       <field id="denda">
-        <phrase id="fldcaption" value="Denda" />
+        <phrase id="fldcaption" value="Denda (%)" />
       </field>
       <field id="dispensasidenda">
         <phrase id="fldcaption" value="Dispensasi Denda" />
@@ -739,6 +739,9 @@
       </field>
       <field id="nokontrakrefto">
         <phrase id="fldcaption" value="No. Kontrak Ref. To" />
+      </field>
+      <field id="bunga">
+        <phrase id="fldcaption" value="Bunga" />
       </field>
     </table>
     <table id="t04_angsuran">
