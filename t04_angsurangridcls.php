@@ -1882,9 +1882,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		if (!ew_CheckNumber($this->SisaHutang->FormValue)) {
 			ew_AddMessage($gsFormError, $this->SisaHutang->FldErrMsg());
 		}
-		if (!$this->TanggalBayar->FldIsDetailKey && !is_null($this->TanggalBayar->FormValue) && $this->TanggalBayar->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->TanggalBayar->FldCaption(), $this->TanggalBayar->ReqErrMsg));
-		}
 		if (!ew_CheckEuroDate($this->TanggalBayar->FormValue)) {
 			ew_AddMessage($gsFormError, $this->TanggalBayar->FldErrMsg());
 		}
@@ -2028,7 +2025,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$this->SisaHutang->SetDbValueDef($rsnew, $this->SisaHutang->CurrentValue, 0, $this->SisaHutang->ReadOnly);
 
 			// TanggalBayar
-			$this->TanggalBayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TanggalBayar->CurrentValue, 7), ew_CurrentDate(), $this->TanggalBayar->ReadOnly);
+			$this->TanggalBayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TanggalBayar->CurrentValue, 7), NULL, $this->TanggalBayar->ReadOnly);
 
 			// TotalDenda
 			$this->TotalDenda->SetDbValueDef($rsnew, $this->TotalDenda->CurrentValue, NULL, $this->TotalDenda->ReadOnly);
@@ -2106,7 +2103,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		$this->SisaHutang->SetDbValueDef($rsnew, $this->SisaHutang->CurrentValue, 0, FALSE);
 
 		// TanggalBayar
-		$this->TanggalBayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TanggalBayar->CurrentValue, 7), ew_CurrentDate(), FALSE);
+		$this->TanggalBayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TanggalBayar->CurrentValue, 7), NULL, FALSE);
 
 		// TotalDenda
 		$this->TotalDenda->SetDbValueDef($rsnew, $this->TotalDenda->CurrentValue, NULL, FALSE);

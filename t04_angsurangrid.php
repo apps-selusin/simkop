@@ -79,9 +79,6 @@ ft04_angsurangrid.Validate = function() {
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t04_angsuran->SisaHutang->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_TanggalBayar");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t04_angsuran->TanggalBayar->FldCaption(), $t04_angsuran->TanggalBayar->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_TanggalBayar");
 			if (elm && !ew_CheckEuroDate(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t04_angsuran->TanggalBayar->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_TotalDenda");

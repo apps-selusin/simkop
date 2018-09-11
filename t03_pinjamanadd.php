@@ -594,10 +594,8 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		$this->Pinjaman->CurrentValue = NULL;
 		$this->Pinjaman->OldValue = $this->Pinjaman->CurrentValue;
 		$this->Bunga->CurrentValue = 0.225;
-		$this->Denda->CurrentValue = NULL;
-		$this->Denda->OldValue = $this->Denda->CurrentValue;
-		$this->DispensasiDenda->CurrentValue = NULL;
-		$this->DispensasiDenda->OldValue = $this->DispensasiDenda->CurrentValue;
+		$this->Denda->CurrentValue = 0.4;
+		$this->DispensasiDenda->CurrentValue = 3;
 		$this->LamaAngsuran->CurrentValue = NULL;
 		$this->LamaAngsuran->OldValue = $this->LamaAngsuran->CurrentValue;
 		$this->JumlahAngsuran->CurrentValue = NULL;
