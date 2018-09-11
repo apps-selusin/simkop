@@ -334,6 +334,8 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		$this->Bunga->SetVisibility();
 		$this->Denda->SetVisibility();
 		$this->DispensasiDenda->SetVisibility();
+		$this->AngsuranPokok->SetVisibility();
+		$this->AngsuranBunga->SetVisibility();
 		$this->AngsuranTotal->SetVisibility();
 		$this->NoKontrakRefTo->SetVisibility();
 
@@ -593,6 +595,14 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 			$this->Denda->CurrentValue = ew_StrToFloat($this->Denda->CurrentValue);
 
 		// Convert decimal values if posted back
+		if ($this->AngsuranPokok->FormValue == $this->AngsuranPokok->CurrentValue && is_numeric(ew_StrToFloat($this->AngsuranPokok->CurrentValue)))
+			$this->AngsuranPokok->CurrentValue = ew_StrToFloat($this->AngsuranPokok->CurrentValue);
+
+		// Convert decimal values if posted back
+		if ($this->AngsuranBunga->FormValue == $this->AngsuranBunga->CurrentValue && is_numeric(ew_StrToFloat($this->AngsuranBunga->CurrentValue)))
+			$this->AngsuranBunga->CurrentValue = ew_StrToFloat($this->AngsuranBunga->CurrentValue);
+
+		// Convert decimal values if posted back
 		if ($this->AngsuranTotal->FormValue == $this->AngsuranTotal->CurrentValue && is_numeric(ew_StrToFloat($this->AngsuranTotal->CurrentValue)))
 			$this->AngsuranTotal->CurrentValue = ew_StrToFloat($this->AngsuranTotal->CurrentValue);
 
@@ -748,6 +758,16 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 			$this->DispensasiDenda->LinkCustomAttributes = "";
 			$this->DispensasiDenda->HrefValue = "";
 			$this->DispensasiDenda->TooltipValue = "";
+
+			// AngsuranPokok
+			$this->AngsuranPokok->LinkCustomAttributes = "";
+			$this->AngsuranPokok->HrefValue = "";
+			$this->AngsuranPokok->TooltipValue = "";
+
+			// AngsuranBunga
+			$this->AngsuranBunga->LinkCustomAttributes = "";
+			$this->AngsuranBunga->HrefValue = "";
+			$this->AngsuranBunga->TooltipValue = "";
 
 			// AngsuranTotal
 			$this->AngsuranTotal->LinkCustomAttributes = "";
@@ -1024,6 +1044,12 @@ $t03_pinjaman_delete->ShowMessage();
 <?php if ($t03_pinjaman->DispensasiDenda->Visible) { // DispensasiDenda ?>
 		<th class="<?php echo $t03_pinjaman->DispensasiDenda->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_DispensasiDenda" class="t03_pinjaman_DispensasiDenda"><?php echo $t03_pinjaman->DispensasiDenda->FldCaption() ?></span></th>
 <?php } ?>
+<?php if ($t03_pinjaman->AngsuranPokok->Visible) { // AngsuranPokok ?>
+		<th class="<?php echo $t03_pinjaman->AngsuranPokok->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_AngsuranPokok" class="t03_pinjaman_AngsuranPokok"><?php echo $t03_pinjaman->AngsuranPokok->FldCaption() ?></span></th>
+<?php } ?>
+<?php if ($t03_pinjaman->AngsuranBunga->Visible) { // AngsuranBunga ?>
+		<th class="<?php echo $t03_pinjaman->AngsuranBunga->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_AngsuranBunga" class="t03_pinjaman_AngsuranBunga"><?php echo $t03_pinjaman->AngsuranBunga->FldCaption() ?></span></th>
+<?php } ?>
 <?php if ($t03_pinjaman->AngsuranTotal->Visible) { // AngsuranTotal ?>
 		<th class="<?php echo $t03_pinjaman->AngsuranTotal->HeaderCellClass() ?>"><span id="elh_t03_pinjaman_AngsuranTotal" class="t03_pinjaman_AngsuranTotal"><?php echo $t03_pinjaman->AngsuranTotal->FldCaption() ?></span></th>
 <?php } ?>
@@ -1112,6 +1138,22 @@ while (!$t03_pinjaman_delete->Recordset->EOF) {
 <span id="el<?php echo $t03_pinjaman_delete->RowCnt ?>_t03_pinjaman_DispensasiDenda" class="t03_pinjaman_DispensasiDenda">
 <span<?php echo $t03_pinjaman->DispensasiDenda->ViewAttributes() ?>>
 <?php echo $t03_pinjaman->DispensasiDenda->ListViewValue() ?></span>
+</span>
+</td>
+<?php } ?>
+<?php if ($t03_pinjaman->AngsuranPokok->Visible) { // AngsuranPokok ?>
+		<td<?php echo $t03_pinjaman->AngsuranPokok->CellAttributes() ?>>
+<span id="el<?php echo $t03_pinjaman_delete->RowCnt ?>_t03_pinjaman_AngsuranPokok" class="t03_pinjaman_AngsuranPokok">
+<span<?php echo $t03_pinjaman->AngsuranPokok->ViewAttributes() ?>>
+<?php echo $t03_pinjaman->AngsuranPokok->ListViewValue() ?></span>
+</span>
+</td>
+<?php } ?>
+<?php if ($t03_pinjaman->AngsuranBunga->Visible) { // AngsuranBunga ?>
+		<td<?php echo $t03_pinjaman->AngsuranBunga->CellAttributes() ?>>
+<span id="el<?php echo $t03_pinjaman_delete->RowCnt ?>_t03_pinjaman_AngsuranBunga" class="t03_pinjaman_AngsuranBunga">
+<span<?php echo $t03_pinjaman->AngsuranBunga->ViewAttributes() ?>>
+<?php echo $t03_pinjaman->AngsuranBunga->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>

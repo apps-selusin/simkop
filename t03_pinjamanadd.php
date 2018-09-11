@@ -550,10 +550,7 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 				if ($this->AddRow($this->OldRecordset)) { // Add successful
 					if ($this->getSuccessMessage() == "")
 						$this->setSuccessMessage($Language->Phrase("AddSuccess")); // Set up success message
-					if ($this->getCurrentDetailTable() <> "") // Master/detail add
-						$sReturnUrl = $this->GetDetailUrl();
-					else
-						$sReturnUrl = $this->getReturnUrl();
+					$sReturnUrl = "t03_pinjamanview.php?showdetail=t04_angsuran,t05_pinjamanjaminan&id=".urlencode($this->id->CurrentValue);
 					if (ew_GetPageName($sReturnUrl) == "t03_pinjamanlist.php")
 						$sReturnUrl = $this->AddMasterUrl($sReturnUrl); // List page, return to List page with correct master key if necessary
 					elseif (ew_GetPageName($sReturnUrl) == "t03_pinjamanview.php")
@@ -1727,7 +1724,7 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 		<label id="elh_t03_pinjaman_Pinjaman" for="x_Pinjaman" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->Pinjaman->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->Pinjaman->CellAttributes() ?>>
 <span id="el_t03_pinjaman_Pinjaman">
-<input type="text" data-table="t03_pinjaman" data-field="x_Pinjaman" name="x_Pinjaman" id="x_Pinjaman" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Pinjaman->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Pinjaman->EditValue ?>"<?php echo $t03_pinjaman->Pinjaman->EditAttributes() ?>>
+<input type="text" data-table="t03_pinjaman" data-field="x_Pinjaman" name="x_Pinjaman" id="x_Pinjaman" size="10" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Pinjaman->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Pinjaman->EditValue ?>"<?php echo $t03_pinjaman->Pinjaman->EditAttributes() ?>>
 </span>
 <?php echo $t03_pinjaman->Pinjaman->CustomMsg ?></div></div>
 	</div>
@@ -1737,7 +1734,7 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 		<label id="elh_t03_pinjaman_LamaAngsuran" for="x_LamaAngsuran" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->LamaAngsuran->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->LamaAngsuran->CellAttributes() ?>>
 <span id="el_t03_pinjaman_LamaAngsuran">
-<input type="text" data-table="t03_pinjaman" data-field="x_LamaAngsuran" name="x_LamaAngsuran" id="x_LamaAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->LamaAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->LamaAngsuran->EditValue ?>"<?php echo $t03_pinjaman->LamaAngsuran->EditAttributes() ?>>
+<input type="text" data-table="t03_pinjaman" data-field="x_LamaAngsuran" name="x_LamaAngsuran" id="x_LamaAngsuran" size="5" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->LamaAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->LamaAngsuran->EditValue ?>"<?php echo $t03_pinjaman->LamaAngsuran->EditAttributes() ?>>
 </span>
 <?php echo $t03_pinjaman->LamaAngsuran->CustomMsg ?></div></div>
 	</div>
@@ -1747,7 +1744,7 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 		<label id="elh_t03_pinjaman_Bunga" for="x_Bunga" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->Bunga->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->Bunga->CellAttributes() ?>>
 <span id="el_t03_pinjaman_Bunga">
-<input type="text" data-table="t03_pinjaman" data-field="x_Bunga" name="x_Bunga" id="x_Bunga" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Bunga->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Bunga->EditValue ?>"<?php echo $t03_pinjaman->Bunga->EditAttributes() ?>>
+<input type="text" data-table="t03_pinjaman" data-field="x_Bunga" name="x_Bunga" id="x_Bunga" size="5" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Bunga->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Bunga->EditValue ?>"<?php echo $t03_pinjaman->Bunga->EditAttributes() ?>>
 </span>
 <?php echo $t03_pinjaman->Bunga->CustomMsg ?></div></div>
 	</div>
@@ -1757,7 +1754,7 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 		<label id="elh_t03_pinjaman_Denda" for="x_Denda" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->Denda->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->Denda->CellAttributes() ?>>
 <span id="el_t03_pinjaman_Denda">
-<input type="text" data-table="t03_pinjaman" data-field="x_Denda" name="x_Denda" id="x_Denda" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Denda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Denda->EditValue ?>"<?php echo $t03_pinjaman->Denda->EditAttributes() ?>>
+<input type="text" data-table="t03_pinjaman" data-field="x_Denda" name="x_Denda" id="x_Denda" size="5" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Denda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Denda->EditValue ?>"<?php echo $t03_pinjaman->Denda->EditAttributes() ?>>
 </span>
 <?php echo $t03_pinjaman->Denda->CustomMsg ?></div></div>
 	</div>
@@ -1767,7 +1764,7 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 		<label id="elh_t03_pinjaman_DispensasiDenda" for="x_DispensasiDenda" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->DispensasiDenda->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->DispensasiDenda->CellAttributes() ?>>
 <span id="el_t03_pinjaman_DispensasiDenda">
-<input type="text" data-table="t03_pinjaman" data-field="x_DispensasiDenda" name="x_DispensasiDenda" id="x_DispensasiDenda" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->DispensasiDenda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->DispensasiDenda->EditValue ?>"<?php echo $t03_pinjaman->DispensasiDenda->EditAttributes() ?>>
+<input type="text" data-table="t03_pinjaman" data-field="x_DispensasiDenda" name="x_DispensasiDenda" id="x_DispensasiDenda" size="5" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->DispensasiDenda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->DispensasiDenda->EditValue ?>"<?php echo $t03_pinjaman->DispensasiDenda->EditAttributes() ?>>
 </span>
 <?php echo $t03_pinjaman->DispensasiDenda->CustomMsg ?></div></div>
 	</div>
@@ -1777,7 +1774,7 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 		<label id="elh_t03_pinjaman_AngsuranPokok" for="x_AngsuranPokok" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->AngsuranPokok->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->AngsuranPokok->CellAttributes() ?>>
 <span id="el_t03_pinjaman_AngsuranPokok">
-<input type="text" data-table="t03_pinjaman" data-field="x_AngsuranPokok" name="x_AngsuranPokok" id="x_AngsuranPokok" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->AngsuranPokok->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->AngsuranPokok->EditValue ?>"<?php echo $t03_pinjaman->AngsuranPokok->EditAttributes() ?>>
+<input type="text" data-table="t03_pinjaman" data-field="x_AngsuranPokok" name="x_AngsuranPokok" id="x_AngsuranPokok" size="10" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->AngsuranPokok->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->AngsuranPokok->EditValue ?>"<?php echo $t03_pinjaman->AngsuranPokok->EditAttributes() ?>>
 </span>
 <?php echo $t03_pinjaman->AngsuranPokok->CustomMsg ?></div></div>
 	</div>
@@ -1787,7 +1784,7 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 		<label id="elh_t03_pinjaman_AngsuranBunga" for="x_AngsuranBunga" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->AngsuranBunga->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->AngsuranBunga->CellAttributes() ?>>
 <span id="el_t03_pinjaman_AngsuranBunga">
-<input type="text" data-table="t03_pinjaman" data-field="x_AngsuranBunga" name="x_AngsuranBunga" id="x_AngsuranBunga" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->AngsuranBunga->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->AngsuranBunga->EditValue ?>"<?php echo $t03_pinjaman->AngsuranBunga->EditAttributes() ?>>
+<input type="text" data-table="t03_pinjaman" data-field="x_AngsuranBunga" name="x_AngsuranBunga" id="x_AngsuranBunga" size="10" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->AngsuranBunga->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->AngsuranBunga->EditValue ?>"<?php echo $t03_pinjaman->AngsuranBunga->EditAttributes() ?>>
 </span>
 <?php echo $t03_pinjaman->AngsuranBunga->CustomMsg ?></div></div>
 	</div>
@@ -1797,7 +1794,7 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 		<label id="elh_t03_pinjaman_AngsuranTotal" for="x_AngsuranTotal" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->AngsuranTotal->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->AngsuranTotal->CellAttributes() ?>>
 <span id="el_t03_pinjaman_AngsuranTotal">
-<input type="text" data-table="t03_pinjaman" data-field="x_AngsuranTotal" name="x_AngsuranTotal" id="x_AngsuranTotal" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->AngsuranTotal->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->AngsuranTotal->EditValue ?>"<?php echo $t03_pinjaman->AngsuranTotal->EditAttributes() ?>>
+<input type="text" data-table="t03_pinjaman" data-field="x_AngsuranTotal" name="x_AngsuranTotal" id="x_AngsuranTotal" size="10" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->AngsuranTotal->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->AngsuranTotal->EditValue ?>"<?php echo $t03_pinjaman->AngsuranTotal->EditAttributes() ?>>
 </span>
 <?php echo $t03_pinjaman->AngsuranTotal->CustomMsg ?></div></div>
 	</div>
