@@ -725,6 +725,9 @@
       <field id="pinjaman">
         <phrase id="fldcaption" value="Pinjaman" />
       </field>
+      <field id="lamaangsuran">
+        <phrase id="fldcaption" value="Lama Angsuran" />
+      </field>
       <field id="bunga">
         <phrase id="fldcaption" value="Bunga" />
       </field>
@@ -734,10 +737,13 @@
       <field id="dispensasidenda">
         <phrase id="fldcaption" value="Dispensasi Denda" />
       </field>
-      <field id="lamaangsuran">
-        <phrase id="fldcaption" value="Lama Angsuran" />
+      <field id="angsuranpokok">
+        <phrase id="fldcaption" value="Angsuran Pokok" />
       </field>
-      <field id="jumlahangsuran">
+      <field id="angsuranbunga">
+        <phrase id="fldcaption" value="Angsuran Bunga" />
+      </field>
+      <field id="angsurantotal">
         <phrase id="fldcaption" value="Jumlah Angsuran" />
       </field>
       <field id="nokontrakrefto">

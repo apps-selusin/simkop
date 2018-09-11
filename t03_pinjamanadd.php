@@ -337,11 +337,13 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		$this->TglKontrak->SetVisibility();
 		$this->nasabah_id->SetVisibility();
 		$this->Pinjaman->SetVisibility();
+		$this->LamaAngsuran->SetVisibility();
 		$this->Bunga->SetVisibility();
 		$this->Denda->SetVisibility();
 		$this->DispensasiDenda->SetVisibility();
-		$this->LamaAngsuran->SetVisibility();
-		$this->JumlahAngsuran->SetVisibility();
+		$this->AngsuranPokok->SetVisibility();
+		$this->AngsuranBunga->SetVisibility();
+		$this->AngsuranTotal->SetVisibility();
 		$this->NoKontrakRefTo->SetVisibility();
 
 		// Set up detail page object
@@ -593,13 +595,17 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		$this->nasabah_id->OldValue = $this->nasabah_id->CurrentValue;
 		$this->Pinjaman->CurrentValue = NULL;
 		$this->Pinjaman->OldValue = $this->Pinjaman->CurrentValue;
-		$this->Bunga->CurrentValue = 0.225;
-		$this->Denda->CurrentValue = 0.4;
-		$this->DispensasiDenda->CurrentValue = 3;
 		$this->LamaAngsuran->CurrentValue = NULL;
 		$this->LamaAngsuran->OldValue = $this->LamaAngsuran->CurrentValue;
-		$this->JumlahAngsuran->CurrentValue = NULL;
-		$this->JumlahAngsuran->OldValue = $this->JumlahAngsuran->CurrentValue;
+		$this->Bunga->CurrentValue = 2.25;
+		$this->Denda->CurrentValue = 0.4;
+		$this->DispensasiDenda->CurrentValue = 3;
+		$this->AngsuranPokok->CurrentValue = NULL;
+		$this->AngsuranPokok->OldValue = $this->AngsuranPokok->CurrentValue;
+		$this->AngsuranBunga->CurrentValue = NULL;
+		$this->AngsuranBunga->OldValue = $this->AngsuranBunga->CurrentValue;
+		$this->AngsuranTotal->CurrentValue = NULL;
+		$this->AngsuranTotal->OldValue = $this->AngsuranTotal->CurrentValue;
 		$this->NoKontrakRefTo->CurrentValue = NULL;
 		$this->NoKontrakRefTo->OldValue = $this->NoKontrakRefTo->CurrentValue;
 	}
@@ -622,6 +628,9 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		if (!$this->Pinjaman->FldIsDetailKey) {
 			$this->Pinjaman->setFormValue($objForm->GetValue("x_Pinjaman"));
 		}
+		if (!$this->LamaAngsuran->FldIsDetailKey) {
+			$this->LamaAngsuran->setFormValue($objForm->GetValue("x_LamaAngsuran"));
+		}
 		if (!$this->Bunga->FldIsDetailKey) {
 			$this->Bunga->setFormValue($objForm->GetValue("x_Bunga"));
 		}
@@ -631,11 +640,14 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		if (!$this->DispensasiDenda->FldIsDetailKey) {
 			$this->DispensasiDenda->setFormValue($objForm->GetValue("x_DispensasiDenda"));
 		}
-		if (!$this->LamaAngsuran->FldIsDetailKey) {
-			$this->LamaAngsuran->setFormValue($objForm->GetValue("x_LamaAngsuran"));
+		if (!$this->AngsuranPokok->FldIsDetailKey) {
+			$this->AngsuranPokok->setFormValue($objForm->GetValue("x_AngsuranPokok"));
 		}
-		if (!$this->JumlahAngsuran->FldIsDetailKey) {
-			$this->JumlahAngsuran->setFormValue($objForm->GetValue("x_JumlahAngsuran"));
+		if (!$this->AngsuranBunga->FldIsDetailKey) {
+			$this->AngsuranBunga->setFormValue($objForm->GetValue("x_AngsuranBunga"));
+		}
+		if (!$this->AngsuranTotal->FldIsDetailKey) {
+			$this->AngsuranTotal->setFormValue($objForm->GetValue("x_AngsuranTotal"));
 		}
 		if (!$this->NoKontrakRefTo->FldIsDetailKey) {
 			$this->NoKontrakRefTo->setFormValue($objForm->GetValue("x_NoKontrakRefTo"));
@@ -650,11 +662,13 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		$this->TglKontrak->CurrentValue = ew_UnFormatDateTime($this->TglKontrak->CurrentValue, 7);
 		$this->nasabah_id->CurrentValue = $this->nasabah_id->FormValue;
 		$this->Pinjaman->CurrentValue = $this->Pinjaman->FormValue;
+		$this->LamaAngsuran->CurrentValue = $this->LamaAngsuran->FormValue;
 		$this->Bunga->CurrentValue = $this->Bunga->FormValue;
 		$this->Denda->CurrentValue = $this->Denda->FormValue;
 		$this->DispensasiDenda->CurrentValue = $this->DispensasiDenda->FormValue;
-		$this->LamaAngsuran->CurrentValue = $this->LamaAngsuran->FormValue;
-		$this->JumlahAngsuran->CurrentValue = $this->JumlahAngsuran->FormValue;
+		$this->AngsuranPokok->CurrentValue = $this->AngsuranPokok->FormValue;
+		$this->AngsuranBunga->CurrentValue = $this->AngsuranBunga->FormValue;
+		$this->AngsuranTotal->CurrentValue = $this->AngsuranTotal->FormValue;
 		$this->NoKontrakRefTo->CurrentValue = $this->NoKontrakRefTo->FormValue;
 	}
 
@@ -701,11 +715,13 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 			$this->nasabah_id->VirtualValue = ""; // Clear value
 		}
 		$this->Pinjaman->setDbValue($row['Pinjaman']);
+		$this->LamaAngsuran->setDbValue($row['LamaAngsuran']);
 		$this->Bunga->setDbValue($row['Bunga']);
 		$this->Denda->setDbValue($row['Denda']);
 		$this->DispensasiDenda->setDbValue($row['DispensasiDenda']);
-		$this->LamaAngsuran->setDbValue($row['LamaAngsuran']);
-		$this->JumlahAngsuran->setDbValue($row['JumlahAngsuran']);
+		$this->AngsuranPokok->setDbValue($row['AngsuranPokok']);
+		$this->AngsuranBunga->setDbValue($row['AngsuranBunga']);
+		$this->AngsuranTotal->setDbValue($row['AngsuranTotal']);
 		$this->NoKontrakRefTo->setDbValue($row['NoKontrakRefTo']);
 	}
 
@@ -718,11 +734,13 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		$row['TglKontrak'] = $this->TglKontrak->CurrentValue;
 		$row['nasabah_id'] = $this->nasabah_id->CurrentValue;
 		$row['Pinjaman'] = $this->Pinjaman->CurrentValue;
+		$row['LamaAngsuran'] = $this->LamaAngsuran->CurrentValue;
 		$row['Bunga'] = $this->Bunga->CurrentValue;
 		$row['Denda'] = $this->Denda->CurrentValue;
 		$row['DispensasiDenda'] = $this->DispensasiDenda->CurrentValue;
-		$row['LamaAngsuran'] = $this->LamaAngsuran->CurrentValue;
-		$row['JumlahAngsuran'] = $this->JumlahAngsuran->CurrentValue;
+		$row['AngsuranPokok'] = $this->AngsuranPokok->CurrentValue;
+		$row['AngsuranBunga'] = $this->AngsuranBunga->CurrentValue;
+		$row['AngsuranTotal'] = $this->AngsuranTotal->CurrentValue;
 		$row['NoKontrakRefTo'] = $this->NoKontrakRefTo->CurrentValue;
 		return $row;
 	}
@@ -737,11 +755,13 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		$this->TglKontrak->DbValue = $row['TglKontrak'];
 		$this->nasabah_id->DbValue = $row['nasabah_id'];
 		$this->Pinjaman->DbValue = $row['Pinjaman'];
+		$this->LamaAngsuran->DbValue = $row['LamaAngsuran'];
 		$this->Bunga->DbValue = $row['Bunga'];
 		$this->Denda->DbValue = $row['Denda'];
 		$this->DispensasiDenda->DbValue = $row['DispensasiDenda'];
-		$this->LamaAngsuran->DbValue = $row['LamaAngsuran'];
-		$this->JumlahAngsuran->DbValue = $row['JumlahAngsuran'];
+		$this->AngsuranPokok->DbValue = $row['AngsuranPokok'];
+		$this->AngsuranBunga->DbValue = $row['AngsuranBunga'];
+		$this->AngsuranTotal->DbValue = $row['AngsuranTotal'];
 		$this->NoKontrakRefTo->DbValue = $row['NoKontrakRefTo'];
 	}
 
@@ -786,8 +806,16 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 			$this->Denda->CurrentValue = ew_StrToFloat($this->Denda->CurrentValue);
 
 		// Convert decimal values if posted back
-		if ($this->JumlahAngsuran->FormValue == $this->JumlahAngsuran->CurrentValue && is_numeric(ew_StrToFloat($this->JumlahAngsuran->CurrentValue)))
-			$this->JumlahAngsuran->CurrentValue = ew_StrToFloat($this->JumlahAngsuran->CurrentValue);
+		if ($this->AngsuranPokok->FormValue == $this->AngsuranPokok->CurrentValue && is_numeric(ew_StrToFloat($this->AngsuranPokok->CurrentValue)))
+			$this->AngsuranPokok->CurrentValue = ew_StrToFloat($this->AngsuranPokok->CurrentValue);
+
+		// Convert decimal values if posted back
+		if ($this->AngsuranBunga->FormValue == $this->AngsuranBunga->CurrentValue && is_numeric(ew_StrToFloat($this->AngsuranBunga->CurrentValue)))
+			$this->AngsuranBunga->CurrentValue = ew_StrToFloat($this->AngsuranBunga->CurrentValue);
+
+		// Convert decimal values if posted back
+		if ($this->AngsuranTotal->FormValue == $this->AngsuranTotal->CurrentValue && is_numeric(ew_StrToFloat($this->AngsuranTotal->CurrentValue)))
+			$this->AngsuranTotal->CurrentValue = ew_StrToFloat($this->AngsuranTotal->CurrentValue);
 
 		// Call Row_Rendering event
 		$this->Row_Rendering();
@@ -798,11 +826,13 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		// TglKontrak
 		// nasabah_id
 		// Pinjaman
+		// LamaAngsuran
 		// Bunga
 		// Denda
 		// DispensasiDenda
-		// LamaAngsuran
-		// JumlahAngsuran
+		// AngsuranPokok
+		// AngsuranBunga
+		// AngsuranTotal
 		// NoKontrakRefTo
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
@@ -854,9 +884,15 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		$this->Pinjaman->CellCssStyle .= "text-align: right;";
 		$this->Pinjaman->ViewCustomAttributes = "";
 
+		// LamaAngsuran
+		$this->LamaAngsuran->ViewValue = $this->LamaAngsuran->CurrentValue;
+		$this->LamaAngsuran->ViewValue = ew_FormatNumber($this->LamaAngsuran->ViewValue, 0, -2, -2, -2);
+		$this->LamaAngsuran->CellCssStyle .= "text-align: right;";
+		$this->LamaAngsuran->ViewCustomAttributes = "";
+
 		// Bunga
 		$this->Bunga->ViewValue = $this->Bunga->CurrentValue;
-		$this->Bunga->ViewValue = ew_FormatNumber($this->Bunga->ViewValue, 3, -2, -2, -2);
+		$this->Bunga->ViewValue = ew_FormatNumber($this->Bunga->ViewValue, 2, -2, -2, -2);
 		$this->Bunga->CellCssStyle .= "text-align: right;";
 		$this->Bunga->ViewCustomAttributes = "";
 
@@ -872,17 +908,23 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		$this->DispensasiDenda->CellCssStyle .= "text-align: right;";
 		$this->DispensasiDenda->ViewCustomAttributes = "";
 
-		// LamaAngsuran
-		$this->LamaAngsuran->ViewValue = $this->LamaAngsuran->CurrentValue;
-		$this->LamaAngsuran->ViewValue = ew_FormatNumber($this->LamaAngsuran->ViewValue, 0, -2, -2, -2);
-		$this->LamaAngsuran->CellCssStyle .= "text-align: right;";
-		$this->LamaAngsuran->ViewCustomAttributes = "";
+		// AngsuranPokok
+		$this->AngsuranPokok->ViewValue = $this->AngsuranPokok->CurrentValue;
+		$this->AngsuranPokok->ViewValue = ew_FormatNumber($this->AngsuranPokok->ViewValue, 2, -2, -2, -2);
+		$this->AngsuranPokok->CellCssStyle .= "text-align: right;";
+		$this->AngsuranPokok->ViewCustomAttributes = "";
 
-		// JumlahAngsuran
-		$this->JumlahAngsuran->ViewValue = $this->JumlahAngsuran->CurrentValue;
-		$this->JumlahAngsuran->ViewValue = ew_FormatNumber($this->JumlahAngsuran->ViewValue, 2, -2, -2, -2);
-		$this->JumlahAngsuran->CellCssStyle .= "text-align: right;";
-		$this->JumlahAngsuran->ViewCustomAttributes = "";
+		// AngsuranBunga
+		$this->AngsuranBunga->ViewValue = $this->AngsuranBunga->CurrentValue;
+		$this->AngsuranBunga->ViewValue = ew_FormatNumber($this->AngsuranBunga->ViewValue, 2, -2, -2, -2);
+		$this->AngsuranBunga->CellCssStyle .= "text-align: right;";
+		$this->AngsuranBunga->ViewCustomAttributes = "";
+
+		// AngsuranTotal
+		$this->AngsuranTotal->ViewValue = $this->AngsuranTotal->CurrentValue;
+		$this->AngsuranTotal->ViewValue = ew_FormatNumber($this->AngsuranTotal->ViewValue, 2, -2, -2, -2);
+		$this->AngsuranTotal->CellCssStyle .= "text-align: right;";
+		$this->AngsuranTotal->ViewCustomAttributes = "";
 
 		// NoKontrakRefTo
 		$this->NoKontrakRefTo->ViewValue = $this->NoKontrakRefTo->CurrentValue;
@@ -908,6 +950,11 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 			$this->Pinjaman->HrefValue = "";
 			$this->Pinjaman->TooltipValue = "";
 
+			// LamaAngsuran
+			$this->LamaAngsuran->LinkCustomAttributes = "";
+			$this->LamaAngsuran->HrefValue = "";
+			$this->LamaAngsuran->TooltipValue = "";
+
 			// Bunga
 			$this->Bunga->LinkCustomAttributes = "";
 			$this->Bunga->HrefValue = "";
@@ -923,15 +970,20 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 			$this->DispensasiDenda->HrefValue = "";
 			$this->DispensasiDenda->TooltipValue = "";
 
-			// LamaAngsuran
-			$this->LamaAngsuran->LinkCustomAttributes = "";
-			$this->LamaAngsuran->HrefValue = "";
-			$this->LamaAngsuran->TooltipValue = "";
+			// AngsuranPokok
+			$this->AngsuranPokok->LinkCustomAttributes = "";
+			$this->AngsuranPokok->HrefValue = "";
+			$this->AngsuranPokok->TooltipValue = "";
 
-			// JumlahAngsuran
-			$this->JumlahAngsuran->LinkCustomAttributes = "";
-			$this->JumlahAngsuran->HrefValue = "";
-			$this->JumlahAngsuran->TooltipValue = "";
+			// AngsuranBunga
+			$this->AngsuranBunga->LinkCustomAttributes = "";
+			$this->AngsuranBunga->HrefValue = "";
+			$this->AngsuranBunga->TooltipValue = "";
+
+			// AngsuranTotal
+			$this->AngsuranTotal->LinkCustomAttributes = "";
+			$this->AngsuranTotal->HrefValue = "";
+			$this->AngsuranTotal->TooltipValue = "";
 
 			// NoKontrakRefTo
 			$this->NoKontrakRefTo->LinkCustomAttributes = "";
@@ -984,6 +1036,12 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 			$this->Pinjaman->PlaceHolder = ew_RemoveHtml($this->Pinjaman->FldCaption());
 			if (strval($this->Pinjaman->EditValue) <> "" && is_numeric($this->Pinjaman->EditValue)) $this->Pinjaman->EditValue = ew_FormatNumber($this->Pinjaman->EditValue, -2, -2, -2, -2);
 
+			// LamaAngsuran
+			$this->LamaAngsuran->EditAttrs["class"] = "form-control";
+			$this->LamaAngsuran->EditCustomAttributes = "";
+			$this->LamaAngsuran->EditValue = ew_HtmlEncode($this->LamaAngsuran->CurrentValue);
+			$this->LamaAngsuran->PlaceHolder = ew_RemoveHtml($this->LamaAngsuran->FldCaption());
+
 			// Bunga
 			$this->Bunga->EditAttrs["class"] = "form-control";
 			$this->Bunga->EditCustomAttributes = "";
@@ -1004,18 +1062,26 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 			$this->DispensasiDenda->EditValue = ew_HtmlEncode($this->DispensasiDenda->CurrentValue);
 			$this->DispensasiDenda->PlaceHolder = ew_RemoveHtml($this->DispensasiDenda->FldCaption());
 
-			// LamaAngsuran
-			$this->LamaAngsuran->EditAttrs["class"] = "form-control";
-			$this->LamaAngsuran->EditCustomAttributes = "";
-			$this->LamaAngsuran->EditValue = ew_HtmlEncode($this->LamaAngsuran->CurrentValue);
-			$this->LamaAngsuran->PlaceHolder = ew_RemoveHtml($this->LamaAngsuran->FldCaption());
+			// AngsuranPokok
+			$this->AngsuranPokok->EditAttrs["class"] = "form-control";
+			$this->AngsuranPokok->EditCustomAttributes = "";
+			$this->AngsuranPokok->EditValue = ew_HtmlEncode($this->AngsuranPokok->CurrentValue);
+			$this->AngsuranPokok->PlaceHolder = ew_RemoveHtml($this->AngsuranPokok->FldCaption());
+			if (strval($this->AngsuranPokok->EditValue) <> "" && is_numeric($this->AngsuranPokok->EditValue)) $this->AngsuranPokok->EditValue = ew_FormatNumber($this->AngsuranPokok->EditValue, -2, -2, -2, -2);
 
-			// JumlahAngsuran
-			$this->JumlahAngsuran->EditAttrs["class"] = "form-control";
-			$this->JumlahAngsuran->EditCustomAttributes = "";
-			$this->JumlahAngsuran->EditValue = ew_HtmlEncode($this->JumlahAngsuran->CurrentValue);
-			$this->JumlahAngsuran->PlaceHolder = ew_RemoveHtml($this->JumlahAngsuran->FldCaption());
-			if (strval($this->JumlahAngsuran->EditValue) <> "" && is_numeric($this->JumlahAngsuran->EditValue)) $this->JumlahAngsuran->EditValue = ew_FormatNumber($this->JumlahAngsuran->EditValue, -2, -2, -2, -2);
+			// AngsuranBunga
+			$this->AngsuranBunga->EditAttrs["class"] = "form-control";
+			$this->AngsuranBunga->EditCustomAttributes = "";
+			$this->AngsuranBunga->EditValue = ew_HtmlEncode($this->AngsuranBunga->CurrentValue);
+			$this->AngsuranBunga->PlaceHolder = ew_RemoveHtml($this->AngsuranBunga->FldCaption());
+			if (strval($this->AngsuranBunga->EditValue) <> "" && is_numeric($this->AngsuranBunga->EditValue)) $this->AngsuranBunga->EditValue = ew_FormatNumber($this->AngsuranBunga->EditValue, -2, -2, -2, -2);
+
+			// AngsuranTotal
+			$this->AngsuranTotal->EditAttrs["class"] = "form-control";
+			$this->AngsuranTotal->EditCustomAttributes = "";
+			$this->AngsuranTotal->EditValue = ew_HtmlEncode($this->AngsuranTotal->CurrentValue);
+			$this->AngsuranTotal->PlaceHolder = ew_RemoveHtml($this->AngsuranTotal->FldCaption());
+			if (strval($this->AngsuranTotal->EditValue) <> "" && is_numeric($this->AngsuranTotal->EditValue)) $this->AngsuranTotal->EditValue = ew_FormatNumber($this->AngsuranTotal->EditValue, -2, -2, -2, -2);
 
 			// NoKontrakRefTo
 			$this->NoKontrakRefTo->EditAttrs["class"] = "form-control";
@@ -1041,6 +1107,10 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 			$this->Pinjaman->LinkCustomAttributes = "";
 			$this->Pinjaman->HrefValue = "";
 
+			// LamaAngsuran
+			$this->LamaAngsuran->LinkCustomAttributes = "";
+			$this->LamaAngsuran->HrefValue = "";
+
 			// Bunga
 			$this->Bunga->LinkCustomAttributes = "";
 			$this->Bunga->HrefValue = "";
@@ -1053,13 +1123,17 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 			$this->DispensasiDenda->LinkCustomAttributes = "";
 			$this->DispensasiDenda->HrefValue = "";
 
-			// LamaAngsuran
-			$this->LamaAngsuran->LinkCustomAttributes = "";
-			$this->LamaAngsuran->HrefValue = "";
+			// AngsuranPokok
+			$this->AngsuranPokok->LinkCustomAttributes = "";
+			$this->AngsuranPokok->HrefValue = "";
 
-			// JumlahAngsuran
-			$this->JumlahAngsuran->LinkCustomAttributes = "";
-			$this->JumlahAngsuran->HrefValue = "";
+			// AngsuranBunga
+			$this->AngsuranBunga->LinkCustomAttributes = "";
+			$this->AngsuranBunga->HrefValue = "";
+
+			// AngsuranTotal
+			$this->AngsuranTotal->LinkCustomAttributes = "";
+			$this->AngsuranTotal->HrefValue = "";
 
 			// NoKontrakRefTo
 			$this->NoKontrakRefTo->LinkCustomAttributes = "";
@@ -1101,6 +1175,12 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		if (!ew_CheckNumber($this->Pinjaman->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Pinjaman->FldErrMsg());
 		}
+		if (!$this->LamaAngsuran->FldIsDetailKey && !is_null($this->LamaAngsuran->FormValue) && $this->LamaAngsuran->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->LamaAngsuran->FldCaption(), $this->LamaAngsuran->ReqErrMsg));
+		}
+		if (!ew_CheckInteger($this->LamaAngsuran->FormValue)) {
+			ew_AddMessage($gsFormError, $this->LamaAngsuran->FldErrMsg());
+		}
 		if (!ew_CheckNumber($this->Bunga->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Bunga->FldErrMsg());
 		}
@@ -1110,17 +1190,23 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		if (!ew_CheckInteger($this->DispensasiDenda->FormValue)) {
 			ew_AddMessage($gsFormError, $this->DispensasiDenda->FldErrMsg());
 		}
-		if (!$this->LamaAngsuran->FldIsDetailKey && !is_null($this->LamaAngsuran->FormValue) && $this->LamaAngsuran->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->LamaAngsuran->FldCaption(), $this->LamaAngsuran->ReqErrMsg));
+		if (!$this->AngsuranPokok->FldIsDetailKey && !is_null($this->AngsuranPokok->FormValue) && $this->AngsuranPokok->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->AngsuranPokok->FldCaption(), $this->AngsuranPokok->ReqErrMsg));
 		}
-		if (!ew_CheckInteger($this->LamaAngsuran->FormValue)) {
-			ew_AddMessage($gsFormError, $this->LamaAngsuran->FldErrMsg());
+		if (!ew_CheckNumber($this->AngsuranPokok->FormValue)) {
+			ew_AddMessage($gsFormError, $this->AngsuranPokok->FldErrMsg());
 		}
-		if (!$this->JumlahAngsuran->FldIsDetailKey && !is_null($this->JumlahAngsuran->FormValue) && $this->JumlahAngsuran->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->JumlahAngsuran->FldCaption(), $this->JumlahAngsuran->ReqErrMsg));
+		if (!$this->AngsuranBunga->FldIsDetailKey && !is_null($this->AngsuranBunga->FormValue) && $this->AngsuranBunga->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->AngsuranBunga->FldCaption(), $this->AngsuranBunga->ReqErrMsg));
 		}
-		if (!ew_CheckNumber($this->JumlahAngsuran->FormValue)) {
-			ew_AddMessage($gsFormError, $this->JumlahAngsuran->FldErrMsg());
+		if (!ew_CheckNumber($this->AngsuranBunga->FormValue)) {
+			ew_AddMessage($gsFormError, $this->AngsuranBunga->FldErrMsg());
+		}
+		if (!$this->AngsuranTotal->FldIsDetailKey && !is_null($this->AngsuranTotal->FormValue) && $this->AngsuranTotal->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->AngsuranTotal->FldCaption(), $this->AngsuranTotal->ReqErrMsg));
+		}
+		if (!ew_CheckNumber($this->AngsuranTotal->FormValue)) {
+			ew_AddMessage($gsFormError, $this->AngsuranTotal->FldErrMsg());
 		}
 		if (!ew_CheckInteger($this->NoKontrakRefTo->FormValue)) {
 			ew_AddMessage($gsFormError, $this->NoKontrakRefTo->FldErrMsg());
@@ -1176,6 +1262,9 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		// Pinjaman
 		$this->Pinjaman->SetDbValueDef($rsnew, $this->Pinjaman->CurrentValue, 0, FALSE);
 
+		// LamaAngsuran
+		$this->LamaAngsuran->SetDbValueDef($rsnew, $this->LamaAngsuran->CurrentValue, 0, FALSE);
+
 		// Bunga
 		$this->Bunga->SetDbValueDef($rsnew, $this->Bunga->CurrentValue, 0, strval($this->Bunga->CurrentValue) == "");
 
@@ -1185,11 +1274,14 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 		// DispensasiDenda
 		$this->DispensasiDenda->SetDbValueDef($rsnew, $this->DispensasiDenda->CurrentValue, 0, strval($this->DispensasiDenda->CurrentValue) == "");
 
-		// LamaAngsuran
-		$this->LamaAngsuran->SetDbValueDef($rsnew, $this->LamaAngsuran->CurrentValue, 0, FALSE);
+		// AngsuranPokok
+		$this->AngsuranPokok->SetDbValueDef($rsnew, $this->AngsuranPokok->CurrentValue, 0, FALSE);
 
-		// JumlahAngsuran
-		$this->JumlahAngsuran->SetDbValueDef($rsnew, $this->JumlahAngsuran->CurrentValue, 0, FALSE);
+		// AngsuranBunga
+		$this->AngsuranBunga->SetDbValueDef($rsnew, $this->AngsuranBunga->CurrentValue, 0, FALSE);
+
+		// AngsuranTotal
+		$this->AngsuranTotal->SetDbValueDef($rsnew, $this->AngsuranTotal->CurrentValue, 0, FALSE);
 
 		// NoKontrakRefTo
 		$this->NoKontrakRefTo->SetDbValueDef($rsnew, $this->NoKontrakRefTo->CurrentValue, NULL, FALSE);
@@ -1480,6 +1572,12 @@ ft03_pinjamanadd.Validate = function() {
 			elm = this.GetElements("x" + infix + "_Pinjaman");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->Pinjaman->FldErrMsg()) ?>");
+			elm = this.GetElements("x" + infix + "_LamaAngsuran");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->LamaAngsuran->FldCaption(), $t03_pinjaman->LamaAngsuran->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_LamaAngsuran");
+			if (elm && !ew_CheckInteger(elm.value))
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->LamaAngsuran->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_Bunga");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->Bunga->FldErrMsg()) ?>");
@@ -1489,18 +1587,24 @@ ft03_pinjamanadd.Validate = function() {
 			elm = this.GetElements("x" + infix + "_DispensasiDenda");
 			if (elm && !ew_CheckInteger(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->DispensasiDenda->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_LamaAngsuran");
+			elm = this.GetElements("x" + infix + "_AngsuranPokok");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->LamaAngsuran->FldCaption(), $t03_pinjaman->LamaAngsuran->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_LamaAngsuran");
-			if (elm && !ew_CheckInteger(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->LamaAngsuran->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_JumlahAngsuran");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->JumlahAngsuran->FldCaption(), $t03_pinjaman->JumlahAngsuran->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_JumlahAngsuran");
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->AngsuranPokok->FldCaption(), $t03_pinjaman->AngsuranPokok->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_AngsuranPokok");
 			if (elm && !ew_CheckNumber(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->JumlahAngsuran->FldErrMsg()) ?>");
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->AngsuranPokok->FldErrMsg()) ?>");
+			elm = this.GetElements("x" + infix + "_AngsuranBunga");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->AngsuranBunga->FldCaption(), $t03_pinjaman->AngsuranBunga->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_AngsuranBunga");
+			if (elm && !ew_CheckNumber(elm.value))
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->AngsuranBunga->FldErrMsg()) ?>");
+			elm = this.GetElements("x" + infix + "_AngsuranTotal");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->AngsuranTotal->FldCaption(), $t03_pinjaman->AngsuranTotal->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_AngsuranTotal");
+			if (elm && !ew_CheckNumber(elm.value))
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->AngsuranTotal->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_NoKontrakRefTo");
 			if (elm && !ew_CheckInteger(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->NoKontrakRefTo->FldErrMsg()) ?>");
@@ -1607,6 +1711,16 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 <?php echo $t03_pinjaman->Pinjaman->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
+<?php if ($t03_pinjaman->LamaAngsuran->Visible) { // LamaAngsuran ?>
+	<div id="r_LamaAngsuran" class="form-group">
+		<label id="elh_t03_pinjaman_LamaAngsuran" for="x_LamaAngsuran" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->LamaAngsuran->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->LamaAngsuran->CellAttributes() ?>>
+<span id="el_t03_pinjaman_LamaAngsuran">
+<input type="text" data-table="t03_pinjaman" data-field="x_LamaAngsuran" name="x_LamaAngsuran" id="x_LamaAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->LamaAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->LamaAngsuran->EditValue ?>"<?php echo $t03_pinjaman->LamaAngsuran->EditAttributes() ?>>
+</span>
+<?php echo $t03_pinjaman->LamaAngsuran->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
 <?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
 	<div id="r_Bunga" class="form-group">
 		<label id="elh_t03_pinjaman_Bunga" for="x_Bunga" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->Bunga->FldCaption() ?></label>
@@ -1637,24 +1751,34 @@ ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":tr
 <?php echo $t03_pinjaman->DispensasiDenda->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
-<?php if ($t03_pinjaman->LamaAngsuran->Visible) { // LamaAngsuran ?>
-	<div id="r_LamaAngsuran" class="form-group">
-		<label id="elh_t03_pinjaman_LamaAngsuran" for="x_LamaAngsuran" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->LamaAngsuran->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->LamaAngsuran->CellAttributes() ?>>
-<span id="el_t03_pinjaman_LamaAngsuran">
-<input type="text" data-table="t03_pinjaman" data-field="x_LamaAngsuran" name="x_LamaAngsuran" id="x_LamaAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->LamaAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->LamaAngsuran->EditValue ?>"<?php echo $t03_pinjaman->LamaAngsuran->EditAttributes() ?>>
+<?php if ($t03_pinjaman->AngsuranPokok->Visible) { // AngsuranPokok ?>
+	<div id="r_AngsuranPokok" class="form-group">
+		<label id="elh_t03_pinjaman_AngsuranPokok" for="x_AngsuranPokok" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->AngsuranPokok->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->AngsuranPokok->CellAttributes() ?>>
+<span id="el_t03_pinjaman_AngsuranPokok">
+<input type="text" data-table="t03_pinjaman" data-field="x_AngsuranPokok" name="x_AngsuranPokok" id="x_AngsuranPokok" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->AngsuranPokok->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->AngsuranPokok->EditValue ?>"<?php echo $t03_pinjaman->AngsuranPokok->EditAttributes() ?>>
 </span>
-<?php echo $t03_pinjaman->LamaAngsuran->CustomMsg ?></div></div>
+<?php echo $t03_pinjaman->AngsuranPokok->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
-<?php if ($t03_pinjaman->JumlahAngsuran->Visible) { // JumlahAngsuran ?>
-	<div id="r_JumlahAngsuran" class="form-group">
-		<label id="elh_t03_pinjaman_JumlahAngsuran" for="x_JumlahAngsuran" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->JumlahAngsuran->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->JumlahAngsuran->CellAttributes() ?>>
-<span id="el_t03_pinjaman_JumlahAngsuran">
-<input type="text" data-table="t03_pinjaman" data-field="x_JumlahAngsuran" name="x_JumlahAngsuran" id="x_JumlahAngsuran" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->JumlahAngsuran->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->JumlahAngsuran->EditValue ?>"<?php echo $t03_pinjaman->JumlahAngsuran->EditAttributes() ?>>
+<?php if ($t03_pinjaman->AngsuranBunga->Visible) { // AngsuranBunga ?>
+	<div id="r_AngsuranBunga" class="form-group">
+		<label id="elh_t03_pinjaman_AngsuranBunga" for="x_AngsuranBunga" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->AngsuranBunga->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->AngsuranBunga->CellAttributes() ?>>
+<span id="el_t03_pinjaman_AngsuranBunga">
+<input type="text" data-table="t03_pinjaman" data-field="x_AngsuranBunga" name="x_AngsuranBunga" id="x_AngsuranBunga" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->AngsuranBunga->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->AngsuranBunga->EditValue ?>"<?php echo $t03_pinjaman->AngsuranBunga->EditAttributes() ?>>
 </span>
-<?php echo $t03_pinjaman->JumlahAngsuran->CustomMsg ?></div></div>
+<?php echo $t03_pinjaman->AngsuranBunga->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+<?php if ($t03_pinjaman->AngsuranTotal->Visible) { // AngsuranTotal ?>
+	<div id="r_AngsuranTotal" class="form-group">
+		<label id="elh_t03_pinjaman_AngsuranTotal" for="x_AngsuranTotal" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->AngsuranTotal->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->AngsuranTotal->CellAttributes() ?>>
+<span id="el_t03_pinjaman_AngsuranTotal">
+<input type="text" data-table="t03_pinjaman" data-field="x_AngsuranTotal" name="x_AngsuranTotal" id="x_AngsuranTotal" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->AngsuranTotal->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->AngsuranTotal->EditValue ?>"<?php echo $t03_pinjaman->AngsuranTotal->EditAttributes() ?>>
+</span>
+<?php echo $t03_pinjaman->AngsuranTotal->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
 <?php if ($t03_pinjaman->NoKontrakRefTo->Visible) { // NoKontrakRefTo ?>

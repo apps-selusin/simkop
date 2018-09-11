@@ -4,11 +4,13 @@
 // TglKontrak
 // nasabah_id
 // Pinjaman
+// LamaAngsuran
 // Bunga
 // Denda
 // DispensasiDenda
-// LamaAngsuran
-// JumlahAngsuran
+// AngsuranPokok
+// AngsuranBunga
+// AngsuranTotal
 // NoKontrakRefTo
 
 ?>
@@ -60,6 +62,17 @@
 </td>
 		</tr>
 <?php } ?>
+<?php if ($t03_pinjaman->LamaAngsuran->Visible) { // LamaAngsuran ?>
+		<tr id="r_LamaAngsuran">
+			<td class="col-sm-2"><?php echo $t03_pinjaman->LamaAngsuran->FldCaption() ?></td>
+			<td<?php echo $t03_pinjaman->LamaAngsuran->CellAttributes() ?>>
+<span id="el_t03_pinjaman_LamaAngsuran">
+<span<?php echo $t03_pinjaman->LamaAngsuran->ViewAttributes() ?>>
+<?php echo $t03_pinjaman->LamaAngsuran->ListViewValue() ?></span>
+</span>
+</td>
+		</tr>
+<?php } ?>
 <?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
 		<tr id="r_Bunga">
 			<td class="col-sm-2"><?php echo $t03_pinjaman->Bunga->FldCaption() ?></td>
@@ -93,24 +106,35 @@
 </td>
 		</tr>
 <?php } ?>
-<?php if ($t03_pinjaman->LamaAngsuran->Visible) { // LamaAngsuran ?>
-		<tr id="r_LamaAngsuran">
-			<td class="col-sm-2"><?php echo $t03_pinjaman->LamaAngsuran->FldCaption() ?></td>
-			<td<?php echo $t03_pinjaman->LamaAngsuran->CellAttributes() ?>>
-<span id="el_t03_pinjaman_LamaAngsuran">
-<span<?php echo $t03_pinjaman->LamaAngsuran->ViewAttributes() ?>>
-<?php echo $t03_pinjaman->LamaAngsuran->ListViewValue() ?></span>
+<?php if ($t03_pinjaman->AngsuranPokok->Visible) { // AngsuranPokok ?>
+		<tr id="r_AngsuranPokok">
+			<td class="col-sm-2"><?php echo $t03_pinjaman->AngsuranPokok->FldCaption() ?></td>
+			<td<?php echo $t03_pinjaman->AngsuranPokok->CellAttributes() ?>>
+<span id="el_t03_pinjaman_AngsuranPokok">
+<span<?php echo $t03_pinjaman->AngsuranPokok->ViewAttributes() ?>>
+<?php echo $t03_pinjaman->AngsuranPokok->ListViewValue() ?></span>
 </span>
 </td>
 		</tr>
 <?php } ?>
-<?php if ($t03_pinjaman->JumlahAngsuran->Visible) { // JumlahAngsuran ?>
-		<tr id="r_JumlahAngsuran">
-			<td class="col-sm-2"><?php echo $t03_pinjaman->JumlahAngsuran->FldCaption() ?></td>
-			<td<?php echo $t03_pinjaman->JumlahAngsuran->CellAttributes() ?>>
-<span id="el_t03_pinjaman_JumlahAngsuran">
-<span<?php echo $t03_pinjaman->JumlahAngsuran->ViewAttributes() ?>>
-<?php echo $t03_pinjaman->JumlahAngsuran->ListViewValue() ?></span>
+<?php if ($t03_pinjaman->AngsuranBunga->Visible) { // AngsuranBunga ?>
+		<tr id="r_AngsuranBunga">
+			<td class="col-sm-2"><?php echo $t03_pinjaman->AngsuranBunga->FldCaption() ?></td>
+			<td<?php echo $t03_pinjaman->AngsuranBunga->CellAttributes() ?>>
+<span id="el_t03_pinjaman_AngsuranBunga">
+<span<?php echo $t03_pinjaman->AngsuranBunga->ViewAttributes() ?>>
+<?php echo $t03_pinjaman->AngsuranBunga->ListViewValue() ?></span>
+</span>
+</td>
+		</tr>
+<?php } ?>
+<?php if ($t03_pinjaman->AngsuranTotal->Visible) { // AngsuranTotal ?>
+		<tr id="r_AngsuranTotal">
+			<td class="col-sm-2"><?php echo $t03_pinjaman->AngsuranTotal->FldCaption() ?></td>
+			<td<?php echo $t03_pinjaman->AngsuranTotal->CellAttributes() ?>>
+<span id="el_t03_pinjaman_AngsuranTotal">
+<span<?php echo $t03_pinjaman->AngsuranTotal->ViewAttributes() ?>>
+<?php echo $t03_pinjaman->AngsuranTotal->ListViewValue() ?></span>
 </span>
 </td>
 		</tr>

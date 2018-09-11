@@ -7,7 +7,7 @@
 if (!isset($EW_RELATIVE_PATH)) $EW_RELATIVE_PATH = "";
 
 // Show SQL for debug
-define("EW_DEBUG_ENABLED", TRUE, TRUE); // TRUE to debug
+define("EW_DEBUG_ENABLED", FALSE, TRUE); // TRUE to debug
 if (EW_DEBUG_ENABLED) {
 	@ini_set("display_errors", "1"); // Display errors
 	error_reporting(E_ALL ^ E_NOTICE); // Report all errors except E_NOTICE
@@ -25,7 +25,7 @@ define("EW_CONFIG_FILE_FOLDER", EW_PROJECT_NAME, TRUE); // Config file name
 define("EW_PROJECT_ID", "{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}", TRUE); // Project ID (GUID)
 $EW_RELATED_PROJECT_ID = "";
 $EW_RELATED_LANGUAGE_FOLDER = "";
-define("EW_RANDOM_KEY", '8ANZ5CHUpom9r1OE', TRUE); // Random key for encryption
+define("EW_RANDOM_KEY", 'kTw0S9p3s33HM5sg', TRUE); // Random key for encryption
 define("EW_PROJECT_STYLESHEET_FILENAME", "phpcss/simkop_prj.css", TRUE); // Project stylesheet file name
 define("EW_CHARSET", "utf-8", TRUE); // Project charset
 define("EW_EMAIL_CHARSET", EW_CHARSET, TRUE); // Email charset
