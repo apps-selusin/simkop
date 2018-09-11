@@ -124,14 +124,17 @@ jQuery.get("<?php echo $EW_RELATIVE_PATH ?>phpjs/userevt14.js");
 		{ // keys = event types, values = handler functions
 			"change keyup": function(e) {
 				var $row = $(this).fields();
-				var lama_angsuran = parseFloat($row["LamaAngsuran"].val());
 				var pinjaman_asli = $row["Pinjaman"].val();
 				var pinjaman_clean = pinjaman_asli.replace(/,/g, '');
 				var pinjaman = parseFloat(pinjaman_clean);
-
-				//var jumlah_angsuran = pinjaman / lama_angsuran;
-				var jumlah_angsuran = (pinjaman / lama_angsuran) + (pinjaman * (2.25/100));
-				$row["JumlahAngsuran"].val(jumlah_angsuran);
+				var lama_angsuran = parseFloat($row["LamaAngsuran"].val());
+				var bunga = parseFloat($row["Bunga"].val());
+				var angsuran_pokok = pinjaman / lama_angsuran;
+				var angsuran_bunga = pinjaman * (bunga / 100);
+				var angsuran_total = angsuran_pokok + angsuran_bunga;
+				$row["AngsuranPokok"].val(angsuran_pokok);
+				$row["AngsuranBunga"].val(angsuran_bunga);
+				$row["AngsuranTotal"].val(angsuran_total);
 			}
 		}
 	);
@@ -141,14 +144,37 @@ jQuery.get("<?php echo $EW_RELATIVE_PATH ?>phpjs/userevt14.js");
 		{ // keys = event types, values = handler functions
 			"change keyup": function(e) {
 				var $row = $(this).fields();
-				var lama_angsuran = parseFloat($row["LamaAngsuran"].val());
 				var pinjaman_asli = $row["Pinjaman"].val();
 				var pinjaman_clean = pinjaman_asli.replace(/,/g, '');
 				var pinjaman = parseFloat(pinjaman_clean);
+				var lama_angsuran = parseFloat($row["LamaAngsuran"].val());
+				var bunga = parseFloat($row["Bunga"].val());
+				var angsuran_pokok = pinjaman / lama_angsuran;
+				var angsuran_bunga = pinjaman * (bunga / 100);
+				var angsuran_total = angsuran_pokok + angsuran_bunga;
+				$row["AngsuranPokok"].val(angsuran_pokok);
+				$row["AngsuranBunga"].val(angsuran_bunga);
+				$row["AngsuranTotal"].val(angsuran_total);
+			}
+		}
+	);
 
-				//var jumlah_angsuran = pinjaman / lama_angsuran;
-				var jumlah_angsuran = (pinjaman / lama_angsuran) + (pinjaman * (2.25/100));
-				$row["JumlahAngsuran"].val(jumlah_angsuran);
+	// Table 't03_pinjaman' Field 'Bunga'
+	$('[data-table=t03_pinjaman][data-field=x_Bunga]').on(
+		{ // keys = event types, values = handler functions
+			"change keyup": function(e) {
+				var $row = $(this).fields();
+				var pinjaman_asli = $row["Pinjaman"].val();
+				var pinjaman_clean = pinjaman_asli.replace(/,/g, '');
+				var pinjaman = parseFloat(pinjaman_clean);
+				var lama_angsuran = parseFloat($row["LamaAngsuran"].val());
+				var bunga = parseFloat($row["Bunga"].val());
+				var angsuran_pokok = pinjaman / lama_angsuran;
+				var angsuran_bunga = pinjaman * (bunga / 100);
+				var angsuran_total = angsuran_pokok + angsuran_bunga;
+				$row["AngsuranPokok"].val(angsuran_pokok);
+				$row["AngsuranBunga"].val(angsuran_bunga);
+				$row["AngsuranTotal"].val(angsuran_total);
 			}
 		}
 	);
