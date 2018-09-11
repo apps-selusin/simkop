@@ -1477,7 +1477,7 @@ class ct03_pinjaman extends cTable {
 		ew_Execute($q);
 
 		// create data rincian angsuran
-		$pinjaman_id     = $rsnew["id"];
+		$pinjaman_id     = $rsold["id"];
 		$AngsuranTanggal = $rsnew["TglKontrak"]; //$_GET["TglKontrak"]; //$rsnew["TglKontrak"];
 		$AngsuranTgl     = substr($AngsuranTanggal, -2); //substr($rsnew["TglKontrak"], -2);
 
@@ -1521,7 +1521,7 @@ class ct03_pinjaman extends cTable {
 				".$AngsuranTotal.",
 				".$SisaHutang."
 				)";
-			ew_Execute($q);
+			ew_Execute($q); //echo $q; exit;
 		}
 	}
 

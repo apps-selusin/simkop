@@ -1314,7 +1314,16 @@ class ct04_angsuran_list extends ct04_angsuran {
 		// TotalDenda
 		// Terlambat
 		// Keterangan
+		// Accumulate aggregate value
 
+		if ($this->RowType <> EW_ROWTYPE_AGGREGATEINIT && $this->RowType <> EW_ROWTYPE_AGGREGATE) {
+			if (is_numeric($this->AngsuranPokok->CurrentValue))
+				$this->AngsuranPokok->Total += $this->AngsuranPokok->CurrentValue; // Accumulate total
+			if (is_numeric($this->AngsuranBunga->CurrentValue))
+				$this->AngsuranBunga->Total += $this->AngsuranBunga->CurrentValue; // Accumulate total
+			if (is_numeric($this->AngsuranTotal->CurrentValue))
+				$this->AngsuranTotal->Total += $this->AngsuranTotal->CurrentValue; // Accumulate total
+		}
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
 		// id
@@ -1428,6 +1437,29 @@ class ct04_angsuran_list extends ct04_angsuran {
 			$this->Keterangan->LinkCustomAttributes = "";
 			$this->Keterangan->HrefValue = "";
 			$this->Keterangan->TooltipValue = "";
+		} elseif ($this->RowType == EW_ROWTYPE_AGGREGATEINIT) { // Initialize aggregate row
+			$this->AngsuranPokok->Total = 0; // Initialize total
+			$this->AngsuranBunga->Total = 0; // Initialize total
+			$this->AngsuranTotal->Total = 0; // Initialize total
+		} elseif ($this->RowType == EW_ROWTYPE_AGGREGATE) { // Aggregate row
+			$this->AngsuranPokok->CurrentValue = $this->AngsuranPokok->Total;
+			$this->AngsuranPokok->ViewValue = $this->AngsuranPokok->CurrentValue;
+			$this->AngsuranPokok->ViewValue = ew_FormatNumber($this->AngsuranPokok->ViewValue, 2, -2, -2, -2);
+			$this->AngsuranPokok->CellCssStyle .= "text-align: right;";
+			$this->AngsuranPokok->ViewCustomAttributes = "";
+			$this->AngsuranPokok->HrefValue = ""; // Clear href value
+			$this->AngsuranBunga->CurrentValue = $this->AngsuranBunga->Total;
+			$this->AngsuranBunga->ViewValue = $this->AngsuranBunga->CurrentValue;
+			$this->AngsuranBunga->ViewValue = ew_FormatNumber($this->AngsuranBunga->ViewValue, 2, -2, -2, -2);
+			$this->AngsuranBunga->CellCssStyle .= "text-align: right;";
+			$this->AngsuranBunga->ViewCustomAttributes = "";
+			$this->AngsuranBunga->HrefValue = ""; // Clear href value
+			$this->AngsuranTotal->CurrentValue = $this->AngsuranTotal->Total;
+			$this->AngsuranTotal->ViewValue = $this->AngsuranTotal->CurrentValue;
+			$this->AngsuranTotal->ViewValue = ew_FormatNumber($this->AngsuranTotal->ViewValue, 2, -2, -2, -2);
+			$this->AngsuranTotal->CellCssStyle .= "text-align: right;";
+			$this->AngsuranTotal->ViewCustomAttributes = "";
+			$this->AngsuranTotal->HrefValue = ""; // Clear href value
 		}
 
 		// Call Row Rendered event
@@ -2097,6 +2129,85 @@ $t04_angsuran_list->ListOptions->Render("body", "right", $t04_angsuran_list->Row
 }
 ?>
 </tbody>
+<?php
+
+// Render aggregate row
+$t04_angsuran->RowType = EW_ROWTYPE_AGGREGATE;
+$t04_angsuran->ResetAttrs();
+$t04_angsuran_list->RenderRow();
+?>
+<?php if ($t04_angsuran_list->TotalRecs > 0 && ($t04_angsuran->CurrentAction <> "gridadd" && $t04_angsuran->CurrentAction <> "gridedit")) { ?>
+<tfoot><!-- Table footer -->
+	<tr class="ewTableFooter">
+<?php
+
+// Render list options
+$t04_angsuran_list->RenderListOptions();
+
+// Render list options (footer, left)
+$t04_angsuran_list->ListOptions->Render("footer", "left");
+?>
+	<?php if ($t04_angsuran->AngsuranKe->Visible) { // AngsuranKe ?>
+		<td data-name="AngsuranKe" class="<?php echo $t04_angsuran->AngsuranKe->FooterCellClass() ?>"><span id="elf_t04_angsuran_AngsuranKe" class="t04_angsuran_AngsuranKe">
+		&nbsp;
+		</span></td>
+	<?php } ?>
+	<?php if ($t04_angsuran->AngsuranTanggal->Visible) { // AngsuranTanggal ?>
+		<td data-name="AngsuranTanggal" class="<?php echo $t04_angsuran->AngsuranTanggal->FooterCellClass() ?>"><span id="elf_t04_angsuran_AngsuranTanggal" class="t04_angsuran_AngsuranTanggal">
+		&nbsp;
+		</span></td>
+	<?php } ?>
+	<?php if ($t04_angsuran->AngsuranPokok->Visible) { // AngsuranPokok ?>
+		<td data-name="AngsuranPokok" class="<?php echo $t04_angsuran->AngsuranPokok->FooterCellClass() ?>"><span id="elf_t04_angsuran_AngsuranPokok" class="t04_angsuran_AngsuranPokok">
+<span class="ewAggregate"><?php echo $Language->Phrase("TOTAL") ?></span><span class="ewAggregateValue">
+<?php echo $t04_angsuran->AngsuranPokok->ViewValue ?></span>
+		</span></td>
+	<?php } ?>
+	<?php if ($t04_angsuran->AngsuranBunga->Visible) { // AngsuranBunga ?>
+		<td data-name="AngsuranBunga" class="<?php echo $t04_angsuran->AngsuranBunga->FooterCellClass() ?>"><span id="elf_t04_angsuran_AngsuranBunga" class="t04_angsuran_AngsuranBunga">
+<span class="ewAggregate"><?php echo $Language->Phrase("TOTAL") ?></span><span class="ewAggregateValue">
+<?php echo $t04_angsuran->AngsuranBunga->ViewValue ?></span>
+		</span></td>
+	<?php } ?>
+	<?php if ($t04_angsuran->AngsuranTotal->Visible) { // AngsuranTotal ?>
+		<td data-name="AngsuranTotal" class="<?php echo $t04_angsuran->AngsuranTotal->FooterCellClass() ?>"><span id="elf_t04_angsuran_AngsuranTotal" class="t04_angsuran_AngsuranTotal">
+<span class="ewAggregate"><?php echo $Language->Phrase("TOTAL") ?></span><span class="ewAggregateValue">
+<?php echo $t04_angsuran->AngsuranTotal->ViewValue ?></span>
+		</span></td>
+	<?php } ?>
+	<?php if ($t04_angsuran->SisaHutang->Visible) { // SisaHutang ?>
+		<td data-name="SisaHutang" class="<?php echo $t04_angsuran->SisaHutang->FooterCellClass() ?>"><span id="elf_t04_angsuran_SisaHutang" class="t04_angsuran_SisaHutang">
+		&nbsp;
+		</span></td>
+	<?php } ?>
+	<?php if ($t04_angsuran->TanggalBayar->Visible) { // TanggalBayar ?>
+		<td data-name="TanggalBayar" class="<?php echo $t04_angsuran->TanggalBayar->FooterCellClass() ?>"><span id="elf_t04_angsuran_TanggalBayar" class="t04_angsuran_TanggalBayar">
+		&nbsp;
+		</span></td>
+	<?php } ?>
+	<?php if ($t04_angsuran->TotalDenda->Visible) { // TotalDenda ?>
+		<td data-name="TotalDenda" class="<?php echo $t04_angsuran->TotalDenda->FooterCellClass() ?>"><span id="elf_t04_angsuran_TotalDenda" class="t04_angsuran_TotalDenda">
+		&nbsp;
+		</span></td>
+	<?php } ?>
+	<?php if ($t04_angsuran->Terlambat->Visible) { // Terlambat ?>
+		<td data-name="Terlambat" class="<?php echo $t04_angsuran->Terlambat->FooterCellClass() ?>"><span id="elf_t04_angsuran_Terlambat" class="t04_angsuran_Terlambat">
+		&nbsp;
+		</span></td>
+	<?php } ?>
+	<?php if ($t04_angsuran->Keterangan->Visible) { // Keterangan ?>
+		<td data-name="Keterangan" class="<?php echo $t04_angsuran->Keterangan->FooterCellClass() ?>"><span id="elf_t04_angsuran_Keterangan" class="t04_angsuran_Keterangan">
+		&nbsp;
+		</span></td>
+	<?php } ?>
+<?php
+
+// Render list options (footer, right)
+$t04_angsuran_list->ListOptions->Render("footer", "right");
+?>
+	</tr>
+</tfoot>
+<?php } ?>
 </table>
 <?php } ?>
 <?php if ($t04_angsuran->CurrentAction == "") { ?>

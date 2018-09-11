@@ -50,7 +50,7 @@ class ct04_angsuran extends cTable {
 		$this->ExportWordPageOrientation = "portrait"; // Page orientation (PHPWord only)
 		$this->ExportWordColumnWidth = NULL; // Cell width (PHPWord only)
 		$this->DetailAdd = FALSE; // Allow detail add
-		$this->DetailEdit = TRUE; // Allow detail edit
+		$this->DetailEdit = FALSE; // Allow detail edit
 		$this->DetailView = TRUE; // Allow detail view
 		$this->ShowMultipleDetails = FALSE; // Show multiple details
 		$this->GridAddRowCount = 5;
@@ -987,10 +987,34 @@ class ct04_angsuran extends cTable {
 
 	// Aggregate list row values
 	function AggregateListRowValues() {
+			if (is_numeric($this->AngsuranPokok->CurrentValue))
+				$this->AngsuranPokok->Total += $this->AngsuranPokok->CurrentValue; // Accumulate total
+			if (is_numeric($this->AngsuranBunga->CurrentValue))
+				$this->AngsuranBunga->Total += $this->AngsuranBunga->CurrentValue; // Accumulate total
+			if (is_numeric($this->AngsuranTotal->CurrentValue))
+				$this->AngsuranTotal->Total += $this->AngsuranTotal->CurrentValue; // Accumulate total
 	}
 
 	// Aggregate list row (for rendering)
 	function AggregateListRow() {
+			$this->AngsuranPokok->CurrentValue = $this->AngsuranPokok->Total;
+			$this->AngsuranPokok->ViewValue = $this->AngsuranPokok->CurrentValue;
+			$this->AngsuranPokok->ViewValue = ew_FormatNumber($this->AngsuranPokok->ViewValue, 2, -2, -2, -2);
+			$this->AngsuranPokok->CellCssStyle .= "text-align: right;";
+			$this->AngsuranPokok->ViewCustomAttributes = "";
+			$this->AngsuranPokok->HrefValue = ""; // Clear href value
+			$this->AngsuranBunga->CurrentValue = $this->AngsuranBunga->Total;
+			$this->AngsuranBunga->ViewValue = $this->AngsuranBunga->CurrentValue;
+			$this->AngsuranBunga->ViewValue = ew_FormatNumber($this->AngsuranBunga->ViewValue, 2, -2, -2, -2);
+			$this->AngsuranBunga->CellCssStyle .= "text-align: right;";
+			$this->AngsuranBunga->ViewCustomAttributes = "";
+			$this->AngsuranBunga->HrefValue = ""; // Clear href value
+			$this->AngsuranTotal->CurrentValue = $this->AngsuranTotal->Total;
+			$this->AngsuranTotal->ViewValue = $this->AngsuranTotal->CurrentValue;
+			$this->AngsuranTotal->ViewValue = ew_FormatNumber($this->AngsuranTotal->ViewValue, 2, -2, -2, -2);
+			$this->AngsuranTotal->CellCssStyle .= "text-align: right;";
+			$this->AngsuranTotal->ViewCustomAttributes = "";
+			$this->AngsuranTotal->HrefValue = ""; // Clear href value
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -1054,6 +1078,7 @@ class ct04_angsuran extends cTable {
 						$Doc->ExportPageBreak();
 				}
 				$this->LoadListRowValues($Recordset);
+				$this->AggregateListRowValues(); // Aggregate row values
 
 				// Render row
 				$this->RowType = EW_ROWTYPE_VIEW; // Render view
@@ -1094,6 +1119,29 @@ class ct04_angsuran extends cTable {
 			if ($Doc->ExportCustom)
 				$this->Row_Export($Recordset->fields);
 			$Recordset->MoveNext();
+		}
+
+		// Export aggregates (horizontal format only)
+		if ($Doc->Horizontal) {
+			$this->RowType = EW_ROWTYPE_AGGREGATE;
+			$this->ResetAttrs();
+			$this->AggregateListRow();
+			if (!$Doc->ExportCustom) {
+				$Doc->BeginExportRow(-1);
+				if ($this->id->Exportable) $Doc->ExportAggregate($this->id, '');
+				if ($this->pinjaman_id->Exportable) $Doc->ExportAggregate($this->pinjaman_id, '');
+				if ($this->AngsuranKe->Exportable) $Doc->ExportAggregate($this->AngsuranKe, '');
+				if ($this->AngsuranTanggal->Exportable) $Doc->ExportAggregate($this->AngsuranTanggal, '');
+				if ($this->AngsuranPokok->Exportable) $Doc->ExportAggregate($this->AngsuranPokok, 'TOTAL');
+				if ($this->AngsuranBunga->Exportable) $Doc->ExportAggregate($this->AngsuranBunga, 'TOTAL');
+				if ($this->AngsuranTotal->Exportable) $Doc->ExportAggregate($this->AngsuranTotal, 'TOTAL');
+				if ($this->SisaHutang->Exportable) $Doc->ExportAggregate($this->SisaHutang, '');
+				if ($this->TanggalBayar->Exportable) $Doc->ExportAggregate($this->TanggalBayar, '');
+				if ($this->TotalDenda->Exportable) $Doc->ExportAggregate($this->TotalDenda, '');
+				if ($this->Terlambat->Exportable) $Doc->ExportAggregate($this->Terlambat, '');
+				if ($this->Keterangan->Exportable) $Doc->ExportAggregate($this->Keterangan, '');
+				$Doc->EndExportRow();
+			}
 		}
 		if (!$Doc->ExportCustom) {
 			$Doc->ExportTableFooter();

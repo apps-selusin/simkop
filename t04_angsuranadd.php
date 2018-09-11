@@ -1453,7 +1453,7 @@ $t04_angsuran_add->ShowMessage();
 		<label id="elh_t04_angsuran_AngsuranKe" for="x_AngsuranKe" class="<?php echo $t04_angsuran_add->LeftColumnClass ?>"><?php echo $t04_angsuran->AngsuranKe->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t04_angsuran_add->RightColumnClass ?>"><div<?php echo $t04_angsuran->AngsuranKe->CellAttributes() ?>>
 <span id="el_t04_angsuran_AngsuranKe">
-<input type="text" data-table="t04_angsuran" data-field="x_AngsuranKe" name="x_AngsuranKe" id="x_AngsuranKe" size="30" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->AngsuranKe->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->AngsuranKe->EditValue ?>"<?php echo $t04_angsuran->AngsuranKe->EditAttributes() ?>>
+<input type="text" data-table="t04_angsuran" data-field="x_AngsuranKe" name="x_AngsuranKe" id="x_AngsuranKe" size="1" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->AngsuranKe->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->AngsuranKe->EditValue ?>"<?php echo $t04_angsuran->AngsuranKe->EditAttributes() ?>>
 </span>
 <?php echo $t04_angsuran->AngsuranKe->CustomMsg ?></div></div>
 	</div>
@@ -1463,12 +1463,7 @@ $t04_angsuran_add->ShowMessage();
 		<label id="elh_t04_angsuran_AngsuranTanggal" for="x_AngsuranTanggal" class="<?php echo $t04_angsuran_add->LeftColumnClass ?>"><?php echo $t04_angsuran->AngsuranTanggal->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t04_angsuran_add->RightColumnClass ?>"><div<?php echo $t04_angsuran->AngsuranTanggal->CellAttributes() ?>>
 <span id="el_t04_angsuran_AngsuranTanggal">
-<input type="text" data-table="t04_angsuran" data-field="x_AngsuranTanggal" data-format="7" name="x_AngsuranTanggal" id="x_AngsuranTanggal" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->AngsuranTanggal->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->AngsuranTanggal->EditValue ?>"<?php echo $t04_angsuran->AngsuranTanggal->EditAttributes() ?>>
-<?php if (!$t04_angsuran->AngsuranTanggal->ReadOnly && !$t04_angsuran->AngsuranTanggal->Disabled && !isset($t04_angsuran->AngsuranTanggal->EditAttrs["readonly"]) && !isset($t04_angsuran->AngsuranTanggal->EditAttrs["disabled"])) { ?>
-<script type="text/javascript">
-ew_CreateDateTimePicker("ft04_angsuranadd", "x_AngsuranTanggal", {"ignoreReadonly":true,"useCurrent":false,"format":7});
-</script>
-<?php } ?>
+<input type="text" data-table="t04_angsuran" data-field="x_AngsuranTanggal" data-format="7" name="x_AngsuranTanggal" id="x_AngsuranTanggal" size="7" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->AngsuranTanggal->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->AngsuranTanggal->EditValue ?>"<?php echo $t04_angsuran->AngsuranTanggal->EditAttributes() ?>>
 </span>
 <?php echo $t04_angsuran->AngsuranTanggal->CustomMsg ?></div></div>
 	</div>
@@ -1478,7 +1473,7 @@ ew_CreateDateTimePicker("ft04_angsuranadd", "x_AngsuranTanggal", {"ignoreReadonl
 		<label id="elh_t04_angsuran_AngsuranPokok" for="x_AngsuranPokok" class="<?php echo $t04_angsuran_add->LeftColumnClass ?>"><?php echo $t04_angsuran->AngsuranPokok->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t04_angsuran_add->RightColumnClass ?>"><div<?php echo $t04_angsuran->AngsuranPokok->CellAttributes() ?>>
 <span id="el_t04_angsuran_AngsuranPokok">
-<input type="text" data-table="t04_angsuran" data-field="x_AngsuranPokok" name="x_AngsuranPokok" id="x_AngsuranPokok" size="30" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->AngsuranPokok->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->AngsuranPokok->EditValue ?>"<?php echo $t04_angsuran->AngsuranPokok->EditAttributes() ?>>
+<input type="text" data-table="t04_angsuran" data-field="x_AngsuranPokok" name="x_AngsuranPokok" id="x_AngsuranPokok" size="10" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->AngsuranPokok->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->AngsuranPokok->EditValue ?>"<?php echo $t04_angsuran->AngsuranPokok->EditAttributes() ?>>
 </span>
 <?php echo $t04_angsuran->AngsuranPokok->CustomMsg ?></div></div>
 	</div>
@@ -1488,7 +1483,7 @@ ew_CreateDateTimePicker("ft04_angsuranadd", "x_AngsuranTanggal", {"ignoreReadonl
 		<label id="elh_t04_angsuran_AngsuranBunga" for="x_AngsuranBunga" class="<?php echo $t04_angsuran_add->LeftColumnClass ?>"><?php echo $t04_angsuran->AngsuranBunga->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t04_angsuran_add->RightColumnClass ?>"><div<?php echo $t04_angsuran->AngsuranBunga->CellAttributes() ?>>
 <span id="el_t04_angsuran_AngsuranBunga">
-<input type="text" data-table="t04_angsuran" data-field="x_AngsuranBunga" name="x_AngsuranBunga" id="x_AngsuranBunga" size="30" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->AngsuranBunga->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->AngsuranBunga->EditValue ?>"<?php echo $t04_angsuran->AngsuranBunga->EditAttributes() ?>>
+<input type="text" data-table="t04_angsuran" data-field="x_AngsuranBunga" name="x_AngsuranBunga" id="x_AngsuranBunga" size="10" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->AngsuranBunga->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->AngsuranBunga->EditValue ?>"<?php echo $t04_angsuran->AngsuranBunga->EditAttributes() ?>>
 </span>
 <?php echo $t04_angsuran->AngsuranBunga->CustomMsg ?></div></div>
 	</div>
@@ -1498,7 +1493,7 @@ ew_CreateDateTimePicker("ft04_angsuranadd", "x_AngsuranTanggal", {"ignoreReadonl
 		<label id="elh_t04_angsuran_AngsuranTotal" for="x_AngsuranTotal" class="<?php echo $t04_angsuran_add->LeftColumnClass ?>"><?php echo $t04_angsuran->AngsuranTotal->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t04_angsuran_add->RightColumnClass ?>"><div<?php echo $t04_angsuran->AngsuranTotal->CellAttributes() ?>>
 <span id="el_t04_angsuran_AngsuranTotal">
-<input type="text" data-table="t04_angsuran" data-field="x_AngsuranTotal" name="x_AngsuranTotal" id="x_AngsuranTotal" size="30" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->AngsuranTotal->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->AngsuranTotal->EditValue ?>"<?php echo $t04_angsuran->AngsuranTotal->EditAttributes() ?>>
+<input type="text" data-table="t04_angsuran" data-field="x_AngsuranTotal" name="x_AngsuranTotal" id="x_AngsuranTotal" size="10" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->AngsuranTotal->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->AngsuranTotal->EditValue ?>"<?php echo $t04_angsuran->AngsuranTotal->EditAttributes() ?>>
 </span>
 <?php echo $t04_angsuran->AngsuranTotal->CustomMsg ?></div></div>
 	</div>
@@ -1508,7 +1503,7 @@ ew_CreateDateTimePicker("ft04_angsuranadd", "x_AngsuranTanggal", {"ignoreReadonl
 		<label id="elh_t04_angsuran_SisaHutang" for="x_SisaHutang" class="<?php echo $t04_angsuran_add->LeftColumnClass ?>"><?php echo $t04_angsuran->SisaHutang->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t04_angsuran_add->RightColumnClass ?>"><div<?php echo $t04_angsuran->SisaHutang->CellAttributes() ?>>
 <span id="el_t04_angsuran_SisaHutang">
-<input type="text" data-table="t04_angsuran" data-field="x_SisaHutang" name="x_SisaHutang" id="x_SisaHutang" size="30" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->SisaHutang->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->SisaHutang->EditValue ?>"<?php echo $t04_angsuran->SisaHutang->EditAttributes() ?>>
+<input type="text" data-table="t04_angsuran" data-field="x_SisaHutang" name="x_SisaHutang" id="x_SisaHutang" size="10" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->SisaHutang->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->SisaHutang->EditValue ?>"<?php echo $t04_angsuran->SisaHutang->EditAttributes() ?>>
 </span>
 <?php echo $t04_angsuran->SisaHutang->CustomMsg ?></div></div>
 	</div>
@@ -1518,12 +1513,7 @@ ew_CreateDateTimePicker("ft04_angsuranadd", "x_AngsuranTanggal", {"ignoreReadonl
 		<label id="elh_t04_angsuran_TanggalBayar" for="x_TanggalBayar" class="<?php echo $t04_angsuran_add->LeftColumnClass ?>"><?php echo $t04_angsuran->TanggalBayar->FldCaption() ?></label>
 		<div class="<?php echo $t04_angsuran_add->RightColumnClass ?>"><div<?php echo $t04_angsuran->TanggalBayar->CellAttributes() ?>>
 <span id="el_t04_angsuran_TanggalBayar">
-<input type="text" data-table="t04_angsuran" data-field="x_TanggalBayar" data-format="7" name="x_TanggalBayar" id="x_TanggalBayar" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TanggalBayar->EditValue ?>"<?php echo $t04_angsuran->TanggalBayar->EditAttributes() ?>>
-<?php if (!$t04_angsuran->TanggalBayar->ReadOnly && !$t04_angsuran->TanggalBayar->Disabled && !isset($t04_angsuran->TanggalBayar->EditAttrs["readonly"]) && !isset($t04_angsuran->TanggalBayar->EditAttrs["disabled"])) { ?>
-<script type="text/javascript">
-ew_CreateDateTimePicker("ft04_angsuranadd", "x_TanggalBayar", {"ignoreReadonly":true,"useCurrent":false,"format":7});
-</script>
-<?php } ?>
+<input type="text" data-table="t04_angsuran" data-field="x_TanggalBayar" data-format="7" name="x_TanggalBayar" id="x_TanggalBayar" size="7" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TanggalBayar->EditValue ?>"<?php echo $t04_angsuran->TanggalBayar->EditAttributes() ?>>
 </span>
 <?php echo $t04_angsuran->TanggalBayar->CustomMsg ?></div></div>
 	</div>
@@ -1533,7 +1523,7 @@ ew_CreateDateTimePicker("ft04_angsuranadd", "x_TanggalBayar", {"ignoreReadonly":
 		<label id="elh_t04_angsuran_TotalDenda" for="x_TotalDenda" class="<?php echo $t04_angsuran_add->LeftColumnClass ?>"><?php echo $t04_angsuran->TotalDenda->FldCaption() ?></label>
 		<div class="<?php echo $t04_angsuran_add->RightColumnClass ?>"><div<?php echo $t04_angsuran->TotalDenda->CellAttributes() ?>>
 <span id="el_t04_angsuran_TotalDenda">
-<input type="text" data-table="t04_angsuran" data-field="x_TotalDenda" name="x_TotalDenda" id="x_TotalDenda" size="30" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TotalDenda->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TotalDenda->EditValue ?>"<?php echo $t04_angsuran->TotalDenda->EditAttributes() ?>>
+<input type="text" data-table="t04_angsuran" data-field="x_TotalDenda" name="x_TotalDenda" id="x_TotalDenda" size="10" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TotalDenda->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TotalDenda->EditValue ?>"<?php echo $t04_angsuran->TotalDenda->EditAttributes() ?>>
 </span>
 <?php echo $t04_angsuran->TotalDenda->CustomMsg ?></div></div>
 	</div>
@@ -1543,7 +1533,7 @@ ew_CreateDateTimePicker("ft04_angsuranadd", "x_TanggalBayar", {"ignoreReadonly":
 		<label id="elh_t04_angsuran_Terlambat" for="x_Terlambat" class="<?php echo $t04_angsuran_add->LeftColumnClass ?>"><?php echo $t04_angsuran->Terlambat->FldCaption() ?></label>
 		<div class="<?php echo $t04_angsuran_add->RightColumnClass ?>"><div<?php echo $t04_angsuran->Terlambat->CellAttributes() ?>>
 <span id="el_t04_angsuran_Terlambat">
-<input type="text" data-table="t04_angsuran" data-field="x_Terlambat" name="x_Terlambat" id="x_Terlambat" size="30" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->Terlambat->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->Terlambat->EditValue ?>"<?php echo $t04_angsuran->Terlambat->EditAttributes() ?>>
+<input type="text" data-table="t04_angsuran" data-field="x_Terlambat" name="x_Terlambat" id="x_Terlambat" size="1" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->Terlambat->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->Terlambat->EditValue ?>"<?php echo $t04_angsuran->Terlambat->EditAttributes() ?>>
 </span>
 <?php echo $t04_angsuran->Terlambat->CustomMsg ?></div></div>
 	</div>
@@ -1553,7 +1543,7 @@ ew_CreateDateTimePicker("ft04_angsuranadd", "x_TanggalBayar", {"ignoreReadonly":
 		<label id="elh_t04_angsuran_Keterangan" for="x_Keterangan" class="<?php echo $t04_angsuran_add->LeftColumnClass ?>"><?php echo $t04_angsuran->Keterangan->FldCaption() ?></label>
 		<div class="<?php echo $t04_angsuran_add->RightColumnClass ?>"><div<?php echo $t04_angsuran->Keterangan->CellAttributes() ?>>
 <span id="el_t04_angsuran_Keterangan">
-<textarea data-table="t04_angsuran" data-field="x_Keterangan" name="x_Keterangan" id="x_Keterangan" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->Keterangan->getPlaceHolder()) ?>"<?php echo $t04_angsuran->Keterangan->EditAttributes() ?>><?php echo $t04_angsuran->Keterangan->EditValue ?></textarea>
+<textarea data-table="t04_angsuran" data-field="x_Keterangan" name="x_Keterangan" id="x_Keterangan" cols="15" rows="4" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->Keterangan->getPlaceHolder()) ?>"<?php echo $t04_angsuran->Keterangan->EditAttributes() ?>><?php echo $t04_angsuran->Keterangan->EditValue ?></textarea>
 </span>
 <?php echo $t04_angsuran->Keterangan->CustomMsg ?></div></div>
 	</div>
