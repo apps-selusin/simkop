@@ -729,10 +729,10 @@
         <phrase id="fldcaption" value="Lama Angsuran" />
       </field>
       <field id="bunga">
-        <phrase id="fldcaption" value="Bunga" />
+        <phrase id="fldcaption" value="Bunga (%)" />
       </field>
       <field id="denda">
-        <phrase id="fldcaption" value="Denda" />
+        <phrase id="fldcaption" value="Denda (%)" />
       </field>
       <field id="dispensasidenda">
         <phrase id="fldcaption" value="Dispensasi Denda" />

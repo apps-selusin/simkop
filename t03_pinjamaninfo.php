@@ -1109,8 +1109,6 @@ class ct03_pinjaman extends cTable {
 					if ($this->Bunga->Exportable) $Doc->ExportCaption($this->Bunga);
 					if ($this->Denda->Exportable) $Doc->ExportCaption($this->Denda);
 					if ($this->DispensasiDenda->Exportable) $Doc->ExportCaption($this->DispensasiDenda);
-					if ($this->AngsuranPokok->Exportable) $Doc->ExportCaption($this->AngsuranPokok);
-					if ($this->AngsuranBunga->Exportable) $Doc->ExportCaption($this->AngsuranBunga);
 					if ($this->AngsuranTotal->Exportable) $Doc->ExportCaption($this->AngsuranTotal);
 					if ($this->NoKontrakRefTo->Exportable) $Doc->ExportCaption($this->NoKontrakRefTo);
 				} else {
@@ -1166,8 +1164,6 @@ class ct03_pinjaman extends cTable {
 						if ($this->Bunga->Exportable) $Doc->ExportField($this->Bunga);
 						if ($this->Denda->Exportable) $Doc->ExportField($this->Denda);
 						if ($this->DispensasiDenda->Exportable) $Doc->ExportField($this->DispensasiDenda);
-						if ($this->AngsuranPokok->Exportable) $Doc->ExportField($this->AngsuranPokok);
-						if ($this->AngsuranBunga->Exportable) $Doc->ExportField($this->AngsuranBunga);
 						if ($this->AngsuranTotal->Exportable) $Doc->ExportField($this->AngsuranTotal);
 						if ($this->NoKontrakRefTo->Exportable) $Doc->ExportField($this->NoKontrakRefTo);
 					} else {

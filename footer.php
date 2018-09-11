@@ -184,23 +184,36 @@ jQuery.get("<?php echo $EW_RELATIVE_PATH ?>phpjs/userevt14.js");
 		{ // keys = event types, values = handler functions
 			"change keyup": function(e) {
 				var $row = $(this).fields();
-				var angsuran_pokok = parseFloat($row["AngsuranPokok"].val());
-				var angsuran_bunga = parseFloat($row["AngsuranBunga"].val());
+				var angsuran_pokok_asli = parseFloat($row["AngsuranPokok"].val());
+				var angsuran_pokok_clean = angsuran_pokok_asli.replace(/,/g, '');
+				var angsuran_pokok = parseFloat(angsuran_pokok_clean);
+				var angsuran_bunga_asli = parseFloat($row["AngsuranBunga"].val());
+				var angsuran_bunga_clean = angsuran_bunga_asli.replace(/,/g, '');
+				var angsuran_bunga = parseFloat(angsuran_bunga_clean);
 				var angsuran_total = angsuran_pokok + angsuran_bunga;
 				$row["AngsuranTotal"].val(angsuran_total);
 			}
 		}
 	);
 
-	// Table 't03_pinjaman' Field 'AngsuranPokok'
+	// Table 't03_pinjaman' Field 'AngsuranBunga'
 	$('[data-table=t03_pinjaman][data-field=x_AngsuranBunga]').on(
 		{ // keys = event types, values = handler functions
 			"change keyup": function(e) {
 				var $row = $(this).fields();
-				var angsuran_pokok = parseFloat($row["AngsuranPokok"].val());
-				var angsuran_bunga = parseFloat($row["AngsuranBunga"].val());
+				var angsuran_pokok_asli = parseFloat($row["AngsuranPokok"].val());
+				var angsuran_pokok_clean = angsuran_pokok_asli.replace(/,/g, '');
+				var angsuran_pokok = parseFloat(angsuran_pokok_clean);
+				var angsuran_bunga_asli = parseFloat($row["AngsuranBunga"].val());
+				var angsuran_bunga_clean = angsuran_bunga_asli.replace(/,/g, '');
+				var angsuran_bunga = parseFloat(angsuran_bunga_clean);
 				var angsuran_total = angsuran_pokok + angsuran_bunga;
 				$row["AngsuranTotal"].val(angsuran_total);
+				var pinjaman_asli = $row["Pinjaman"].val();
+				var pinjaman_clean = pinjaman_asli.replace(/,/g, '');
+				var pinjaman = parseFloat(pinjaman_clean);
+				var bunga = (angsuran_bunga / pinjaman) * 100;
+				$row["Bunga"].val(bunga);
 			}
 		}
 	);
