@@ -1265,11 +1265,20 @@ class ct03_pinjaman_edit extends ct03_pinjaman {
 		if (!ew_CheckInteger($this->LamaAngsuran->FormValue)) {
 			ew_AddMessage($gsFormError, $this->LamaAngsuran->FldErrMsg());
 		}
+		if (!$this->Bunga->FldIsDetailKey && !is_null($this->Bunga->FormValue) && $this->Bunga->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->Bunga->FldCaption(), $this->Bunga->ReqErrMsg));
+		}
 		if (!ew_CheckNumber($this->Bunga->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Bunga->FldErrMsg());
 		}
+		if (!$this->Denda->FldIsDetailKey && !is_null($this->Denda->FormValue) && $this->Denda->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->Denda->FldCaption(), $this->Denda->ReqErrMsg));
+		}
 		if (!ew_CheckNumber($this->Denda->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Denda->FldErrMsg());
+		}
+		if (!$this->DispensasiDenda->FldIsDetailKey && !is_null($this->DispensasiDenda->FormValue) && $this->DispensasiDenda->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->DispensasiDenda->FldCaption(), $this->DispensasiDenda->ReqErrMsg));
 		}
 		if (!ew_CheckInteger($this->DispensasiDenda->FormValue)) {
 			ew_AddMessage($gsFormError, $this->DispensasiDenda->FldErrMsg());
@@ -1667,11 +1676,20 @@ ft03_pinjamanedit.Validate = function() {
 			if (elm && !ew_CheckInteger(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->LamaAngsuran->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_Bunga");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->Bunga->FldCaption(), $t03_pinjaman->Bunga->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_Bunga");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->Bunga->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_Denda");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->Denda->FldCaption(), $t03_pinjaman->Denda->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_Denda");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->Denda->FldErrMsg()) ?>");
+			elm = this.GetElements("x" + infix + "_DispensasiDenda");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_pinjaman->DispensasiDenda->FldCaption(), $t03_pinjaman->DispensasiDenda->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_DispensasiDenda");
 			if (elm && !ew_CheckInteger(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t03_pinjaman->DispensasiDenda->FldErrMsg()) ?>");
@@ -1856,7 +1874,7 @@ ew_CreateDateTimePicker("ft03_pinjamanedit", "x_TglKontrak", {"ignoreReadonly":t
 <?php } ?>
 <?php if ($t03_pinjaman->Bunga->Visible) { // Bunga ?>
 	<div id="r_Bunga" class="form-group">
-		<label id="elh_t03_pinjaman_Bunga" for="x_Bunga" class="<?php echo $t03_pinjaman_edit->LeftColumnClass ?>"><?php echo $t03_pinjaman->Bunga->FldCaption() ?></label>
+		<label id="elh_t03_pinjaman_Bunga" for="x_Bunga" class="<?php echo $t03_pinjaman_edit->LeftColumnClass ?>"><?php echo $t03_pinjaman->Bunga->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_edit->RightColumnClass ?>"><div<?php echo $t03_pinjaman->Bunga->CellAttributes() ?>>
 <span id="el_t03_pinjaman_Bunga">
 <input type="text" data-table="t03_pinjaman" data-field="x_Bunga" name="x_Bunga" id="x_Bunga" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Bunga->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Bunga->EditValue ?>"<?php echo $t03_pinjaman->Bunga->EditAttributes() ?>>
@@ -1866,7 +1884,7 @@ ew_CreateDateTimePicker("ft03_pinjamanedit", "x_TglKontrak", {"ignoreReadonly":t
 <?php } ?>
 <?php if ($t03_pinjaman->Denda->Visible) { // Denda ?>
 	<div id="r_Denda" class="form-group">
-		<label id="elh_t03_pinjaman_Denda" for="x_Denda" class="<?php echo $t03_pinjaman_edit->LeftColumnClass ?>"><?php echo $t03_pinjaman->Denda->FldCaption() ?></label>
+		<label id="elh_t03_pinjaman_Denda" for="x_Denda" class="<?php echo $t03_pinjaman_edit->LeftColumnClass ?>"><?php echo $t03_pinjaman->Denda->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_edit->RightColumnClass ?>"><div<?php echo $t03_pinjaman->Denda->CellAttributes() ?>>
 <span id="el_t03_pinjaman_Denda">
 <input type="text" data-table="t03_pinjaman" data-field="x_Denda" name="x_Denda" id="x_Denda" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->Denda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->Denda->EditValue ?>"<?php echo $t03_pinjaman->Denda->EditAttributes() ?>>
@@ -1876,7 +1894,7 @@ ew_CreateDateTimePicker("ft03_pinjamanedit", "x_TglKontrak", {"ignoreReadonly":t
 <?php } ?>
 <?php if ($t03_pinjaman->DispensasiDenda->Visible) { // DispensasiDenda ?>
 	<div id="r_DispensasiDenda" class="form-group">
-		<label id="elh_t03_pinjaman_DispensasiDenda" for="x_DispensasiDenda" class="<?php echo $t03_pinjaman_edit->LeftColumnClass ?>"><?php echo $t03_pinjaman->DispensasiDenda->FldCaption() ?></label>
+		<label id="elh_t03_pinjaman_DispensasiDenda" for="x_DispensasiDenda" class="<?php echo $t03_pinjaman_edit->LeftColumnClass ?>"><?php echo $t03_pinjaman->DispensasiDenda->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_edit->RightColumnClass ?>"><div<?php echo $t03_pinjaman->DispensasiDenda->CellAttributes() ?>>
 <span id="el_t03_pinjaman_DispensasiDenda">
 <input type="text" data-table="t03_pinjaman" data-field="x_DispensasiDenda" name="x_DispensasiDenda" id="x_DispensasiDenda" size="30" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->DispensasiDenda->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->DispensasiDenda->EditValue ?>"<?php echo $t03_pinjaman->DispensasiDenda->EditAttributes() ?>>

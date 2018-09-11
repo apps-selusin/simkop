@@ -1405,8 +1405,12 @@ class ct03_pinjaman extends cTable {
 		$pinjaman_id     = $rsnew["id"];
 		$AngsuranTanggal = $rsnew["TglKontrak"]; //$_GET["TglKontrak"]; //$rsnew["TglKontrak"];
 		$AngsuranTgl     = substr($AngsuranTanggal, -2); //substr($rsnew["TglKontrak"], -2);
-		$AngsuranPokok   = round($rsnew["Pinjaman"] / $rsnew["LamaAngsuran"], -3);
-		$AngsuranBunga   = $rsnew["JumlahAngsuran"] - $AngsuranPokok;
+
+		//$AngsuranPokok   = round($rsnew["Pinjaman"] / $rsnew["LamaAngsuran"], -3);
+		$AngsuranPokok   = $rsnew["AngsuranPokok"];
+
+		//$AngsuranBunga   = $rsnew["JumlahAngsuran"] - $AngsuranPokok;
+		$AngsuranBunga   = $rsnew["AngsuranBunga"];
 		$AngsuranTotal   = $AngsuranPokok + $AngsuranBunga;
 		$SisaHutang      = $rsnew["Pinjaman"]; // - $AngsuranTotal;
 		$AngsuranPokokTotal = 0;

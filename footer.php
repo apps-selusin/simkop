@@ -178,6 +178,32 @@ jQuery.get("<?php echo $EW_RELATIVE_PATH ?>phpjs/userevt14.js");
 			}
 		}
 	);
+
+	// Table 't03_pinjaman' Field 'AngsuranPokok'
+	$('[data-table=t03_pinjaman][data-field=x_AngsuranPokok]').on(
+		{ // keys = event types, values = handler functions
+			"change keyup": function(e) {
+				var $row = $(this).fields();
+				var angsuran_pokok = parseFloat($row["AngsuranPokok"].val());
+				var angsuran_bunga = parseFloat($row["AngsuranBunga"].val());
+				var angsuran_total = angsuran_pokok + angsuran_bunga;
+				$row["AngsuranTotal"].val(angsuran_total);
+			}
+		}
+	);
+
+	// Table 't03_pinjaman' Field 'AngsuranPokok'
+	$('[data-table=t03_pinjaman][data-field=x_AngsuranBunga]').on(
+		{ // keys = event types, values = handler functions
+			"change keyup": function(e) {
+				var $row = $(this).fields();
+				var angsuran_pokok = parseFloat($row["AngsuranPokok"].val());
+				var angsuran_bunga = parseFloat($row["AngsuranBunga"].val());
+				var angsuran_total = angsuran_pokok + angsuran_bunga;
+				$row["AngsuranTotal"].val(angsuran_total);
+			}
+		}
+	);
 </script>
 </body>
 </html>
