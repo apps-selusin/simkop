@@ -25,7 +25,7 @@ define("EW_CONFIG_FILE_FOLDER", EW_PROJECT_NAME, TRUE); // Config file name
 define("EW_PROJECT_ID", "{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}", TRUE); // Project ID (GUID)
 $EW_RELATED_PROJECT_ID = "";
 $EW_RELATED_LANGUAGE_FOLDER = "";
-define("EW_RANDOM_KEY", 'XE1lXq3V9Jrj66Wg', TRUE); // Random key for encryption
+define("EW_RANDOM_KEY", '4Pvpg5hybkw7lE39', TRUE); // Random key for encryption
 define("EW_PROJECT_STYLESHEET_FILENAME", "phpcss/simkop_prj.css", TRUE); // Project stylesheet file name
 define("EW_CHARSET", "utf-8", TRUE); // Project charset
 define("EW_EMAIL_CHARSET", EW_CHARSET, TRUE); // Email charset
