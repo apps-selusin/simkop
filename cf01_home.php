@@ -369,9 +369,9 @@ Page_Rendering();
 		<div class="panel-body">
 			<div>
 <p>to do:<br/>
-1. log at home;<br/>
-2. rumus [jumlah angsuran];<br/>
-3. button refresh detail angsuran;<br/>
+1. log at home; done;<br/>
+2. rumus [jumlah angsuran]; done;<br/>
+3. button refresh detail angsuran; cancel;<br/>
 			</div>
 		</div>
 	</div>
