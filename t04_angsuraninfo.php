@@ -753,6 +753,9 @@ class ct04_angsuran extends cTable {
 		// pinjaman_id
 		// AngsuranKe
 		// AngsuranTanggal
+
+		$this->AngsuranTanggal->CellCssStyle = "white-space: nowrap;";
+
 		// AngsuranPokok
 		// AngsuranBunga
 		// AngsuranTotal
@@ -920,41 +923,46 @@ class ct04_angsuran extends cTable {
 		$this->AngsuranKe->EditAttrs["class"] = "form-control";
 		$this->AngsuranKe->EditCustomAttributes = "";
 		$this->AngsuranKe->EditValue = $this->AngsuranKe->CurrentValue;
-		$this->AngsuranKe->PlaceHolder = ew_RemoveHtml($this->AngsuranKe->FldCaption());
+		$this->AngsuranKe->ViewCustomAttributes = "";
 
 		// AngsuranTanggal
 		$this->AngsuranTanggal->EditAttrs["class"] = "form-control";
 		$this->AngsuranTanggal->EditCustomAttributes = "";
-		$this->AngsuranTanggal->EditValue = ew_FormatDateTime($this->AngsuranTanggal->CurrentValue, 7);
-		$this->AngsuranTanggal->PlaceHolder = ew_RemoveHtml($this->AngsuranTanggal->FldCaption());
+		$this->AngsuranTanggal->EditValue = $this->AngsuranTanggal->CurrentValue;
+		$this->AngsuranTanggal->EditValue = ew_FormatDateTime($this->AngsuranTanggal->EditValue, 7);
+		$this->AngsuranTanggal->ViewCustomAttributes = "";
 
 		// AngsuranPokok
 		$this->AngsuranPokok->EditAttrs["class"] = "form-control";
 		$this->AngsuranPokok->EditCustomAttributes = "";
 		$this->AngsuranPokok->EditValue = $this->AngsuranPokok->CurrentValue;
-		$this->AngsuranPokok->PlaceHolder = ew_RemoveHtml($this->AngsuranPokok->FldCaption());
-		if (strval($this->AngsuranPokok->EditValue) <> "" && is_numeric($this->AngsuranPokok->EditValue)) $this->AngsuranPokok->EditValue = ew_FormatNumber($this->AngsuranPokok->EditValue, -2, -2, -2, -2);
+		$this->AngsuranPokok->EditValue = ew_FormatNumber($this->AngsuranPokok->EditValue, 2, -2, -2, -2);
+		$this->AngsuranPokok->CellCssStyle .= "text-align: right;";
+		$this->AngsuranPokok->ViewCustomAttributes = "";
 
 		// AngsuranBunga
 		$this->AngsuranBunga->EditAttrs["class"] = "form-control";
 		$this->AngsuranBunga->EditCustomAttributes = "";
 		$this->AngsuranBunga->EditValue = $this->AngsuranBunga->CurrentValue;
-		$this->AngsuranBunga->PlaceHolder = ew_RemoveHtml($this->AngsuranBunga->FldCaption());
-		if (strval($this->AngsuranBunga->EditValue) <> "" && is_numeric($this->AngsuranBunga->EditValue)) $this->AngsuranBunga->EditValue = ew_FormatNumber($this->AngsuranBunga->EditValue, -2, -2, -2, -2);
+		$this->AngsuranBunga->EditValue = ew_FormatNumber($this->AngsuranBunga->EditValue, 2, -2, -2, -2);
+		$this->AngsuranBunga->CellCssStyle .= "text-align: right;";
+		$this->AngsuranBunga->ViewCustomAttributes = "";
 
 		// AngsuranTotal
 		$this->AngsuranTotal->EditAttrs["class"] = "form-control";
 		$this->AngsuranTotal->EditCustomAttributes = "";
 		$this->AngsuranTotal->EditValue = $this->AngsuranTotal->CurrentValue;
-		$this->AngsuranTotal->PlaceHolder = ew_RemoveHtml($this->AngsuranTotal->FldCaption());
-		if (strval($this->AngsuranTotal->EditValue) <> "" && is_numeric($this->AngsuranTotal->EditValue)) $this->AngsuranTotal->EditValue = ew_FormatNumber($this->AngsuranTotal->EditValue, -2, -2, -2, -2);
+		$this->AngsuranTotal->EditValue = ew_FormatNumber($this->AngsuranTotal->EditValue, 2, -2, -2, -2);
+		$this->AngsuranTotal->CellCssStyle .= "text-align: right;";
+		$this->AngsuranTotal->ViewCustomAttributes = "";
 
 		// SisaHutang
 		$this->SisaHutang->EditAttrs["class"] = "form-control";
 		$this->SisaHutang->EditCustomAttributes = "";
 		$this->SisaHutang->EditValue = $this->SisaHutang->CurrentValue;
-		$this->SisaHutang->PlaceHolder = ew_RemoveHtml($this->SisaHutang->FldCaption());
-		if (strval($this->SisaHutang->EditValue) <> "" && is_numeric($this->SisaHutang->EditValue)) $this->SisaHutang->EditValue = ew_FormatNumber($this->SisaHutang->EditValue, -2, -2, -2, -2);
+		$this->SisaHutang->EditValue = ew_FormatNumber($this->SisaHutang->EditValue, 2, -2, -2, -2);
+		$this->SisaHutang->CellCssStyle .= "text-align: right;";
+		$this->SisaHutang->ViewCustomAttributes = "";
 
 		// TanggalBayar
 		$this->TanggalBayar->EditAttrs["class"] = "form-control";

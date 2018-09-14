@@ -355,7 +355,6 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 
 		// Set up list options
 		$this->SetupListOptions();
-		$this->pinjaman_id->SetVisibility();
 		$this->jaminan_id->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
@@ -852,8 +851,6 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 	// Check if empty row
 	function EmptyRow() {
 		global $objForm;
-		if ($objForm->HasValue("x_pinjaman_id") && $objForm->HasValue("o_pinjaman_id") && $this->pinjaman_id->CurrentValue <> $this->pinjaman_id->OldValue)
-			return FALSE;
 		if ($objForm->HasValue("x_jaminan_id") && $objForm->HasValue("o_jaminan_id") && $this->jaminan_id->CurrentValue <> $this->jaminan_id->OldValue)
 			return FALSE;
 		return TRUE;
@@ -1241,10 +1238,6 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 		// Load from form
 		global $objForm;
 		$objForm->FormName = $this->FormName;
-		if (!$this->pinjaman_id->FldIsDetailKey) {
-			$this->pinjaman_id->setFormValue($objForm->GetValue("x_pinjaman_id"));
-		}
-		$this->pinjaman_id->setOldValue($objForm->GetValue("o_pinjaman_id"));
 		if (!$this->jaminan_id->FldIsDetailKey) {
 			$this->jaminan_id->setFormValue($objForm->GetValue("x_jaminan_id"));
 		}
@@ -1258,7 +1251,6 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 		global $objForm;
 		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
 			$this->id->CurrentValue = $this->id->FormValue;
-		$this->pinjaman_id->CurrentValue = $this->pinjaman_id->FormValue;
 		$this->jaminan_id->CurrentValue = $this->jaminan_id->FormValue;
 	}
 
@@ -1434,29 +1426,11 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 		}
 		$this->jaminan_id->ViewCustomAttributes = "";
 
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-			$this->pinjaman_id->TooltipValue = "";
-
 			// jaminan_id
 			$this->jaminan_id->LinkCustomAttributes = "";
 			$this->jaminan_id->HrefValue = "";
 			$this->jaminan_id->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
-
-			// pinjaman_id
-			$this->pinjaman_id->EditAttrs["class"] = "form-control";
-			$this->pinjaman_id->EditCustomAttributes = "";
-			if ($this->pinjaman_id->getSessionValue() <> "") {
-				$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
-				$this->pinjaman_id->OldValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewCustomAttributes = "";
-			} else {
-			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
-			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
-			}
 
 			// jaminan_id
 			$this->jaminan_id->EditCustomAttributes = "";
@@ -1484,28 +1458,11 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 			$this->jaminan_id->EditValue = $arwrk;
 
 			// Add refer script
-			// pinjaman_id
-
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-
 			// jaminan_id
+
 			$this->jaminan_id->LinkCustomAttributes = "";
 			$this->jaminan_id->HrefValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
-
-			// pinjaman_id
-			$this->pinjaman_id->EditAttrs["class"] = "form-control";
-			$this->pinjaman_id->EditCustomAttributes = "";
-			if ($this->pinjaman_id->getSessionValue() <> "") {
-				$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
-				$this->pinjaman_id->OldValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewCustomAttributes = "";
-			} else {
-			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
-			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
-			}
 
 			// jaminan_id
 			$this->jaminan_id->EditCustomAttributes = "";
@@ -1533,12 +1490,8 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 			$this->jaminan_id->EditValue = $arwrk;
 
 			// Edit refer script
-			// pinjaman_id
-
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-
 			// jaminan_id
+
 			$this->jaminan_id->LinkCustomAttributes = "";
 			$this->jaminan_id->HrefValue = "";
 		}
@@ -1557,12 +1510,6 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
-		if (!$this->pinjaman_id->FldIsDetailKey && !is_null($this->pinjaman_id->FormValue) && $this->pinjaman_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->pinjaman_id->FldCaption(), $this->pinjaman_id->ReqErrMsg));
-		}
-		if (!ew_CheckInteger($this->pinjaman_id->FormValue)) {
-			ew_AddMessage($gsFormError, $this->pinjaman_id->FldErrMsg());
-		}
 		if (!$this->jaminan_id->FldIsDetailKey && !is_null($this->jaminan_id->FormValue) && $this->jaminan_id->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->jaminan_id->FldCaption(), $this->jaminan_id->ReqErrMsg));
 		}
@@ -1681,9 +1628,6 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 			$this->LoadDbValues($rsold);
 			$rsnew = array();
 
-			// pinjaman_id
-			$this->pinjaman_id->SetDbValueDef($rsnew, $this->pinjaman_id->CurrentValue, 0, $this->pinjaman_id->ReadOnly);
-
 			// jaminan_id
 			$this->jaminan_id->SetDbValueDef($rsnew, $this->jaminan_id->CurrentValue, 0, $this->jaminan_id->ReadOnly);
 
@@ -1735,11 +1679,13 @@ class ct05_pinjamanjaminan_grid extends ct05_pinjamanjaminan {
 		}
 		$rsnew = array();
 
-		// pinjaman_id
-		$this->pinjaman_id->SetDbValueDef($rsnew, $this->pinjaman_id->CurrentValue, 0, FALSE);
-
 		// jaminan_id
 		$this->jaminan_id->SetDbValueDef($rsnew, $this->jaminan_id->CurrentValue, 0, FALSE);
+
+		// pinjaman_id
+		if ($this->pinjaman_id->getSessionValue() <> "") {
+			$rsnew['pinjaman_id'] = $this->pinjaman_id->getSessionValue();
+		}
 
 		// Call Row Inserting event
 		$rs = ($rsold == NULL) ? NULL : $rsold->fields;

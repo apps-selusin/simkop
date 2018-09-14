@@ -390,7 +390,6 @@ class ct05_pinjamanjaminan_view extends ct05_pinjamanjaminan {
 		// 
 
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->pinjaman_id->SetVisibility();
 		$this->jaminan_id->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
@@ -803,11 +802,6 @@ class ct05_pinjamanjaminan_view extends ct05_pinjamanjaminan {
 		}
 		$this->jaminan_id->ViewCustomAttributes = "";
 
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-			$this->pinjaman_id->TooltipValue = "";
-
 			// jaminan_id
 			$this->jaminan_id->LinkCustomAttributes = "";
 			$this->jaminan_id->HrefValue = "";
@@ -1105,17 +1099,6 @@ $t05_pinjamanjaminan_view->ShowMessage();
 <input type="hidden" name="t" value="t05_pinjamanjaminan">
 <input type="hidden" name="modal" value="<?php echo intval($t05_pinjamanjaminan_view->IsModal) ?>">
 <table class="table table-striped table-bordered table-hover table-condensed ewViewTable">
-<?php if ($t05_pinjamanjaminan->pinjaman_id->Visible) { // pinjaman_id ?>
-	<tr id="r_pinjaman_id">
-		<td class="col-sm-2"><span id="elh_t05_pinjamanjaminan_pinjaman_id"><?php echo $t05_pinjamanjaminan->pinjaman_id->FldCaption() ?></span></td>
-		<td data-name="pinjaman_id"<?php echo $t05_pinjamanjaminan->pinjaman_id->CellAttributes() ?>>
-<span id="el_t05_pinjamanjaminan_pinjaman_id">
-<span<?php echo $t05_pinjamanjaminan->pinjaman_id->ViewAttributes() ?>>
-<?php echo $t05_pinjamanjaminan->pinjaman_id->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
 <?php if ($t05_pinjamanjaminan->jaminan_id->Visible) { // jaminan_id ?>
 	<tr id="r_jaminan_id">
 		<td class="col-sm-2"><span id="elh_t05_pinjamanjaminan_jaminan_id"><?php echo $t05_pinjamanjaminan->jaminan_id->FldCaption() ?></span></td>

@@ -335,7 +335,6 @@ class ct05_pinjamanjaminan_edit extends ct05_pinjamanjaminan {
 
 		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->pinjaman_id->SetVisibility();
 		$this->jaminan_id->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
@@ -624,9 +623,6 @@ class ct05_pinjamanjaminan_edit extends ct05_pinjamanjaminan {
 
 		// Load from form
 		global $objForm;
-		if (!$this->pinjaman_id->FldIsDetailKey) {
-			$this->pinjaman_id->setFormValue($objForm->GetValue("x_pinjaman_id"));
-		}
 		if (!$this->jaminan_id->FldIsDetailKey) {
 			$this->jaminan_id->setFormValue($objForm->GetValue("x_jaminan_id"));
 		}
@@ -638,7 +634,6 @@ class ct05_pinjamanjaminan_edit extends ct05_pinjamanjaminan {
 	function RestoreFormValues() {
 		global $objForm;
 		$this->id->CurrentValue = $this->id->FormValue;
-		$this->pinjaman_id->CurrentValue = $this->pinjaman_id->FormValue;
 		$this->jaminan_id->CurrentValue = $this->jaminan_id->FormValue;
 	}
 
@@ -803,28 +798,11 @@ class ct05_pinjamanjaminan_edit extends ct05_pinjamanjaminan {
 		}
 		$this->jaminan_id->ViewCustomAttributes = "";
 
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-			$this->pinjaman_id->TooltipValue = "";
-
 			// jaminan_id
 			$this->jaminan_id->LinkCustomAttributes = "";
 			$this->jaminan_id->HrefValue = "";
 			$this->jaminan_id->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
-
-			// pinjaman_id
-			$this->pinjaman_id->EditAttrs["class"] = "form-control";
-			$this->pinjaman_id->EditCustomAttributes = "";
-			if ($this->pinjaman_id->getSessionValue() <> "") {
-				$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
-			$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewCustomAttributes = "";
-			} else {
-			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
-			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
-			}
 
 			// jaminan_id
 			$this->jaminan_id->EditCustomAttributes = "";
@@ -852,12 +830,8 @@ class ct05_pinjamanjaminan_edit extends ct05_pinjamanjaminan {
 			$this->jaminan_id->EditValue = $arwrk;
 
 			// Edit refer script
-			// pinjaman_id
-
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-
 			// jaminan_id
+
 			$this->jaminan_id->LinkCustomAttributes = "";
 			$this->jaminan_id->HrefValue = "";
 		}
@@ -879,12 +853,6 @@ class ct05_pinjamanjaminan_edit extends ct05_pinjamanjaminan {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
-		if (!$this->pinjaman_id->FldIsDetailKey && !is_null($this->pinjaman_id->FormValue) && $this->pinjaman_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->pinjaman_id->FldCaption(), $this->pinjaman_id->ReqErrMsg));
-		}
-		if (!ew_CheckInteger($this->pinjaman_id->FormValue)) {
-			ew_AddMessage($gsFormError, $this->pinjaman_id->FldErrMsg());
-		}
 		if (!$this->jaminan_id->FldIsDetailKey && !is_null($this->jaminan_id->FormValue) && $this->jaminan_id->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->jaminan_id->FldCaption(), $this->jaminan_id->ReqErrMsg));
 		}
@@ -923,9 +891,6 @@ class ct05_pinjamanjaminan_edit extends ct05_pinjamanjaminan {
 			$rsold = &$rs->fields;
 			$this->LoadDbValues($rsold);
 			$rsnew = array();
-
-			// pinjaman_id
-			$this->pinjaman_id->SetDbValueDef($rsnew, $this->pinjaman_id->CurrentValue, 0, $this->pinjaman_id->ReadOnly);
 
 			// jaminan_id
 			$this->jaminan_id->SetDbValueDef($rsnew, $this->jaminan_id->CurrentValue, 0, $this->jaminan_id->ReadOnly);
@@ -1171,12 +1136,6 @@ ft05_pinjamanjaminanedit.Validate = function() {
 	for (var i = startcnt; i <= rowcnt; i++) {
 		var infix = ($k[0]) ? String(i) : "";
 		$fobj.data("rowindex", infix);
-			elm = this.GetElements("x" + infix + "_pinjaman_id");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t05_pinjamanjaminan->pinjaman_id->FldCaption(), $t05_pinjamanjaminan->pinjaman_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_pinjaman_id");
-			if (elm && !ew_CheckInteger(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t05_pinjamanjaminan->pinjaman_id->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_jaminan_id");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t05_pinjamanjaminan->jaminan_id->FldCaption(), $t05_pinjamanjaminan->jaminan_id->ReqErrMsg)) ?>");
@@ -1279,24 +1238,6 @@ $t05_pinjamanjaminan_edit->ShowMessage();
 <input type="hidden" name="fk_id" value="<?php echo $t05_pinjamanjaminan->pinjaman_id->getSessionValue() ?>">
 <?php } ?>
 <div class="ewEditDiv"><!-- page* -->
-<?php if ($t05_pinjamanjaminan->pinjaman_id->Visible) { // pinjaman_id ?>
-	<div id="r_pinjaman_id" class="form-group">
-		<label id="elh_t05_pinjamanjaminan_pinjaman_id" for="x_pinjaman_id" class="<?php echo $t05_pinjamanjaminan_edit->LeftColumnClass ?>"><?php echo $t05_pinjamanjaminan->pinjaman_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="<?php echo $t05_pinjamanjaminan_edit->RightColumnClass ?>"><div<?php echo $t05_pinjamanjaminan->pinjaman_id->CellAttributes() ?>>
-<?php if ($t05_pinjamanjaminan->pinjaman_id->getSessionValue() <> "") { ?>
-<span id="el_t05_pinjamanjaminan_pinjaman_id">
-<span<?php echo $t05_pinjamanjaminan->pinjaman_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t05_pinjamanjaminan->pinjaman_id->ViewValue ?></p></span>
-</span>
-<input type="hidden" id="x_pinjaman_id" name="x_pinjaman_id" value="<?php echo ew_HtmlEncode($t05_pinjamanjaminan->pinjaman_id->CurrentValue) ?>">
-<?php } else { ?>
-<span id="el_t05_pinjamanjaminan_pinjaman_id">
-<input type="text" data-table="t05_pinjamanjaminan" data-field="x_pinjaman_id" name="x_pinjaman_id" id="x_pinjaman_id" size="30" placeholder="<?php echo ew_HtmlEncode($t05_pinjamanjaminan->pinjaman_id->getPlaceHolder()) ?>" value="<?php echo $t05_pinjamanjaminan->pinjaman_id->EditValue ?>"<?php echo $t05_pinjamanjaminan->pinjaman_id->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php echo $t05_pinjamanjaminan->pinjaman_id->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
 <?php if ($t05_pinjamanjaminan->jaminan_id->Visible) { // jaminan_id ?>
 	<div id="r_jaminan_id" class="form-group">
 		<label id="elh_t05_pinjamanjaminan_jaminan_id" for="x_jaminan_id" class="<?php echo $t05_pinjamanjaminan_edit->LeftColumnClass ?>"><?php echo $t05_pinjamanjaminan->jaminan_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
