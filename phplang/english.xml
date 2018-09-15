@@ -618,6 +618,9 @@
   <project>
     <phrase id="bodytitle" value="SIM Koperasi" />
     <phrase id="footertext" value="&amp;copy;2018 Selaras Solusindo. All rights reserved." />
+    <menu id="18">
+      <phrase id="menutext" value="Titipan" />
+    </menu>
     <menu id="5">
       <phrase id="menutext" value="Home" />
     </menu>
@@ -659,6 +662,9 @@
     </menu>
     <table id="cf01_home_php">
       <phrase id="tblcaption" value="Home" />
+    </table>
+    <table id="cf99_bantuan_php">
+      <phrase id="tblcaption" value="Bantuan" />
     </table>
     <table id="t01_nasabah">
       <phrase id="tblcaption" value="Nasabah" />
@@ -804,6 +810,30 @@
         <phrase id="fldcaption" value="Jaminan" />
       </field>
     </table>
+    <table id="t06_pinjamantitipan">
+      <phrase id="tblcaption" value="Titipan" />
+      <field id="id">
+        <phrase id="fldcaption" value="id" />
+      </field>
+      <field id="pinjaman_id">
+        <phrase id="fldcaption" value="pinjaman id" />
+      </field>
+      <field id="tanggal">
+        <phrase id="fldcaption" value="tanggal" />
+      </field>
+      <field id="keterangan">
+        <phrase id="fldcaption" value="keterangan" />
+      </field>
+      <field id="masuk">
+        <phrase id="fldcaption" value="debet" />
+      </field>
+      <field id="keluar">
+        <phrase id="fldcaption" value="kredit" />
+      </field>
+      <field id="sisa">
+        <phrase id="fldcaption" value="saldo" />
+      </field>
+    </table>
     <table id="t96_employees">
       <phrase id="tblcaption" value="User List" />
       <field id="employeeid">
@@ -933,9 +963,6 @@
       <field id="newvalue">
         <phrase id="fldcaption" value="newvalue" />
       </field>
-    </table>
-    <table id="cf99_bantuan_php">
-      <phrase id="tblcaption" value="Bantuan" />
     </table>
   </project>
 </ew-language>

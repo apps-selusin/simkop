@@ -231,6 +231,10 @@ class ct03_pinjaman extends cTable {
 			$sDetailUrl = $GLOBALS["t05_pinjamanjaminan"]->GetListUrl() . "?" . EW_TABLE_SHOW_MASTER . "=" . $this->TableVar;
 			$sDetailUrl .= "&fk_id=" . urlencode($this->id->CurrentValue);
 		}
+		if ($this->getCurrentDetailTable() == "t06_pinjamantitipan") {
+			$sDetailUrl = $GLOBALS["t06_pinjamantitipan"]->GetListUrl() . "?" . EW_TABLE_SHOW_MASTER . "=" . $this->TableVar;
+			$sDetailUrl .= "&fk_id=" . urlencode($this->id->CurrentValue);
+		}
 		if ($sDetailUrl == "") {
 			$sDetailUrl = "t03_pinjamanlist.php";
 		}

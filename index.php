@@ -305,6 +305,8 @@ class cdefault {
 		$Security->LoadUserLevel(); // Load User Level
 		if ($Security->AllowList(CurrentProjectID() . 'cf01_home.php'))
 		$this->Page_Terminate("cf01_home.php"); // Exit and go to default page
+		if ($Security->AllowList(CurrentProjectID() . 'cf99_bantuan.php'))
+			$this->Page_Terminate("cf99_bantuan.php");
 		if ($Security->AllowList(CurrentProjectID() . 't01_nasabah'))
 			$this->Page_Terminate("t01_nasabahlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't02_jaminan'))
@@ -315,6 +317,8 @@ class cdefault {
 			$this->Page_Terminate("t04_angsuranlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't05_pinjamanjaminan'))
 			$this->Page_Terminate("t05_pinjamanjaminanlist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't06_pinjamantitipan'))
+			$this->Page_Terminate("t06_pinjamantitipanlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't96_employees'))
 			$this->Page_Terminate("t96_employeeslist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't97_userlevels'))
@@ -323,8 +327,6 @@ class cdefault {
 			$this->Page_Terminate("t98_userlevelpermissionslist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't99_audittrail'))
 			$this->Page_Terminate("t99_audittraillist.php");
-		if ($Security->AllowList(CurrentProjectID() . 'cf99_bantuan.php'))
-			$this->Page_Terminate("cf99_bantuan.php");
 		if ($Security->IsLoggedIn()) {
 			$this->setFailureMessage(ew_DeniedMsg() . "<br><br><a href=\"logout.php\">" . $Language->Phrase("BackToLogin") . "</a>");
 		} else {

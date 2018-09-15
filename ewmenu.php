@@ -2,6 +2,7 @@
 
 // Menu
 $RootMenu = new cMenu("RootMenu", TRUE);
+$RootMenu->AddMenuItem(18, "mi_t06_pinjamantitipan", $Language->MenuPhrase("18", "MenuText"), "t06_pinjamantitipanlist.php?cmd=resetall", -1, "", AllowListMenu('{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}t06_pinjamantitipan'), FALSE, FALSE, "");
 $RootMenu->AddMenuItem(5, "mi_cf01_home_php", $Language->MenuPhrase("5", "MenuText"), "cf01_home.php", -1, "", AllowListMenu('{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}cf01_home.php'), FALSE, TRUE, "");
 $RootMenu->AddMenuItem(9, "mi_t03_pinjaman", $Language->MenuPhrase("9", "MenuText"), "t03_pinjamanlist.php", -1, "", AllowListMenu('{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}t03_pinjaman'), FALSE, FALSE, "");
 $RootMenu->AddMenuItem(15, "mci_Setup", $Language->MenuPhrase("15", "MenuText"), "", -1, "", IsLoggedIn(), FALSE, TRUE, "");

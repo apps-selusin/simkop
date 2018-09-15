@@ -3312,12 +3312,22 @@ $t04_angsuran_list->ListOptions->Render("body", "left", $t04_angsuran_list->RowC
 <?php if ($t04_angsuran->RowType == EW_ROWTYPE_ADD) { // Add record ?>
 <span id="el<?php echo $t04_angsuran_list->RowCnt ?>_t04_angsuran_TanggalBayar" class="form-group t04_angsuran_TanggalBayar">
 <input type="text" data-table="t04_angsuran" data-field="x_TanggalBayar" data-format="7" name="x<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar" id="x<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar" size="7" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TanggalBayar->EditValue ?>"<?php echo $t04_angsuran->TanggalBayar->EditAttributes() ?>>
+<?php if (!$t04_angsuran->TanggalBayar->ReadOnly && !$t04_angsuran->TanggalBayar->Disabled && !isset($t04_angsuran->TanggalBayar->EditAttrs["readonly"]) && !isset($t04_angsuran->TanggalBayar->EditAttrs["disabled"])) { ?>
+<script type="text/javascript">
+ew_CreateDateTimePicker("ft04_angsuranlist", "x<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar", {"ignoreReadonly":true,"useCurrent":false,"format":7});
+</script>
+<?php } ?>
 </span>
 <input type="hidden" data-table="t04_angsuran" data-field="x_TanggalBayar" name="o<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar" id="o<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar" value="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->OldValue) ?>">
 <?php } ?>
 <?php if ($t04_angsuran->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
 <span id="el<?php echo $t04_angsuran_list->RowCnt ?>_t04_angsuran_TanggalBayar" class="form-group t04_angsuran_TanggalBayar">
 <input type="text" data-table="t04_angsuran" data-field="x_TanggalBayar" data-format="7" name="x<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar" id="x<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar" size="7" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TanggalBayar->EditValue ?>"<?php echo $t04_angsuran->TanggalBayar->EditAttributes() ?>>
+<?php if (!$t04_angsuran->TanggalBayar->ReadOnly && !$t04_angsuran->TanggalBayar->Disabled && !isset($t04_angsuran->TanggalBayar->EditAttrs["readonly"]) && !isset($t04_angsuran->TanggalBayar->EditAttrs["disabled"])) { ?>
+<script type="text/javascript">
+ew_CreateDateTimePicker("ft04_angsuranlist", "x<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar", {"ignoreReadonly":true,"useCurrent":false,"format":7});
+</script>
+<?php } ?>
 </span>
 <?php } ?>
 <?php if ($t04_angsuran->RowType == EW_ROWTYPE_VIEW) { // View record ?>
@@ -3485,6 +3495,11 @@ $t04_angsuran_list->ListOptions->Render("body", "left", $t04_angsuran_list->RowI
 		<td data-name="TanggalBayar">
 <span id="el$rowindex$_t04_angsuran_TanggalBayar" class="form-group t04_angsuran_TanggalBayar">
 <input type="text" data-table="t04_angsuran" data-field="x_TanggalBayar" data-format="7" name="x<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar" id="x<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar" size="7" placeholder="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->getPlaceHolder()) ?>" value="<?php echo $t04_angsuran->TanggalBayar->EditValue ?>"<?php echo $t04_angsuran->TanggalBayar->EditAttributes() ?>>
+<?php if (!$t04_angsuran->TanggalBayar->ReadOnly && !$t04_angsuran->TanggalBayar->Disabled && !isset($t04_angsuran->TanggalBayar->EditAttrs["readonly"]) && !isset($t04_angsuran->TanggalBayar->EditAttrs["disabled"])) { ?>
+<script type="text/javascript">
+ew_CreateDateTimePicker("ft04_angsuranlist", "x<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar", {"ignoreReadonly":true,"useCurrent":false,"format":7});
+</script>
+<?php } ?>
 </span>
 <input type="hidden" data-table="t04_angsuran" data-field="x_TanggalBayar" name="o<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar" id="o<?php echo $t04_angsuran_list->RowIndex ?>_TanggalBayar" value="<?php echo ew_HtmlEncode($t04_angsuran->TanggalBayar->OldValue) ?>">
 </td>
