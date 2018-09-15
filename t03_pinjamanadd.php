@@ -1724,7 +1724,7 @@ $t03_pinjaman_add->ShowMessage();
 		<label id="elh_t03_pinjaman_NoKontrak" for="x_NoKontrak" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->NoKontrak->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->NoKontrak->CellAttributes() ?>>
 <span id="el_t03_pinjaman_NoKontrak">
-<input type="text" data-table="t03_pinjaman" data-field="x_NoKontrak" name="x_NoKontrak" id="x_NoKontrak" size="30" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrak->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->NoKontrak->EditValue ?>"<?php echo $t03_pinjaman->NoKontrak->EditAttributes() ?>>
+<input type="text" data-table="t03_pinjaman" data-field="x_NoKontrak" name="x_NoKontrak" id="x_NoKontrak" size="5" maxlength="25" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->NoKontrak->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->NoKontrak->EditValue ?>"<?php echo $t03_pinjaman->NoKontrak->EditAttributes() ?>>
 </span>
 <?php echo $t03_pinjaman->NoKontrak->CustomMsg ?></div></div>
 	</div>

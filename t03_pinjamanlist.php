@@ -1202,12 +1202,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$item->OnLeft = TRUE;
 		$item->Visible = FALSE;
 
-		// "view"
-		$item = &$this->ListOptions->Add("view");
-		$item->CssClass = "text-nowrap";
-		$item->Visible = $Security->CanView();
-		$item->OnLeft = TRUE;
-
 		// "edit"
 		$item = &$this->ListOptions->Add("edit");
 		$item->CssClass = "text-nowrap";
@@ -1319,15 +1313,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		$oListOpt = &$this->ListOptions->Items["sequence"];
 		$oListOpt->Body = ew_FormatSeqNo($this->RecCnt);
 
-		// "view"
-		$oListOpt = &$this->ListOptions->Items["view"];
-		$viewcaption = ew_HtmlTitle($Language->Phrase("ViewLink"));
-		if ($Security->CanView()) {
-			$oListOpt->Body = "<a class=\"ewRowLink ewView\" title=\"" . $viewcaption . "\" data-caption=\"" . $viewcaption . "\" href=\"" . ew_HtmlEncode($this->ViewUrl) . "\">" . $Language->Phrase("ViewLink") . "</a>";
-		} else {
-			$oListOpt->Body = "";
-		}
-
 		// "edit"
 		$oListOpt = &$this->ListOptions->Items["edit"];
 		$editcaption = ew_HtmlTitle($Language->Phrase("EditLink"));
@@ -1391,13 +1376,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 			$body = $Language->Phrase("DetailLink") . $Language->TablePhrase("t04_angsuran", "TblCaption");
 			$body = "<a class=\"btn btn-default btn-sm ewRowLink ewDetail\" data-action=\"list\" href=\"" . ew_HtmlEncode("t04_angsuranlist.php?" . EW_TABLE_SHOW_MASTER . "=t03_pinjaman&fk_id=" . urlencode(strval($this->id->CurrentValue)) . "") . "\">" . $body . "</a>";
 			$links = "";
-			if ($GLOBALS["t04_angsuran_grid"]->DetailView && $Security->CanView() && $Security->AllowView(CurrentProjectID() . 't04_angsuran')) {
-				$caption = $Language->Phrase("MasterDetailViewLink");
-				$url = $this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=t04_angsuran");
-				$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($caption) . "\" href=\"" . ew_HtmlEncode($url) . "\">" . ew_HtmlImageAndText($caption) . "</a></li>";
-				if ($DetailViewTblVar <> "") $DetailViewTblVar .= ",";
-				$DetailViewTblVar .= "t04_angsuran";
-			}
 			if ($GLOBALS["t04_angsuran_grid"]->DetailEdit && $Security->CanEdit() && $Security->AllowEdit(CurrentProjectID() . 't04_angsuran')) {
 				$caption = $Language->Phrase("MasterDetailEditLink");
 				$url = $this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=t04_angsuran");
@@ -1427,13 +1405,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 			$body = $Language->Phrase("DetailLink") . $Language->TablePhrase("t05_pinjamanjaminan", "TblCaption");
 			$body = "<a class=\"btn btn-default btn-sm ewRowLink ewDetail\" data-action=\"list\" href=\"" . ew_HtmlEncode("t05_pinjamanjaminanlist.php?" . EW_TABLE_SHOW_MASTER . "=t03_pinjaman&fk_id=" . urlencode(strval($this->id->CurrentValue)) . "") . "\">" . $body . "</a>";
 			$links = "";
-			if ($GLOBALS["t05_pinjamanjaminan_grid"]->DetailView && $Security->CanView() && $Security->AllowView(CurrentProjectID() . 't05_pinjamanjaminan')) {
-				$caption = $Language->Phrase("MasterDetailViewLink");
-				$url = $this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=t05_pinjamanjaminan");
-				$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($caption) . "\" href=\"" . ew_HtmlEncode($url) . "\">" . ew_HtmlImageAndText($caption) . "</a></li>";
-				if ($DetailViewTblVar <> "") $DetailViewTblVar .= ",";
-				$DetailViewTblVar .= "t05_pinjamanjaminan";
-			}
 			if ($GLOBALS["t05_pinjamanjaminan_grid"]->DetailEdit && $Security->CanEdit() && $Security->AllowEdit(CurrentProjectID() . 't05_pinjamanjaminan')) {
 				$caption = $Language->Phrase("MasterDetailEditLink");
 				$url = $this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=t05_pinjamanjaminan");
@@ -1463,13 +1434,6 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 			$body = $Language->Phrase("DetailLink") . $Language->TablePhrase("t06_pinjamantitipan", "TblCaption");
 			$body = "<a class=\"btn btn-default btn-sm ewRowLink ewDetail\" data-action=\"list\" href=\"" . ew_HtmlEncode("t06_pinjamantitipanlist.php?" . EW_TABLE_SHOW_MASTER . "=t03_pinjaman&fk_id=" . urlencode(strval($this->id->CurrentValue)) . "") . "\">" . $body . "</a>";
 			$links = "";
-			if ($GLOBALS["t06_pinjamantitipan_grid"]->DetailView && $Security->CanView() && $Security->AllowView(CurrentProjectID() . 't06_pinjamantitipan')) {
-				$caption = $Language->Phrase("MasterDetailViewLink");
-				$url = $this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=t06_pinjamantitipan");
-				$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($caption) . "\" href=\"" . ew_HtmlEncode($url) . "\">" . ew_HtmlImageAndText($caption) . "</a></li>";
-				if ($DetailViewTblVar <> "") $DetailViewTblVar .= ",";
-				$DetailViewTblVar .= "t06_pinjamantitipan";
-			}
 			if ($GLOBALS["t06_pinjamantitipan_grid"]->DetailEdit && $Security->CanEdit() && $Security->AllowEdit(CurrentProjectID() . 't06_pinjamantitipan')) {
 				$caption = $Language->Phrase("MasterDetailEditLink");
 				$url = $this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=t06_pinjamantitipan");
@@ -1993,7 +1957,12 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		// Common render codes for all row types
 		// id
 		// NoKontrak
+
+		$this->NoKontrak->CellCssStyle = "width: 15px;";
+
 		// TglKontrak
+		$this->TglKontrak->CellCssStyle = "width: 15px;";
+
 		// nasabah_id
 		// Pinjaman
 		// LamaAngsuran
@@ -2548,19 +2517,19 @@ $t03_pinjaman_list->ListOptions->Render("header", "left");
 ?>
 <?php if ($t03_pinjaman->NoKontrak->Visible) { // NoKontrak ?>
 	<?php if ($t03_pinjaman->SortUrl($t03_pinjaman->NoKontrak) == "") { ?>
-		<th data-name="NoKontrak" class="<?php echo $t03_pinjaman->NoKontrak->HeaderCellClass() ?>"><div id="elh_t03_pinjaman_NoKontrak" class="t03_pinjaman_NoKontrak"><div class="ewTableHeaderCaption"><?php echo $t03_pinjaman->NoKontrak->FldCaption() ?></div></div></th>
+		<th data-name="NoKontrak" class="<?php echo $t03_pinjaman->NoKontrak->HeaderCellClass() ?>"><div id="elh_t03_pinjaman_NoKontrak" class="t03_pinjaman_NoKontrak"><div class="ewTableHeaderCaption" style="width: 15px;"><?php echo $t03_pinjaman->NoKontrak->FldCaption() ?></div></div></th>
 	<?php } else { ?>
 		<th data-name="NoKontrak" class="<?php echo $t03_pinjaman->NoKontrak->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t03_pinjaman->SortUrl($t03_pinjaman->NoKontrak) ?>',2);"><div id="elh_t03_pinjaman_NoKontrak" class="t03_pinjaman_NoKontrak">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t03_pinjaman->NoKontrak->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t03_pinjaman->NoKontrak->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t03_pinjaman->NoKontrak->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+			<div class="ewTableHeaderBtn" style="width: 15px;"><span class="ewTableHeaderCaption"><?php echo $t03_pinjaman->NoKontrak->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t03_pinjaman->NoKontrak->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t03_pinjaman->NoKontrak->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
 		</div></div></th>
 	<?php } ?>
 <?php } ?>
 <?php if ($t03_pinjaman->TglKontrak->Visible) { // TglKontrak ?>
 	<?php if ($t03_pinjaman->SortUrl($t03_pinjaman->TglKontrak) == "") { ?>
-		<th data-name="TglKontrak" class="<?php echo $t03_pinjaman->TglKontrak->HeaderCellClass() ?>"><div id="elh_t03_pinjaman_TglKontrak" class="t03_pinjaman_TglKontrak"><div class="ewTableHeaderCaption"><?php echo $t03_pinjaman->TglKontrak->FldCaption() ?></div></div></th>
+		<th data-name="TglKontrak" class="<?php echo $t03_pinjaman->TglKontrak->HeaderCellClass() ?>"><div id="elh_t03_pinjaman_TglKontrak" class="t03_pinjaman_TglKontrak"><div class="ewTableHeaderCaption" style="width: 15px;"><?php echo $t03_pinjaman->TglKontrak->FldCaption() ?></div></div></th>
 	<?php } else { ?>
 		<th data-name="TglKontrak" class="<?php echo $t03_pinjaman->TglKontrak->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t03_pinjaman->SortUrl($t03_pinjaman->TglKontrak) ?>',2);"><div id="elh_t03_pinjaman_TglKontrak" class="t03_pinjaman_TglKontrak">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t03_pinjaman->TglKontrak->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t03_pinjaman->TglKontrak->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t03_pinjaman->TglKontrak->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+			<div class="ewTableHeaderBtn" style="width: 15px;"><span class="ewTableHeaderCaption"><?php echo $t03_pinjaman->TglKontrak->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t03_pinjaman->TglKontrak->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t03_pinjaman->TglKontrak->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
 		</div></div></th>
 	<?php } ?>
 <?php } ?>
