@@ -3,6 +3,7 @@ if (session_id() == "") session_start(); // Init session data
 ob_start(); // Turn on output buffering
 ?>
 <?php include_once "ewcfg14.php" ?>
+<?php $EW_ROOT_RELATIVE_PATH = ""; ?>
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql14.php") ?>
 <?php include_once "phpfn14.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
@@ -13,18 +14,21 @@ ob_start(); // Turn on output buffering
 // Page class
 //
 
-$default = NULL; // Initialize page object first
+$cf99_bantuan_php = NULL; // Initialize page object first
 
-class cdefault {
+class ccf99_bantuan_php {
 
 	// Page ID
-	var $PageID = 'default';
+	var $PageID = 'custom';
 
 	// Project ID
 	var $ProjectID = '{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}';
 
+	// Table name
+	var $TableName = 'cf99_bantuan.php';
+
 	// Page object name
-	var $PageObjName = 'default';
+	var $PageObjName = 'cf99_bantuan_php';
 
 	// Page headings
 	var $Heading = '';
@@ -209,7 +213,11 @@ class cdefault {
 
 		// Page ID
 		if (!defined("EW_PAGE_ID"))
-			define("EW_PAGE_ID", 'default', TRUE);
+			define("EW_PAGE_ID", 'custom', TRUE);
+
+		// Table name (for backward compatibility)
+		if (!defined("EW_TABLE_NAME"))
+			define("EW_TABLE_NAME", 'cf99_bantuan.php', TRUE);
 
 		// Start timer
 		if (!isset($GLOBALS["gTimer"]))
@@ -240,17 +248,31 @@ class cdefault {
 
 		// Security
 		$Security = new cAdvancedSecurity();
+		if (!$Security->IsLoggedIn()) $Security->AutoLogin();
+		if ($Security->IsLoggedIn()) $Security->TablePermission_Loading();
+		$Security->LoadCurrentUserLevel($this->ProjectID . $this->TableName);
+		if ($Security->IsLoggedIn()) $Security->TablePermission_Loaded();
+		if (!$Security->CanReport()) {
+			$Security->SaveLastUrl();
+			$this->setFailureMessage(ew_DeniedMsg()); // Set no permission
+			$this->Page_Terminate(ew_GetUrl("index.php"));
+		}
+		if ($Security->IsLoggedIn()) {
+			$Security->UserID_Loading();
+			$Security->LoadUserID();
+			$Security->UserID_Loaded();
+		}
 
 		// NOTE: Security object may be needed in other part of the script, skip set to Nothing
 		// 
 		// Security = null;
 		// 
+
+		if (@$_GET["export"] <> "")
+			$gsExport = $_GET["export"]; // Get export parameter, used in header
+
 		// Global Page Loading event (in userfn*.php)
-
 		Page_Loading();
-
-		// Page Load event
-		$this->Page_Load();
 
 		// Check token
 		if (!$this->ValidPost()) {
@@ -269,16 +291,12 @@ class cdefault {
 	function Page_Terminate($url = "") {
 		global $gsExportFile, $gTmpImages;
 
-		// Page Unload event
-		$this->Page_Unload();
-
 		// Global Page Unloaded event (in userfn*.php)
 		Page_Unloaded();
 
 		// Export
-		$this->Page_Redirecting($url);
-
 		// Close connection
+
 		ew_CloseConn();
 
 		// Go to URL if specified
@@ -295,70 +313,18 @@ class cdefault {
 	// Page main
 	//
 	function Page_Main() {
-		global $Security, $Language, $Breadcrumb;
+
+		// Set up Breadcrumb
+		$this->SetupBreadcrumb();
+	}
+
+	// Set up Breadcrumb
+	function SetupBreadcrumb() {
+		global $Breadcrumb, $Language;
 		$Breadcrumb = new cBreadcrumb();
-
-		// If session expired, show session expired message
-		if (@$_GET["expired"] == "1")
-			$this->setFailureMessage($Language->Phrase("SessionExpired"));
-		if (!$Security->IsLoggedIn()) $Security->AutoLogin();
-		$Security->LoadUserLevel(); // Load User Level
-		if ($Security->AllowList(CurrentProjectID() . 'cf01_home.php'))
-		$this->Page_Terminate("cf01_home.php"); // Exit and go to default page
-		if ($Security->AllowList(CurrentProjectID() . 't01_nasabah'))
-			$this->Page_Terminate("t01_nasabahlist.php");
-		if ($Security->AllowList(CurrentProjectID() . 't02_jaminan'))
-			$this->Page_Terminate("t02_jaminanlist.php");
-		if ($Security->AllowList(CurrentProjectID() . 't03_pinjaman'))
-			$this->Page_Terminate("t03_pinjamanlist.php");
-		if ($Security->AllowList(CurrentProjectID() . 't04_angsuran'))
-			$this->Page_Terminate("t04_angsuranlist.php");
-		if ($Security->AllowList(CurrentProjectID() . 't05_pinjamanjaminan'))
-			$this->Page_Terminate("t05_pinjamanjaminanlist.php");
-		if ($Security->AllowList(CurrentProjectID() . 't96_employees'))
-			$this->Page_Terminate("t96_employeeslist.php");
-		if ($Security->AllowList(CurrentProjectID() . 't97_userlevels'))
-			$this->Page_Terminate("t97_userlevelslist.php");
-		if ($Security->AllowList(CurrentProjectID() . 't98_userlevelpermissions'))
-			$this->Page_Terminate("t98_userlevelpermissionslist.php");
-		if ($Security->AllowList(CurrentProjectID() . 't99_audittrail'))
-			$this->Page_Terminate("t99_audittraillist.php");
-		if ($Security->AllowList(CurrentProjectID() . 'cf99_bantuan.php'))
-			$this->Page_Terminate("cf99_bantuan.php");
-		if ($Security->IsLoggedIn()) {
-			$this->setFailureMessage(ew_DeniedMsg() . "<br><br><a href=\"logout.php\">" . $Language->Phrase("BackToLogin") . "</a>");
-		} else {
-			$this->Page_Terminate("login.php"); // Exit and go to login page
-		}
-	}
-
-	// Page Load event
-	function Page_Load() {
-
-		//echo "Page Load";
-	}
-
-	// Page Unload event
-	function Page_Unload() {
-
-		//echo "Page Unload";
-	}
-
-	// Page Redirecting event
-	function Page_Redirecting(&$url) {
-
-		// Example:
-		//$url = "your URL";
-
-	}
-
-	// Message Showing event
-	// $type = ''|'success'|'failure'
-	function Message_Showing(&$msg, $type) {
-
-		// Example:
-		//if ($type == 'success') $msg = "your success message";
-
+		$url = substr(ew_CurrentUrl(), strrpos(ew_CurrentUrl(), "/")+1);
+		$Breadcrumb->Add("custom", "cf99_bantuan_php", $url, "", "cf99_bantuan_php", TRUE);
+		$this->Heading = $Language->TablePhrase("cf99_bantuan_php", "TblCaption"); 
 	}
 }
 ?>
@@ -366,19 +332,62 @@ class cdefault {
 <?php
 
 // Create page object
-if (!isset($default)) $default = new cdefault();
+if (!isset($cf99_bantuan_php)) $cf99_bantuan_php = new ccf99_bantuan_php();
 
 // Page init
-$default->Page_Init();
+$cf99_bantuan_php->Page_Init();
 
 // Page main
-$default->Page_Main();
+$cf99_bantuan_php->Page_Main();
+
+// Global Page Rendering event (in userfn*.php)
+Page_Rendering();
 ?>
 <?php include_once "header.php" ?>
+<style>
+.panel-heading a{
+  display:block;
+}
+
+.panel-heading a.collapsed {
+  background: url(http://upload.wikimedia.org/wikipedia/commons/3/36/Vector_skin_right_arrow.png) center right no-repeat;
+}
+
+.panel-heading a {
+  background: url(http://www.useragentman.com/blog/wp-content/themes/useragentman/images/widgets/downArrow.png) center right no-repeat;
+}
+</style>
+
 <?php
-$default->ShowMessage();
+	$db =& DbHelper(); // Create instance of the database helper class by DbHelper() (for main database) or DbHelper("<dbname>") (for linked databases) where <dbname> is database variable name
 ?>
+
+<div class="panel panel-default">
+	<div class="panel-heading"><strong><a class='collapsed' data-toggle="collapse" href="#pinjaman">Pinjaman</a></strong></div>
+	<div id="pinjaman" class="panel-collapse collapse in">
+		<div class="panel-body">
+			<div>
+<pre>
+- klik link PINJAMAN pada list menu sebelah kiri
+- klik icon PLUS (+) dengan tool-tips MASTER/DETAIL ADD
+- isi NO. KONTRAK
+- isi TGL. KONTRAK dengan mengklik icon CALENDAR di sebelah kanan field TGL. KONTRAK
+- isi NASABAH dengan mengklik icon MIKROSKOP di sebelah kanan field NASABAH,
+  apabila data NASABAH belum tersedia => klik icon PLUS di sebelah kanan field NASABAH, isi CUSTOMER, klik ADD
+- isi PINJAMAN, tanpa menyertakan tanda koma untuk pemisah ribuan, untuk desimal gunakan tanda titik (.)
+- isi LAMA ANGSURAN, tanpa menyertakan tanda koma untuk pemisah ribuan, untuk desimal gunakan tanda titik (.)
+- sesuaikan BUNGA, DENDA, DISPENSASI DENDA, ANGSURAN POKOK, ANGSURAN BUNGA, ANGSURAN TOTAL,
+  tanpa menyertakan tanda koma untuk pemisah ribuan, untuk desimal gunakan tanda titik (.)
+- isi JAMINAN dengan mengklik icon MIKROSKOP di sebelah kanan field JAMINAN,
+  apabila data JAMINAN belum tersedia => klik icon PLUS di sebelah kanan field JAMINAN, isi MERK/TYPE, klik ADD
+- klik ADD untuk menyimpan inputan
+</pre>
+			</div>
+		</div>
+	</div>
+</div>
+<?php if (EW_DEBUG_ENABLED) echo ew_DebugMsg(); ?>
 <?php include_once "footer.php" ?>
 <?php
-$default->Page_Terminate();
+$cf99_bantuan_php->Page_Terminate();
 ?>

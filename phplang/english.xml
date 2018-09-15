@@ -618,17 +618,14 @@
   <project>
     <phrase id="bodytitle" value="SIM Koperasi" />
     <phrase id="footertext" value="&amp;copy;2018 Selaras Solusindo. All rights reserved." />
-    <menu id="16">
-      <phrase id="menutext" value="Jaminan" />
-    </menu>
     <menu id="5">
       <phrase id="menutext" value="Home" />
     </menu>
+    <menu id="16">
+      <phrase id="menutext" value="Jaminan" />
+    </menu>
     <menu id="9">
       <phrase id="menutext" value="Pinjaman" />
-    </menu>
-    <menu id="10">
-      <phrase id="menutext" value="Angsuran" />
     </menu>
     <menu id="15">
       <phrase id="menutext" value="Setup" />
@@ -653,6 +650,12 @@
     </menu>
     <menu id="4">
       <phrase id="menutext" value="Activity-Log" />
+    </menu>
+    <menu id="17">
+      <phrase id="menutext" value="Bantuan" />
+    </menu>
+    <menu id="10">
+      <phrase id="menutext" value="Angsuran" />
     </menu>
     <table id="cf01_home_php">
       <phrase id="tblcaption" value="Home" />
@@ -930,6 +933,9 @@
       <field id="newvalue">
         <phrase id="fldcaption" value="newvalue" />
       </field>
+    </table>
+    <table id="cf99_bantuan_php">
+      <phrase id="tblcaption" value="Bantuan" />
     </table>
   </project>
 </ew-language>

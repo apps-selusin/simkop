@@ -10,6 +10,7 @@ $RootMenu->AddMenuItem(7, "mci_User", $Language->MenuPhrase("7", "MenuText"), ""
 $RootMenu->AddMenuItem(1, "mi_t96_employees", $Language->MenuPhrase("1", "MenuText"), "t96_employeeslist.php", 7, "", AllowListMenu('{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}t96_employees'), FALSE, FALSE, "");
 $RootMenu->AddMenuItem(2, "mi_t97_userlevels", $Language->MenuPhrase("2", "MenuText"), "t97_userlevelslist.php", 7, "", IsAdmin(), FALSE, FALSE, "");
 $RootMenu->AddMenuItem(4, "mi_t99_audittrail", $Language->MenuPhrase("4", "MenuText"), "t99_audittraillist.php", 7, "", AllowListMenu('{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}t99_audittrail'), FALSE, FALSE, "");
+$RootMenu->AddMenuItem(17, "mi_cf99_bantuan_php", $Language->MenuPhrase("17", "MenuText"), "cf99_bantuan.php", -1, "", AllowListMenu('{B3698D9B-8D4B-412E-A2E5-AFAD2FEE5A23}cf99_bantuan.php'), FALSE, TRUE, "");
 echo $RootMenu->ToScript();
 ?>
 <div class="ewVertical" id="ewMenu"></div>
