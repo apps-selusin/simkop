@@ -723,6 +723,27 @@ class ct06_pinjamantitipan extends cTable {
 
 		// pinjaman_id
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+		if (strval($this->pinjaman_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->pinjaman_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `NoKontrak` AS `DispFld`, `TglKontrak` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_pinjaman`";
+		$sWhereWrk = "";
+		$this->pinjaman_id->LookupFilters = array("df2" => "7");
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->pinjaman_id, $sWhereWrk); // Call Lookup Selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = ew_FormatDateTime($rswrk->fields('Disp2Fld'), 7);
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+			}
+		} else {
+			$this->pinjaman_id->ViewValue = NULL;
+		}
 		$this->pinjaman_id->ViewCustomAttributes = "";
 
 		// Tanggal
@@ -813,6 +834,27 @@ class ct06_pinjamantitipan extends cTable {
 		if ($this->pinjaman_id->getSessionValue() <> "") {
 			$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+		if (strval($this->pinjaman_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->pinjaman_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `NoKontrak` AS `DispFld`, `TglKontrak` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_pinjaman`";
+		$sWhereWrk = "";
+		$this->pinjaman_id->LookupFilters = array("df2" => "7");
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->pinjaman_id, $sWhereWrk); // Call Lookup Selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = ew_FormatDateTime($rswrk->fields('Disp2Fld'), 7);
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+			}
+		} else {
+			$this->pinjaman_id->ViewValue = NULL;
+		}
 		$this->pinjaman_id->ViewCustomAttributes = "";
 		} else {
 		$this->pinjaman_id->EditValue = $this->pinjaman_id->CurrentValue;
@@ -879,8 +921,6 @@ class ct06_pinjamantitipan extends cTable {
 			if ($Doc->Horizontal) { // Horizontal format, write header
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
-					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
-					if ($this->pinjaman_id->Exportable) $Doc->ExportCaption($this->pinjaman_id);
 					if ($this->Tanggal->Exportable) $Doc->ExportCaption($this->Tanggal);
 					if ($this->Keterangan->Exportable) $Doc->ExportCaption($this->Keterangan);
 					if ($this->Masuk->Exportable) $Doc->ExportCaption($this->Masuk);
@@ -925,8 +965,6 @@ class ct06_pinjamantitipan extends cTable {
 				if (!$Doc->ExportCustom) {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
-						if ($this->id->Exportable) $Doc->ExportField($this->id);
-						if ($this->pinjaman_id->Exportable) $Doc->ExportField($this->pinjaman_id);
 						if ($this->Tanggal->Exportable) $Doc->ExportField($this->Tanggal);
 						if ($this->Keterangan->Exportable) $Doc->ExportField($this->Keterangan);
 						if ($this->Masuk->Exportable) $Doc->ExportField($this->Masuk);

@@ -355,10 +355,6 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 
 		// Set up list options
 		$this->SetupListOptions();
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
-		$this->pinjaman_id->SetVisibility();
 		$this->Tanggal->SetVisibility();
 		$this->Keterangan->SetVisibility();
 		$this->Masuk->SetVisibility();
@@ -862,8 +858,6 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 	// Check if empty row
 	function EmptyRow() {
 		global $objForm;
-		if ($objForm->HasValue("x_pinjaman_id") && $objForm->HasValue("o_pinjaman_id") && $this->pinjaman_id->CurrentValue <> $this->pinjaman_id->OldValue)
-			return FALSE;
 		if ($objForm->HasValue("x_Tanggal") && $objForm->HasValue("o_Tanggal") && $this->Tanggal->CurrentValue <> $this->Tanggal->OldValue)
 			return FALSE;
 		if ($objForm->HasValue("x_Keterangan") && $objForm->HasValue("o_Keterangan") && $this->Keterangan->CurrentValue <> $this->Keterangan->OldValue)
@@ -1266,12 +1260,6 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 		// Load from form
 		global $objForm;
 		$objForm->FormName = $this->FormName;
-		if (!$this->id->FldIsDetailKey && $this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
-			$this->id->setFormValue($objForm->GetValue("x_id"));
-		if (!$this->pinjaman_id->FldIsDetailKey) {
-			$this->pinjaman_id->setFormValue($objForm->GetValue("x_pinjaman_id"));
-		}
-		$this->pinjaman_id->setOldValue($objForm->GetValue("o_pinjaman_id"));
 		if (!$this->Tanggal->FldIsDetailKey) {
 			$this->Tanggal->setFormValue($objForm->GetValue("x_Tanggal"));
 			$this->Tanggal->CurrentValue = ew_UnFormatDateTime($this->Tanggal->CurrentValue, 7);
@@ -1293,6 +1281,8 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 			$this->Sisa->setFormValue($objForm->GetValue("x_Sisa"));
 		}
 		$this->Sisa->setOldValue($objForm->GetValue("o_Sisa"));
+		if (!$this->id->FldIsDetailKey && $this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
+			$this->id->setFormValue($objForm->GetValue("x_id"));
 	}
 
 	// Restore form values
@@ -1300,7 +1290,6 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 		global $objForm;
 		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
 			$this->id->CurrentValue = $this->id->FormValue;
-		$this->pinjaman_id->CurrentValue = $this->pinjaman_id->FormValue;
 		$this->Tanggal->CurrentValue = $this->Tanggal->FormValue;
 		$this->Tanggal->CurrentValue = ew_UnFormatDateTime($this->Tanggal->CurrentValue, 7);
 		$this->Keterangan->CurrentValue = $this->Keterangan->FormValue;
@@ -1475,6 +1464,27 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 
 		// pinjaman_id
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+		if (strval($this->pinjaman_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->pinjaman_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `NoKontrak` AS `DispFld`, `TglKontrak` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_pinjaman`";
+		$sWhereWrk = "";
+		$this->pinjaman_id->LookupFilters = array("df2" => "7");
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->pinjaman_id, $sWhereWrk); // Call Lookup Selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = ew_FormatDateTime($rswrk->fields('Disp2Fld'), 7);
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+			}
+		} else {
+			$this->pinjaman_id->ViewValue = NULL;
+		}
 		$this->pinjaman_id->ViewCustomAttributes = "";
 
 		// Tanggal
@@ -1504,16 +1514,6 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 		$this->Sisa->CellCssStyle .= "text-align: right;";
 		$this->Sisa->ViewCustomAttributes = "";
 
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-			$this->pinjaman_id->TooltipValue = "";
-
 			// Tanggal
 			$this->Tanggal->LinkCustomAttributes = "";
 			$this->Tanggal->HrefValue = "";
@@ -1539,21 +1539,6 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 			$this->Sisa->HrefValue = "";
 			$this->Sisa->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
-
-			// id
-			// pinjaman_id
-
-			$this->pinjaman_id->EditAttrs["class"] = "form-control";
-			$this->pinjaman_id->EditCustomAttributes = "";
-			if ($this->pinjaman_id->getSessionValue() <> "") {
-				$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
-				$this->pinjaman_id->OldValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewCustomAttributes = "";
-			} else {
-			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
-			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
-			}
 
 			// Tanggal
 			$this->Tanggal->EditAttrs["class"] = "form-control";
@@ -1598,16 +1583,8 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 			}
 
 			// Add refer script
-			// id
-
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-
 			// Tanggal
+
 			$this->Tanggal->LinkCustomAttributes = "";
 			$this->Tanggal->HrefValue = "";
 
@@ -1627,25 +1604,6 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 			$this->Sisa->LinkCustomAttributes = "";
 			$this->Sisa->HrefValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
-
-			// id
-			$this->id->EditAttrs["class"] = "form-control";
-			$this->id->EditCustomAttributes = "";
-			$this->id->EditValue = $this->id->CurrentValue;
-			$this->id->ViewCustomAttributes = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->EditAttrs["class"] = "form-control";
-			$this->pinjaman_id->EditCustomAttributes = "";
-			if ($this->pinjaman_id->getSessionValue() <> "") {
-				$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
-				$this->pinjaman_id->OldValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewCustomAttributes = "";
-			} else {
-			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
-			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
-			}
 
 			// Tanggal
 			$this->Tanggal->EditAttrs["class"] = "form-control";
@@ -1690,16 +1648,8 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 			}
 
 			// Edit refer script
-			// id
-
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-
 			// Tanggal
+
 			$this->Tanggal->LinkCustomAttributes = "";
 			$this->Tanggal->HrefValue = "";
 
@@ -1734,12 +1684,6 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
-		if (!$this->pinjaman_id->FldIsDetailKey && !is_null($this->pinjaman_id->FormValue) && $this->pinjaman_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->pinjaman_id->FldCaption(), $this->pinjaman_id->ReqErrMsg));
-		}
-		if (!ew_CheckInteger($this->pinjaman_id->FormValue)) {
-			ew_AddMessage($gsFormError, $this->pinjaman_id->FldErrMsg());
-		}
 		if (!$this->Tanggal->FldIsDetailKey && !is_null($this->Tanggal->FormValue) && $this->Tanggal->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->Tanggal->FldCaption(), $this->Tanggal->ReqErrMsg));
 		}
@@ -1870,9 +1814,6 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 			$this->LoadDbValues($rsold);
 			$rsnew = array();
 
-			// pinjaman_id
-			$this->pinjaman_id->SetDbValueDef($rsnew, $this->pinjaman_id->CurrentValue, 0, $this->pinjaman_id->ReadOnly);
-
 			// Tanggal
 			$this->Tanggal->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->Tanggal->CurrentValue, 7), ew_CurrentDate(), $this->Tanggal->ReadOnly);
 
@@ -1936,9 +1877,6 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 		}
 		$rsnew = array();
 
-		// pinjaman_id
-		$this->pinjaman_id->SetDbValueDef($rsnew, $this->pinjaman_id->CurrentValue, 0, FALSE);
-
 		// Tanggal
 		$this->Tanggal->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->Tanggal->CurrentValue, 7), ew_CurrentDate(), FALSE);
 
@@ -1953,6 +1891,11 @@ class ct06_pinjamantitipan_grid extends ct06_pinjamantitipan {
 
 		// Sisa
 		$this->Sisa->SetDbValueDef($rsnew, $this->Sisa->CurrentValue, 0, strval($this->Sisa->CurrentValue) == "");
+
+		// pinjaman_id
+		if ($this->pinjaman_id->getSessionValue() <> "") {
+			$rsnew['pinjaman_id'] = $this->pinjaman_id->getSessionValue();
+		}
 
 		// Call Row Inserting event
 		$rs = ($rsold == NULL) ? NULL : $rsold->fields;

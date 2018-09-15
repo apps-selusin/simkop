@@ -418,10 +418,6 @@ class ct06_pinjamantitipan_list extends ct06_pinjamantitipan {
 
 		// Set up list options
 		$this->SetupListOptions();
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
-		$this->pinjaman_id->SetVisibility();
 		$this->Tanggal->SetVisibility();
 		$this->Keterangan->SetVisibility();
 		$this->Masuk->SetVisibility();
@@ -1058,8 +1054,6 @@ class ct06_pinjamantitipan_list extends ct06_pinjamantitipan {
 		if (@$_GET["order"] <> "") {
 			$this->CurrentOrder = @$_GET["order"];
 			$this->CurrentOrderType = @$_GET["ordertype"];
-			$this->UpdateSort($this->id, $bCtrl); // id
-			$this->UpdateSort($this->pinjaman_id, $bCtrl); // pinjaman_id
 			$this->UpdateSort($this->Tanggal, $bCtrl); // Tanggal
 			$this->UpdateSort($this->Keterangan, $bCtrl); // Keterangan
 			$this->UpdateSort($this->Masuk, $bCtrl); // Masuk
@@ -1105,8 +1099,6 @@ class ct06_pinjamantitipan_list extends ct06_pinjamantitipan {
 			if ($this->Command == "resetsort") {
 				$sOrderBy = "";
 				$this->setSessionOrderBy($sOrderBy);
-				$this->id->setSort("");
-				$this->pinjaman_id->setSort("");
 				$this->Tanggal->setSort("");
 				$this->Keterangan->setSort("");
 				$this->Masuk->setSort("");
@@ -1680,6 +1672,27 @@ class ct06_pinjamantitipan_list extends ct06_pinjamantitipan {
 
 		// pinjaman_id
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+		if (strval($this->pinjaman_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->pinjaman_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `NoKontrak` AS `DispFld`, `TglKontrak` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_pinjaman`";
+		$sWhereWrk = "";
+		$this->pinjaman_id->LookupFilters = array("df2" => "7");
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->pinjaman_id, $sWhereWrk); // Call Lookup Selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = ew_FormatDateTime($rswrk->fields('Disp2Fld'), 7);
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+			}
+		} else {
+			$this->pinjaman_id->ViewValue = NULL;
+		}
 		$this->pinjaman_id->ViewCustomAttributes = "";
 
 		// Tanggal
@@ -1708,16 +1721,6 @@ class ct06_pinjamantitipan_list extends ct06_pinjamantitipan {
 		$this->Sisa->ViewValue = ew_FormatNumber($this->Sisa->ViewValue, 2, -2, -2, -2);
 		$this->Sisa->CellCssStyle .= "text-align: right;";
 		$this->Sisa->ViewCustomAttributes = "";
-
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-			$this->pinjaman_id->TooltipValue = "";
 
 			// Tanggal
 			$this->Tanggal->LinkCustomAttributes = "";
@@ -2207,24 +2210,6 @@ $t06_pinjamantitipan_list->RenderListOptions();
 // Render list options (header, left)
 $t06_pinjamantitipan_list->ListOptions->Render("header", "left");
 ?>
-<?php if ($t06_pinjamantitipan->id->Visible) { // id ?>
-	<?php if ($t06_pinjamantitipan->SortUrl($t06_pinjamantitipan->id) == "") { ?>
-		<th data-name="id" class="<?php echo $t06_pinjamantitipan->id->HeaderCellClass() ?>"><div id="elh_t06_pinjamantitipan_id" class="t06_pinjamantitipan_id"><div class="ewTableHeaderCaption"><?php echo $t06_pinjamantitipan->id->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="id" class="<?php echo $t06_pinjamantitipan->id->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t06_pinjamantitipan->SortUrl($t06_pinjamantitipan->id) ?>',2);"><div id="elh_t06_pinjamantitipan_id" class="t06_pinjamantitipan_id">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t06_pinjamantitipan->id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t06_pinjamantitipan->id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t06_pinjamantitipan->id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
-<?php if ($t06_pinjamantitipan->pinjaman_id->Visible) { // pinjaman_id ?>
-	<?php if ($t06_pinjamantitipan->SortUrl($t06_pinjamantitipan->pinjaman_id) == "") { ?>
-		<th data-name="pinjaman_id" class="<?php echo $t06_pinjamantitipan->pinjaman_id->HeaderCellClass() ?>"><div id="elh_t06_pinjamantitipan_pinjaman_id" class="t06_pinjamantitipan_pinjaman_id"><div class="ewTableHeaderCaption"><?php echo $t06_pinjamantitipan->pinjaman_id->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="pinjaman_id" class="<?php echo $t06_pinjamantitipan->pinjaman_id->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t06_pinjamantitipan->SortUrl($t06_pinjamantitipan->pinjaman_id) ?>',2);"><div id="elh_t06_pinjamantitipan_pinjaman_id" class="t06_pinjamantitipan_pinjaman_id">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t06_pinjamantitipan->pinjaman_id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t06_pinjamantitipan->pinjaman_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t06_pinjamantitipan->pinjaman_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-		</div></div></th>
-	<?php } ?>
-<?php } ?>
 <?php if ($t06_pinjamantitipan->Tanggal->Visible) { // Tanggal ?>
 	<?php if ($t06_pinjamantitipan->SortUrl($t06_pinjamantitipan->Tanggal) == "") { ?>
 		<th data-name="Tanggal" class="<?php echo $t06_pinjamantitipan->Tanggal->HeaderCellClass() ?>"><div id="elh_t06_pinjamantitipan_Tanggal" class="t06_pinjamantitipan_Tanggal"><div class="ewTableHeaderCaption"><?php echo $t06_pinjamantitipan->Tanggal->FldCaption() ?></div></div></th>
@@ -2335,22 +2320,6 @@ while ($t06_pinjamantitipan_list->RecCnt < $t06_pinjamantitipan_list->StopRec) {
 // Render list options (body, left)
 $t06_pinjamantitipan_list->ListOptions->Render("body", "left", $t06_pinjamantitipan_list->RowCnt);
 ?>
-	<?php if ($t06_pinjamantitipan->id->Visible) { // id ?>
-		<td data-name="id"<?php echo $t06_pinjamantitipan->id->CellAttributes() ?>>
-<span id="el<?php echo $t06_pinjamantitipan_list->RowCnt ?>_t06_pinjamantitipan_id" class="t06_pinjamantitipan_id">
-<span<?php echo $t06_pinjamantitipan->id->ViewAttributes() ?>>
-<?php echo $t06_pinjamantitipan->id->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
-	<?php if ($t06_pinjamantitipan->pinjaman_id->Visible) { // pinjaman_id ?>
-		<td data-name="pinjaman_id"<?php echo $t06_pinjamantitipan->pinjaman_id->CellAttributes() ?>>
-<span id="el<?php echo $t06_pinjamantitipan_list->RowCnt ?>_t06_pinjamantitipan_pinjaman_id" class="t06_pinjamantitipan_pinjaman_id">
-<span<?php echo $t06_pinjamantitipan->pinjaman_id->ViewAttributes() ?>>
-<?php echo $t06_pinjamantitipan->pinjaman_id->ListViewValue() ?></span>
-</span>
-</td>
-	<?php } ?>
 	<?php if ($t06_pinjamantitipan->Tanggal->Visible) { // Tanggal ?>
 		<td data-name="Tanggal"<?php echo $t06_pinjamantitipan->Tanggal->CellAttributes() ?>>
 <span id="el<?php echo $t06_pinjamantitipan_list->RowCnt ?>_t06_pinjamantitipan_Tanggal" class="t06_pinjamantitipan_Tanggal">

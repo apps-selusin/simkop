@@ -612,12 +612,7 @@ class ct03_pinjaman_delete extends ct03_pinjaman {
 		// Common render codes for all row types
 		// id
 		// NoKontrak
-
-		$this->NoKontrak->CellCssStyle = "width: 15px;";
-
 		// TglKontrak
-		$this->TglKontrak->CellCssStyle = "width: 15px;";
-
 		// nasabah_id
 		// Pinjaman
 		// LamaAngsuran

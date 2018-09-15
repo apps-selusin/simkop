@@ -335,10 +335,6 @@ class ct06_pinjamantitipan_edit extends ct06_pinjamantitipan {
 
 		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
-		$this->pinjaman_id->SetVisibility();
 		$this->Tanggal->SetVisibility();
 		$this->Keterangan->SetVisibility();
 		$this->Masuk->SetVisibility();
@@ -631,11 +627,6 @@ class ct06_pinjamantitipan_edit extends ct06_pinjamantitipan {
 
 		// Load from form
 		global $objForm;
-		if (!$this->id->FldIsDetailKey)
-			$this->id->setFormValue($objForm->GetValue("x_id"));
-		if (!$this->pinjaman_id->FldIsDetailKey) {
-			$this->pinjaman_id->setFormValue($objForm->GetValue("x_pinjaman_id"));
-		}
 		if (!$this->Tanggal->FldIsDetailKey) {
 			$this->Tanggal->setFormValue($objForm->GetValue("x_Tanggal"));
 			$this->Tanggal->CurrentValue = ew_UnFormatDateTime($this->Tanggal->CurrentValue, 7);
@@ -652,13 +643,14 @@ class ct06_pinjamantitipan_edit extends ct06_pinjamantitipan {
 		if (!$this->Sisa->FldIsDetailKey) {
 			$this->Sisa->setFormValue($objForm->GetValue("x_Sisa"));
 		}
+		if (!$this->id->FldIsDetailKey)
+			$this->id->setFormValue($objForm->GetValue("x_id"));
 	}
 
 	// Restore form values
 	function RestoreFormValues() {
 		global $objForm;
 		$this->id->CurrentValue = $this->id->FormValue;
-		$this->pinjaman_id->CurrentValue = $this->pinjaman_id->FormValue;
 		$this->Tanggal->CurrentValue = $this->Tanggal->FormValue;
 		$this->Tanggal->CurrentValue = ew_UnFormatDateTime($this->Tanggal->CurrentValue, 7);
 		$this->Keterangan->CurrentValue = $this->Keterangan->FormValue;
@@ -822,6 +814,27 @@ class ct06_pinjamantitipan_edit extends ct06_pinjamantitipan {
 
 		// pinjaman_id
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+		if (strval($this->pinjaman_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->pinjaman_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `NoKontrak` AS `DispFld`, `TglKontrak` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_pinjaman`";
+		$sWhereWrk = "";
+		$this->pinjaman_id->LookupFilters = array("df2" => "7");
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->pinjaman_id, $sWhereWrk); // Call Lookup Selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = ew_FormatDateTime($rswrk->fields('Disp2Fld'), 7);
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+			}
+		} else {
+			$this->pinjaman_id->ViewValue = NULL;
+		}
 		$this->pinjaman_id->ViewCustomAttributes = "";
 
 		// Tanggal
@@ -851,16 +864,6 @@ class ct06_pinjamantitipan_edit extends ct06_pinjamantitipan {
 		$this->Sisa->CellCssStyle .= "text-align: right;";
 		$this->Sisa->ViewCustomAttributes = "";
 
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-			$this->pinjaman_id->TooltipValue = "";
-
 			// Tanggal
 			$this->Tanggal->LinkCustomAttributes = "";
 			$this->Tanggal->HrefValue = "";
@@ -886,24 +889,6 @@ class ct06_pinjamantitipan_edit extends ct06_pinjamantitipan {
 			$this->Sisa->HrefValue = "";
 			$this->Sisa->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
-
-			// id
-			$this->id->EditAttrs["class"] = "form-control";
-			$this->id->EditCustomAttributes = "";
-			$this->id->EditValue = $this->id->CurrentValue;
-			$this->id->ViewCustomAttributes = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->EditAttrs["class"] = "form-control";
-			$this->pinjaman_id->EditCustomAttributes = "";
-			if ($this->pinjaman_id->getSessionValue() <> "") {
-				$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
-			$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
-			$this->pinjaman_id->ViewCustomAttributes = "";
-			} else {
-			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
-			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
-			}
 
 			// Tanggal
 			$this->Tanggal->EditAttrs["class"] = "form-control";
@@ -939,16 +924,8 @@ class ct06_pinjamantitipan_edit extends ct06_pinjamantitipan {
 			if (strval($this->Sisa->EditValue) <> "" && is_numeric($this->Sisa->EditValue)) $this->Sisa->EditValue = ew_FormatNumber($this->Sisa->EditValue, -2, -2, -2, -2);
 
 			// Edit refer script
-			// id
-
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-
 			// Tanggal
+
 			$this->Tanggal->LinkCustomAttributes = "";
 			$this->Tanggal->HrefValue = "";
 
@@ -986,12 +963,6 @@ class ct06_pinjamantitipan_edit extends ct06_pinjamantitipan {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
-		if (!$this->pinjaman_id->FldIsDetailKey && !is_null($this->pinjaman_id->FormValue) && $this->pinjaman_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->pinjaman_id->FldCaption(), $this->pinjaman_id->ReqErrMsg));
-		}
-		if (!ew_CheckInteger($this->pinjaman_id->FormValue)) {
-			ew_AddMessage($gsFormError, $this->pinjaman_id->FldErrMsg());
-		}
 		if (!$this->Tanggal->FldIsDetailKey && !is_null($this->Tanggal->FormValue) && $this->Tanggal->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->Tanggal->FldCaption(), $this->Tanggal->ReqErrMsg));
 		}
@@ -1042,9 +1013,6 @@ class ct06_pinjamantitipan_edit extends ct06_pinjamantitipan {
 			$rsold = &$rs->fields;
 			$this->LoadDbValues($rsold);
 			$rsnew = array();
-
-			// pinjaman_id
-			$this->pinjaman_id->SetDbValueDef($rsnew, $this->pinjaman_id->CurrentValue, 0, $this->pinjaman_id->ReadOnly);
 
 			// Tanggal
 			$this->Tanggal->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->Tanggal->CurrentValue, 7), ew_CurrentDate(), $this->Tanggal->ReadOnly);
@@ -1290,12 +1258,6 @@ ft06_pinjamantitipanedit.Validate = function() {
 	for (var i = startcnt; i <= rowcnt; i++) {
 		var infix = ($k[0]) ? String(i) : "";
 		$fobj.data("rowindex", infix);
-			elm = this.GetElements("x" + infix + "_pinjaman_id");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t06_pinjamantitipan->pinjaman_id->FldCaption(), $t06_pinjamantitipan->pinjaman_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_pinjaman_id");
-			if (elm && !ew_CheckInteger(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t06_pinjamantitipan->pinjaman_id->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_Tanggal");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t06_pinjamantitipan->Tanggal->FldCaption(), $t06_pinjamantitipan->Tanggal->ReqErrMsg)) ?>");
@@ -1408,42 +1370,12 @@ $t06_pinjamantitipan_edit->ShowMessage();
 <input type="hidden" name="fk_id" value="<?php echo $t06_pinjamantitipan->pinjaman_id->getSessionValue() ?>">
 <?php } ?>
 <div class="ewEditDiv"><!-- page* -->
-<?php if ($t06_pinjamantitipan->id->Visible) { // id ?>
-	<div id="r_id" class="form-group">
-		<label id="elh_t06_pinjamantitipan_id" class="<?php echo $t06_pinjamantitipan_edit->LeftColumnClass ?>"><?php echo $t06_pinjamantitipan->id->FldCaption() ?></label>
-		<div class="<?php echo $t06_pinjamantitipan_edit->RightColumnClass ?>"><div<?php echo $t06_pinjamantitipan->id->CellAttributes() ?>>
-<span id="el_t06_pinjamantitipan_id">
-<span<?php echo $t06_pinjamantitipan->id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t06_pinjamantitipan->id->EditValue ?></p></span>
-</span>
-<input type="hidden" data-table="t06_pinjamantitipan" data-field="x_id" name="x_id" id="x_id" value="<?php echo ew_HtmlEncode($t06_pinjamantitipan->id->CurrentValue) ?>">
-<?php echo $t06_pinjamantitipan->id->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($t06_pinjamantitipan->pinjaman_id->Visible) { // pinjaman_id ?>
-	<div id="r_pinjaman_id" class="form-group">
-		<label id="elh_t06_pinjamantitipan_pinjaman_id" for="x_pinjaman_id" class="<?php echo $t06_pinjamantitipan_edit->LeftColumnClass ?>"><?php echo $t06_pinjamantitipan->pinjaman_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="<?php echo $t06_pinjamantitipan_edit->RightColumnClass ?>"><div<?php echo $t06_pinjamantitipan->pinjaman_id->CellAttributes() ?>>
-<?php if ($t06_pinjamantitipan->pinjaman_id->getSessionValue() <> "") { ?>
-<span id="el_t06_pinjamantitipan_pinjaman_id">
-<span<?php echo $t06_pinjamantitipan->pinjaman_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t06_pinjamantitipan->pinjaman_id->ViewValue ?></p></span>
-</span>
-<input type="hidden" id="x_pinjaman_id" name="x_pinjaman_id" value="<?php echo ew_HtmlEncode($t06_pinjamantitipan->pinjaman_id->CurrentValue) ?>">
-<?php } else { ?>
-<span id="el_t06_pinjamantitipan_pinjaman_id">
-<input type="text" data-table="t06_pinjamantitipan" data-field="x_pinjaman_id" name="x_pinjaman_id" id="x_pinjaman_id" size="30" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->pinjaman_id->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->pinjaman_id->EditValue ?>"<?php echo $t06_pinjamantitipan->pinjaman_id->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php echo $t06_pinjamantitipan->pinjaman_id->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
 <?php if ($t06_pinjamantitipan->Tanggal->Visible) { // Tanggal ?>
 	<div id="r_Tanggal" class="form-group">
 		<label id="elh_t06_pinjamantitipan_Tanggal" for="x_Tanggal" class="<?php echo $t06_pinjamantitipan_edit->LeftColumnClass ?>"><?php echo $t06_pinjamantitipan->Tanggal->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t06_pinjamantitipan_edit->RightColumnClass ?>"><div<?php echo $t06_pinjamantitipan->Tanggal->CellAttributes() ?>>
 <span id="el_t06_pinjamantitipan_Tanggal">
-<input type="text" data-table="t06_pinjamantitipan" data-field="x_Tanggal" data-format="7" name="x_Tanggal" id="x_Tanggal" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Tanggal->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Tanggal->EditValue ?>"<?php echo $t06_pinjamantitipan->Tanggal->EditAttributes() ?>>
+<input type="text" data-table="t06_pinjamantitipan" data-field="x_Tanggal" data-format="7" name="x_Tanggal" id="x_Tanggal" size="7" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Tanggal->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Tanggal->EditValue ?>"<?php echo $t06_pinjamantitipan->Tanggal->EditAttributes() ?>>
 <?php if (!$t06_pinjamantitipan->Tanggal->ReadOnly && !$t06_pinjamantitipan->Tanggal->Disabled && !isset($t06_pinjamantitipan->Tanggal->EditAttrs["readonly"]) && !isset($t06_pinjamantitipan->Tanggal->EditAttrs["disabled"])) { ?>
 <script type="text/javascript">
 ew_CreateDateTimePicker("ft06_pinjamantitipanedit", "x_Tanggal", {"ignoreReadonly":true,"useCurrent":false,"format":7});
@@ -1458,7 +1390,7 @@ ew_CreateDateTimePicker("ft06_pinjamantitipanedit", "x_Tanggal", {"ignoreReadonl
 		<label id="elh_t06_pinjamantitipan_Keterangan" for="x_Keterangan" class="<?php echo $t06_pinjamantitipan_edit->LeftColumnClass ?>"><?php echo $t06_pinjamantitipan->Keterangan->FldCaption() ?></label>
 		<div class="<?php echo $t06_pinjamantitipan_edit->RightColumnClass ?>"><div<?php echo $t06_pinjamantitipan->Keterangan->CellAttributes() ?>>
 <span id="el_t06_pinjamantitipan_Keterangan">
-<textarea data-table="t06_pinjamantitipan" data-field="x_Keterangan" name="x_Keterangan" id="x_Keterangan" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Keterangan->getPlaceHolder()) ?>"<?php echo $t06_pinjamantitipan->Keterangan->EditAttributes() ?>><?php echo $t06_pinjamantitipan->Keterangan->EditValue ?></textarea>
+<textarea data-table="t06_pinjamantitipan" data-field="x_Keterangan" name="x_Keterangan" id="x_Keterangan" cols="15" rows="4" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Keterangan->getPlaceHolder()) ?>"<?php echo $t06_pinjamantitipan->Keterangan->EditAttributes() ?>><?php echo $t06_pinjamantitipan->Keterangan->EditValue ?></textarea>
 </span>
 <?php echo $t06_pinjamantitipan->Keterangan->CustomMsg ?></div></div>
 	</div>
@@ -1468,7 +1400,7 @@ ew_CreateDateTimePicker("ft06_pinjamantitipanedit", "x_Tanggal", {"ignoreReadonl
 		<label id="elh_t06_pinjamantitipan_Masuk" for="x_Masuk" class="<?php echo $t06_pinjamantitipan_edit->LeftColumnClass ?>"><?php echo $t06_pinjamantitipan->Masuk->FldCaption() ?></label>
 		<div class="<?php echo $t06_pinjamantitipan_edit->RightColumnClass ?>"><div<?php echo $t06_pinjamantitipan->Masuk->CellAttributes() ?>>
 <span id="el_t06_pinjamantitipan_Masuk">
-<input type="text" data-table="t06_pinjamantitipan" data-field="x_Masuk" name="x_Masuk" id="x_Masuk" size="30" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Masuk->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Masuk->EditValue ?>"<?php echo $t06_pinjamantitipan->Masuk->EditAttributes() ?>>
+<input type="text" data-table="t06_pinjamantitipan" data-field="x_Masuk" name="x_Masuk" id="x_Masuk" size="10" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Masuk->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Masuk->EditValue ?>"<?php echo $t06_pinjamantitipan->Masuk->EditAttributes() ?>>
 </span>
 <?php echo $t06_pinjamantitipan->Masuk->CustomMsg ?></div></div>
 	</div>
@@ -1478,7 +1410,7 @@ ew_CreateDateTimePicker("ft06_pinjamantitipanedit", "x_Tanggal", {"ignoreReadonl
 		<label id="elh_t06_pinjamantitipan_Keluar" for="x_Keluar" class="<?php echo $t06_pinjamantitipan_edit->LeftColumnClass ?>"><?php echo $t06_pinjamantitipan->Keluar->FldCaption() ?></label>
 		<div class="<?php echo $t06_pinjamantitipan_edit->RightColumnClass ?>"><div<?php echo $t06_pinjamantitipan->Keluar->CellAttributes() ?>>
 <span id="el_t06_pinjamantitipan_Keluar">
-<input type="text" data-table="t06_pinjamantitipan" data-field="x_Keluar" name="x_Keluar" id="x_Keluar" size="30" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Keluar->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Keluar->EditValue ?>"<?php echo $t06_pinjamantitipan->Keluar->EditAttributes() ?>>
+<input type="text" data-table="t06_pinjamantitipan" data-field="x_Keluar" name="x_Keluar" id="x_Keluar" size="10" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Keluar->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Keluar->EditValue ?>"<?php echo $t06_pinjamantitipan->Keluar->EditAttributes() ?>>
 </span>
 <?php echo $t06_pinjamantitipan->Keluar->CustomMsg ?></div></div>
 	</div>
@@ -1488,12 +1420,13 @@ ew_CreateDateTimePicker("ft06_pinjamantitipanedit", "x_Tanggal", {"ignoreReadonl
 		<label id="elh_t06_pinjamantitipan_Sisa" for="x_Sisa" class="<?php echo $t06_pinjamantitipan_edit->LeftColumnClass ?>"><?php echo $t06_pinjamantitipan->Sisa->FldCaption() ?></label>
 		<div class="<?php echo $t06_pinjamantitipan_edit->RightColumnClass ?>"><div<?php echo $t06_pinjamantitipan->Sisa->CellAttributes() ?>>
 <span id="el_t06_pinjamantitipan_Sisa">
-<input type="text" data-table="t06_pinjamantitipan" data-field="x_Sisa" name="x_Sisa" id="x_Sisa" size="30" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Sisa->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Sisa->EditValue ?>"<?php echo $t06_pinjamantitipan->Sisa->EditAttributes() ?>>
+<input type="text" data-table="t06_pinjamantitipan" data-field="x_Sisa" name="x_Sisa" id="x_Sisa" size="10" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Sisa->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Sisa->EditValue ?>"<?php echo $t06_pinjamantitipan->Sisa->EditAttributes() ?>>
 </span>
 <?php echo $t06_pinjamantitipan->Sisa->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
 </div><!-- /page* -->
+<input type="hidden" data-table="t06_pinjamantitipan" data-field="x_id" name="x_id" id="x_id" value="<?php echo ew_HtmlEncode($t06_pinjamantitipan->id->CurrentValue) ?>">
 <?php if (!$t06_pinjamantitipan_edit->IsModal) { ?>
 <div class="form-group"><!-- buttons .form-group -->
 	<div class="<?php echo $t06_pinjamantitipan_edit->OffsetColumnClass ?>"><!-- buttons offset -->

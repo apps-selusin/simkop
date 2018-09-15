@@ -564,6 +564,27 @@ class ct05_pinjamanjaminan_delete extends ct05_pinjamanjaminan {
 
 		// pinjaman_id
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+		if (strval($this->pinjaman_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->pinjaman_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `NoKontrak` AS `DispFld`, `TglKontrak` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_pinjaman`";
+		$sWhereWrk = "";
+		$this->pinjaman_id->LookupFilters = array("df2" => "7");
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->pinjaman_id, $sWhereWrk); // Call Lookup Selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = ew_FormatDateTime($rswrk->fields('Disp2Fld'), 7);
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+			}
+		} else {
+			$this->pinjaman_id->ViewValue = NULL;
+		}
 		$this->pinjaman_id->ViewCustomAttributes = "";
 
 		// jaminan_id

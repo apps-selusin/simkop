@@ -812,12 +812,7 @@ class ct03_pinjaman extends cTable {
 	// Common render codes
 		// id
 		// NoKontrak
-
-		$this->NoKontrak->CellCssStyle = "width: 15px;";
-
 		// TglKontrak
-		$this->TglKontrak->CellCssStyle = "width: 15px;";
-
 		// nasabah_id
 		// Pinjaman
 		// LamaAngsuran

@@ -330,10 +330,6 @@ class ct06_pinjamantitipan_delete extends ct06_pinjamantitipan {
 		// 
 
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->id->SetVisibility();
-		if ($this->IsAdd() || $this->IsCopy() || $this->IsGridAdd())
-			$this->id->Visible = FALSE;
-		$this->pinjaman_id->SetVisibility();
 		$this->Tanggal->SetVisibility();
 		$this->Keterangan->SetVisibility();
 		$this->Masuk->SetVisibility();
@@ -595,6 +591,27 @@ class ct06_pinjamantitipan_delete extends ct06_pinjamantitipan {
 
 		// pinjaman_id
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+		if (strval($this->pinjaman_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->pinjaman_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `NoKontrak` AS `DispFld`, `TglKontrak` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_pinjaman`";
+		$sWhereWrk = "";
+		$this->pinjaman_id->LookupFilters = array("df2" => "7");
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->pinjaman_id, $sWhereWrk); // Call Lookup Selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = ew_FormatDateTime($rswrk->fields('Disp2Fld'), 7);
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+			}
+		} else {
+			$this->pinjaman_id->ViewValue = NULL;
+		}
 		$this->pinjaman_id->ViewCustomAttributes = "";
 
 		// Tanggal
@@ -623,16 +640,6 @@ class ct06_pinjamantitipan_delete extends ct06_pinjamantitipan {
 		$this->Sisa->ViewValue = ew_FormatNumber($this->Sisa->ViewValue, 2, -2, -2, -2);
 		$this->Sisa->CellCssStyle .= "text-align: right;";
 		$this->Sisa->ViewCustomAttributes = "";
-
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
-
-			// pinjaman_id
-			$this->pinjaman_id->LinkCustomAttributes = "";
-			$this->pinjaman_id->HrefValue = "";
-			$this->pinjaman_id->TooltipValue = "";
 
 			// Tanggal
 			$this->Tanggal->LinkCustomAttributes = "";
@@ -960,12 +967,6 @@ $t06_pinjamantitipan_delete->ShowMessage();
 <table class="table ewTable">
 	<thead>
 	<tr class="ewTableHeader">
-<?php if ($t06_pinjamantitipan->id->Visible) { // id ?>
-		<th class="<?php echo $t06_pinjamantitipan->id->HeaderCellClass() ?>"><span id="elh_t06_pinjamantitipan_id" class="t06_pinjamantitipan_id"><?php echo $t06_pinjamantitipan->id->FldCaption() ?></span></th>
-<?php } ?>
-<?php if ($t06_pinjamantitipan->pinjaman_id->Visible) { // pinjaman_id ?>
-		<th class="<?php echo $t06_pinjamantitipan->pinjaman_id->HeaderCellClass() ?>"><span id="elh_t06_pinjamantitipan_pinjaman_id" class="t06_pinjamantitipan_pinjaman_id"><?php echo $t06_pinjamantitipan->pinjaman_id->FldCaption() ?></span></th>
-<?php } ?>
 <?php if ($t06_pinjamantitipan->Tanggal->Visible) { // Tanggal ?>
 		<th class="<?php echo $t06_pinjamantitipan->Tanggal->HeaderCellClass() ?>"><span id="elh_t06_pinjamantitipan_Tanggal" class="t06_pinjamantitipan_Tanggal"><?php echo $t06_pinjamantitipan->Tanggal->FldCaption() ?></span></th>
 <?php } ?>
@@ -1002,22 +1003,6 @@ while (!$t06_pinjamantitipan_delete->Recordset->EOF) {
 	$t06_pinjamantitipan_delete->RenderRow();
 ?>
 	<tr<?php echo $t06_pinjamantitipan->RowAttributes() ?>>
-<?php if ($t06_pinjamantitipan->id->Visible) { // id ?>
-		<td<?php echo $t06_pinjamantitipan->id->CellAttributes() ?>>
-<span id="el<?php echo $t06_pinjamantitipan_delete->RowCnt ?>_t06_pinjamantitipan_id" class="t06_pinjamantitipan_id">
-<span<?php echo $t06_pinjamantitipan->id->ViewAttributes() ?>>
-<?php echo $t06_pinjamantitipan->id->ListViewValue() ?></span>
-</span>
-</td>
-<?php } ?>
-<?php if ($t06_pinjamantitipan->pinjaman_id->Visible) { // pinjaman_id ?>
-		<td<?php echo $t06_pinjamantitipan->pinjaman_id->CellAttributes() ?>>
-<span id="el<?php echo $t06_pinjamantitipan_delete->RowCnt ?>_t06_pinjamantitipan_pinjaman_id" class="t06_pinjamantitipan_pinjaman_id">
-<span<?php echo $t06_pinjamantitipan->pinjaman_id->ViewAttributes() ?>>
-<?php echo $t06_pinjamantitipan->pinjaman_id->ListViewValue() ?></span>
-</span>
-</td>
-<?php } ?>
 <?php if ($t06_pinjamantitipan->Tanggal->Visible) { // Tanggal ?>
 		<td<?php echo $t06_pinjamantitipan->Tanggal->CellAttributes() ?>>
 <span id="el<?php echo $t06_pinjamantitipan_delete->RowCnt ?>_t06_pinjamantitipan_Tanggal" class="t06_pinjamantitipan_Tanggal">

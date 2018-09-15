@@ -1462,9 +1462,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		// pinjaman_id
 		// AngsuranKe
 		// AngsuranTanggal
-
-		$this->AngsuranTanggal->CellCssStyle = "white-space: nowrap;";
-
 		// AngsuranPokok
 		// AngsuranBunga
 		// AngsuranTotal

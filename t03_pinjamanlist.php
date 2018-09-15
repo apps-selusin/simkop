@@ -1957,12 +1957,7 @@ class ct03_pinjaman_list extends ct03_pinjaman {
 		// Common render codes for all row types
 		// id
 		// NoKontrak
-
-		$this->NoKontrak->CellCssStyle = "width: 15px;";
-
 		// TglKontrak
-		$this->TglKontrak->CellCssStyle = "width: 15px;";
-
 		// nasabah_id
 		// Pinjaman
 		// LamaAngsuran
@@ -2517,19 +2512,19 @@ $t03_pinjaman_list->ListOptions->Render("header", "left");
 ?>
 <?php if ($t03_pinjaman->NoKontrak->Visible) { // NoKontrak ?>
 	<?php if ($t03_pinjaman->SortUrl($t03_pinjaman->NoKontrak) == "") { ?>
-		<th data-name="NoKontrak" class="<?php echo $t03_pinjaman->NoKontrak->HeaderCellClass() ?>"><div id="elh_t03_pinjaman_NoKontrak" class="t03_pinjaman_NoKontrak"><div class="ewTableHeaderCaption" style="width: 15px;"><?php echo $t03_pinjaman->NoKontrak->FldCaption() ?></div></div></th>
+		<th data-name="NoKontrak" class="<?php echo $t03_pinjaman->NoKontrak->HeaderCellClass() ?>"><div id="elh_t03_pinjaman_NoKontrak" class="t03_pinjaman_NoKontrak"><div class="ewTableHeaderCaption"><?php echo $t03_pinjaman->NoKontrak->FldCaption() ?></div></div></th>
 	<?php } else { ?>
 		<th data-name="NoKontrak" class="<?php echo $t03_pinjaman->NoKontrak->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t03_pinjaman->SortUrl($t03_pinjaman->NoKontrak) ?>',2);"><div id="elh_t03_pinjaman_NoKontrak" class="t03_pinjaman_NoKontrak">
-			<div class="ewTableHeaderBtn" style="width: 15px;"><span class="ewTableHeaderCaption"><?php echo $t03_pinjaman->NoKontrak->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t03_pinjaman->NoKontrak->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t03_pinjaman->NoKontrak->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t03_pinjaman->NoKontrak->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t03_pinjaman->NoKontrak->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t03_pinjaman->NoKontrak->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
 		</div></div></th>
 	<?php } ?>
 <?php } ?>
 <?php if ($t03_pinjaman->TglKontrak->Visible) { // TglKontrak ?>
 	<?php if ($t03_pinjaman->SortUrl($t03_pinjaman->TglKontrak) == "") { ?>
-		<th data-name="TglKontrak" class="<?php echo $t03_pinjaman->TglKontrak->HeaderCellClass() ?>"><div id="elh_t03_pinjaman_TglKontrak" class="t03_pinjaman_TglKontrak"><div class="ewTableHeaderCaption" style="width: 15px;"><?php echo $t03_pinjaman->TglKontrak->FldCaption() ?></div></div></th>
+		<th data-name="TglKontrak" class="<?php echo $t03_pinjaman->TglKontrak->HeaderCellClass() ?>"><div id="elh_t03_pinjaman_TglKontrak" class="t03_pinjaman_TglKontrak"><div class="ewTableHeaderCaption"><?php echo $t03_pinjaman->TglKontrak->FldCaption() ?></div></div></th>
 	<?php } else { ?>
 		<th data-name="TglKontrak" class="<?php echo $t03_pinjaman->TglKontrak->HeaderCellClass() ?>"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t03_pinjaman->SortUrl($t03_pinjaman->TglKontrak) ?>',2);"><div id="elh_t03_pinjaman_TglKontrak" class="t03_pinjaman_TglKontrak">
-			<div class="ewTableHeaderBtn" style="width: 15px;"><span class="ewTableHeaderCaption"><?php echo $t03_pinjaman->TglKontrak->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t03_pinjaman->TglKontrak->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t03_pinjaman->TglKontrak->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t03_pinjaman->TglKontrak->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t03_pinjaman->TglKontrak->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t03_pinjaman->TglKontrak->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
 		</div></div></th>
 	<?php } ?>
 <?php } ?>

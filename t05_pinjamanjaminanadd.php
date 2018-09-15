@@ -676,6 +676,27 @@ class ct05_pinjamanjaminan_add extends ct05_pinjamanjaminan {
 
 		// pinjaman_id
 		$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+		if (strval($this->pinjaman_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->pinjaman_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `NoKontrak` AS `DispFld`, `TglKontrak` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_pinjaman`";
+		$sWhereWrk = "";
+		$this->pinjaman_id->LookupFilters = array("df2" => "7");
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->pinjaman_id, $sWhereWrk); // Call Lookup Selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = ew_FormatDateTime($rswrk->fields('Disp2Fld'), 7);
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+			}
+		} else {
+			$this->pinjaman_id->ViewValue = NULL;
+		}
 		$this->pinjaman_id->ViewCustomAttributes = "";
 
 		// jaminan_id
@@ -722,9 +743,51 @@ class ct05_pinjamanjaminan_add extends ct05_pinjamanjaminan {
 			if ($this->pinjaman_id->getSessionValue() <> "") {
 				$this->pinjaman_id->CurrentValue = $this->pinjaman_id->getSessionValue();
 			$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+			if (strval($this->pinjaman_id->CurrentValue) <> "") {
+				$sFilterWrk = "`id`" . ew_SearchString("=", $this->pinjaman_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+			$sSqlWrk = "SELECT `id`, `NoKontrak` AS `DispFld`, `TglKontrak` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_pinjaman`";
+			$sWhereWrk = "";
+			$this->pinjaman_id->LookupFilters = array("df2" => "7");
+			ew_AddFilter($sWhereWrk, $sFilterWrk);
+			$this->Lookup_Selecting($this->pinjaman_id, $sWhereWrk); // Call Lookup Selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+				$rswrk = Conn()->Execute($sSqlWrk);
+				if ($rswrk && !$rswrk->EOF) { // Lookup values found
+					$arwrk = array();
+					$arwrk[1] = $rswrk->fields('DispFld');
+					$arwrk[2] = ew_FormatDateTime($rswrk->fields('Disp2Fld'), 7);
+					$this->pinjaman_id->ViewValue = $this->pinjaman_id->DisplayValue($arwrk);
+					$rswrk->Close();
+				} else {
+					$this->pinjaman_id->ViewValue = $this->pinjaman_id->CurrentValue;
+				}
+			} else {
+				$this->pinjaman_id->ViewValue = NULL;
+			}
 			$this->pinjaman_id->ViewCustomAttributes = "";
 			} else {
 			$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
+			if (strval($this->pinjaman_id->CurrentValue) <> "") {
+				$sFilterWrk = "`id`" . ew_SearchString("=", $this->pinjaman_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+			$sSqlWrk = "SELECT `id`, `NoKontrak` AS `DispFld`, `TglKontrak` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_pinjaman`";
+			$sWhereWrk = "";
+			$this->pinjaman_id->LookupFilters = array("df2" => "7");
+			ew_AddFilter($sWhereWrk, $sFilterWrk);
+			$this->Lookup_Selecting($this->pinjaman_id, $sWhereWrk); // Call Lookup Selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+				$rswrk = Conn()->Execute($sSqlWrk);
+				if ($rswrk && !$rswrk->EOF) { // Lookup values found
+					$arwrk = array();
+					$arwrk[1] = ew_HtmlEncode($rswrk->fields('DispFld'));
+					$arwrk[2] = ew_HtmlEncode(ew_FormatDateTime($rswrk->fields('Disp2Fld'), 7));
+					$this->pinjaman_id->EditValue = $this->pinjaman_id->DisplayValue($arwrk);
+					$rswrk->Close();
+				} else {
+					$this->pinjaman_id->EditValue = ew_HtmlEncode($this->pinjaman_id->CurrentValue);
+				}
+			} else {
+				$this->pinjaman_id->EditValue = NULL;
+			}
 			$this->pinjaman_id->PlaceHolder = ew_RemoveHtml($this->pinjaman_id->FldCaption());
 			}
 
@@ -927,6 +990,18 @@ class ct05_pinjamanjaminan_add extends ct05_pinjamanjaminan {
 		global $gsLanguage;
 		$pageId = $pageId ?: $this->PageID;
 		switch ($fld->FldVar) {
+		case "x_pinjaman_id":
+			$sSqlWrk = "";
+			$sSqlWrk = "SELECT `id` AS `LinkFld`, `NoKontrak` AS `DispFld`, `TglKontrak` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_pinjaman`";
+			$sWhereWrk = "{filter}";
+			$fld->LookupFilters = array("df2" => "7");
+			$fld->LookupFilters += array("s" => $sSqlWrk, "d" => "", "f0" => '`id` IN ({filter_value})', "t0" => "3", "fn0" => "");
+			$sSqlWrk = "";
+			$this->Lookup_Selecting($this->pinjaman_id, $sWhereWrk); // Call Lookup Selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			if ($sSqlWrk <> "")
+				$fld->LookupFilters["s"] .= $sSqlWrk;
+			break;
 		case "x_jaminan_id":
 			$sSqlWrk = "";
 			$sSqlWrk = "SELECT `id` AS `LinkFld`, `MerkType` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t02_jaminan`";
@@ -947,6 +1022,18 @@ class ct05_pinjamanjaminan_add extends ct05_pinjamanjaminan {
 		global $gsLanguage;
 		$pageId = $pageId ?: $this->PageID;
 		switch ($fld->FldVar) {
+		case "x_pinjaman_id":
+			$sSqlWrk = "";
+			$sSqlWrk = "SELECT `id`, `NoKontrak` AS `DispFld`, `TglKontrak` AS `Disp2Fld` FROM `t03_pinjaman`";
+			$sWhereWrk = "`NoKontrak` LIKE '{query_value}%' OR CONCAT(COALESCE(`NoKontrak`, ''),'" . ew_ValueSeparator(1, $this->pinjaman_id) . "',COALESCE(" . ew_CastDateFieldForLike('`TglKontrak`', 7, "DB") . ",'')) LIKE '{query_value}%'";
+			$fld->LookupFilters = array("df2" => "7");
+			$fld->LookupFilters += array("s" => $sSqlWrk, "d" => "");
+			$sSqlWrk = "";
+			$this->Lookup_Selecting($this->pinjaman_id, $sWhereWrk); // Call Lookup Selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			if ($sSqlWrk <> "")
+				$fld->LookupFilters["s"] .= $sSqlWrk;
+			break;
 		}
 	}
 
@@ -1096,6 +1183,9 @@ ft05_pinjamanjaminanadd.Form_CustomValidate =
 ft05_pinjamanjaminanadd.ValidateRequired = <?php echo json_encode(EW_CLIENT_VALIDATE) ?>;
 
 // Dynamic selection lists
+ft05_pinjamanjaminanadd.Lists["x_pinjaman_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_NoKontrak","x_TglKontrak","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t03_pinjaman"};
+ft05_pinjamanjaminanadd.Lists["x_pinjaman_id"].Data = "<?php echo $t05_pinjamanjaminan_add->pinjaman_id->LookupFilterQuery(FALSE, "add") ?>";
+ft05_pinjamanjaminanadd.AutoSuggests["x_pinjaman_id"] = <?php echo json_encode(array("data" => "ajax=autosuggest&" . $t05_pinjamanjaminan_add->pinjaman_id->LookupFilterQuery(TRUE, "add"))) ?>;
 ft05_pinjamanjaminanadd.Lists["x_jaminan_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_MerkType","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t02_jaminan"};
 ft05_pinjamanjaminanadd.Lists["x_jaminan_id"].Data = "<?php echo $t05_pinjamanjaminan_add->jaminan_id->LookupFilterQuery(FALSE, "add") ?>";
 
@@ -1123,7 +1213,7 @@ $t05_pinjamanjaminan_add->ShowMessage();
 <div class="ewAddDiv"><!-- page* -->
 <?php if ($t05_pinjamanjaminan->pinjaman_id->Visible) { // pinjaman_id ?>
 	<div id="r_pinjaman_id" class="form-group">
-		<label id="elh_t05_pinjamanjaminan_pinjaman_id" for="x_pinjaman_id" class="<?php echo $t05_pinjamanjaminan_add->LeftColumnClass ?>"><?php echo $t05_pinjamanjaminan->pinjaman_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<label id="elh_t05_pinjamanjaminan_pinjaman_id" class="<?php echo $t05_pinjamanjaminan_add->LeftColumnClass ?>"><?php echo $t05_pinjamanjaminan->pinjaman_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t05_pinjamanjaminan_add->RightColumnClass ?>"><div<?php echo $t05_pinjamanjaminan->pinjaman_id->CellAttributes() ?>>
 <?php if ($t05_pinjamanjaminan->pinjaman_id->getSessionValue() <> "") { ?>
 <span id="el_t05_pinjamanjaminan_pinjaman_id">
@@ -1133,7 +1223,18 @@ $t05_pinjamanjaminan_add->ShowMessage();
 <input type="hidden" id="x_pinjaman_id" name="x_pinjaman_id" value="<?php echo ew_HtmlEncode($t05_pinjamanjaminan->pinjaman_id->CurrentValue) ?>">
 <?php } else { ?>
 <span id="el_t05_pinjamanjaminan_pinjaman_id">
-<input type="text" data-table="t05_pinjamanjaminan" data-field="x_pinjaman_id" name="x_pinjaman_id" id="x_pinjaman_id" size="30" placeholder="<?php echo ew_HtmlEncode($t05_pinjamanjaminan->pinjaman_id->getPlaceHolder()) ?>" value="<?php echo $t05_pinjamanjaminan->pinjaman_id->EditValue ?>"<?php echo $t05_pinjamanjaminan->pinjaman_id->EditAttributes() ?>>
+<?php
+$wrkonchange = trim(" " . @$t05_pinjamanjaminan->pinjaman_id->EditAttrs["onchange"]);
+if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
+$t05_pinjamanjaminan->pinjaman_id->EditAttrs["onchange"] = "";
+?>
+<span id="as_x_pinjaman_id" style="white-space: nowrap; z-index: 8980">
+	<input type="text" name="sv_x_pinjaman_id" id="sv_x_pinjaman_id" value="<?php echo $t05_pinjamanjaminan->pinjaman_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t05_pinjamanjaminan->pinjaman_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t05_pinjamanjaminan->pinjaman_id->getPlaceHolder()) ?>"<?php echo $t05_pinjamanjaminan->pinjaman_id->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t05_pinjamanjaminan" data-field="x_pinjaman_id" data-value-separator="<?php echo $t05_pinjamanjaminan->pinjaman_id->DisplayValueSeparatorAttribute() ?>" name="x_pinjaman_id" id="x_pinjaman_id" value="<?php echo ew_HtmlEncode($t05_pinjamanjaminan->pinjaman_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
+<script type="text/javascript">
+ft05_pinjamanjaminanadd.CreateAutoSuggest({"id":"x_pinjaman_id","forceSelect":false});
+</script>
 </span>
 <?php } ?>
 <?php echo $t05_pinjamanjaminan->pinjaman_id->CustomMsg ?></div></div>

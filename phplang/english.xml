@@ -723,10 +723,10 @@
         <phrase id="fldcaption" value="id" />
       </field>
       <field id="nokontrak">
-        <phrase id="fldcaption" value="No. Kontrak" />
+        <phrase id="fldcaption" value="No. Kntrk" />
       </field>
       <field id="tglkontrak">
-        <phrase id="fldcaption" value="Tgl. Kontrak" />
+        <phrase id="fldcaption" value="Tgl. Kntrk" />
       </field>
       <field id="nasabah_id">
         <phrase id="fldcaption" value="Nasabah" />
@@ -735,7 +735,7 @@
         <phrase id="fldcaption" value="Pinjaman" />
       </field>
       <field id="lamaangsuran">
-        <phrase id="fldcaption" value="Lama Angsuran" />
+        <phrase id="fldcaption" value="Lama Angs." />
       </field>
       <field id="bunga">
         <phrase id="fldcaption" value="Bunga (%)" />
@@ -744,19 +744,19 @@
         <phrase id="fldcaption" value="Denda (%)" />
       </field>
       <field id="dispensasidenda">
-        <phrase id="fldcaption" value="Dispensasi Denda" />
+        <phrase id="fldcaption" value="Disp. Denda" />
       </field>
       <field id="angsuranpokok">
-        <phrase id="fldcaption" value="Angsuran Pokok" />
+        <phrase id="fldcaption" value="Angs. Pokok" />
       </field>
       <field id="angsuranbunga">
-        <phrase id="fldcaption" value="Angsuran Bunga" />
+        <phrase id="fldcaption" value="Angs. Bunga" />
       </field>
       <field id="angsurantotal">
-        <phrase id="fldcaption" value="Angsuran Total" />
+        <phrase id="fldcaption" value="Angs. Total" />
       </field>
       <field id="nokontrakrefto">
-        <phrase id="fldcaption" value="No. Kontrak Ref. To" />
+        <phrase id="fldcaption" value="Ref." />
       </field>
     </table>
     <table id="t04_angsuran">
@@ -819,19 +819,19 @@
         <phrase id="fldcaption" value="pinjaman id" />
       </field>
       <field id="tanggal">
-        <phrase id="fldcaption" value="tanggal" />
+        <phrase id="fldcaption" value="Tanggal" />
       </field>
       <field id="keterangan">
-        <phrase id="fldcaption" value="keterangan" />
+        <phrase id="fldcaption" value="Keterangan" />
       </field>
       <field id="masuk">
-        <phrase id="fldcaption" value="debet" />
+        <phrase id="fldcaption" value="Masuk" />
       </field>
       <field id="keluar">
-        <phrase id="fldcaption" value="kredit" />
+        <phrase id="fldcaption" value="Keluar" />
       </field>
       <field id="sisa">
-        <phrase id="fldcaption" value="saldo" />
+        <phrase id="fldcaption" value="Sisa" />
       </field>
     </table>
     <table id="t96_employees">
