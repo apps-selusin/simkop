@@ -107,7 +107,7 @@ class ct04_angsuran extends cTable {
 		$this->fields['SisaHutang'] = &$this->SisaHutang;
 
 		// TanggalBayar
-		$this->TanggalBayar = new cField('t04_angsuran', 't04_angsuran', 'x_TanggalBayar', 'TanggalBayar', '`TanggalBayar`', ew_CastDateFieldForLike('`TanggalBayar`', 7, "DB"), 133, 7, FALSE, '`TanggalBayar`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->TanggalBayar = new cField('t04_angsuran', 't04_angsuran', 'x_TanggalBayar', 'TanggalBayar', '`TanggalBayar`', ew_CastDateFieldForLike('`TanggalBayar`', 7, "DB"), 133, -1, FALSE, '`TanggalBayar`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
 		$this->TanggalBayar->Sortable = TRUE; // Allow sort
 		$this->TanggalBayar->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_SEPARATOR"], $Language->Phrase("IncorrectDateDMY"));
 		$this->fields['TanggalBayar'] = &$this->TanggalBayar;
@@ -811,7 +811,6 @@ class ct04_angsuran extends cTable {
 
 		// TanggalBayar
 		$this->TanggalBayar->ViewValue = $this->TanggalBayar->CurrentValue;
-		$this->TanggalBayar->ViewValue = ew_FormatDateTime($this->TanggalBayar->ViewValue, 7);
 		$this->TanggalBayar->ViewCustomAttributes = "";
 
 		// TotalDenda
@@ -969,8 +968,8 @@ class ct04_angsuran extends cTable {
 
 		// TanggalBayar
 		$this->TanggalBayar->EditAttrs["class"] = "form-control";
-		$this->TanggalBayar->EditCustomAttributes = "";
-		$this->TanggalBayar->EditValue = ew_FormatDateTime($this->TanggalBayar->CurrentValue, 7);
+		$this->TanggalBayar->EditCustomAttributes = "style='width: 100px;'";
+		$this->TanggalBayar->EditValue = $this->TanggalBayar->CurrentValue;
 		$this->TanggalBayar->PlaceHolder = ew_RemoveHtml($this->TanggalBayar->FldCaption());
 
 		// TotalDenda

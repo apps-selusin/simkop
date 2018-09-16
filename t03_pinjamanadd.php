@@ -1010,7 +1010,7 @@ class ct03_pinjaman_add extends ct03_pinjaman {
 
 			// TglKontrak
 			$this->TglKontrak->EditAttrs["class"] = "form-control";
-			$this->TglKontrak->EditCustomAttributes = "";
+			$this->TglKontrak->EditCustomAttributes = "style='width: 100px;'";
 			$this->TglKontrak->EditValue = ew_HtmlEncode(ew_FormatDateTime($this->TglKontrak->CurrentValue, 7));
 			$this->TglKontrak->PlaceHolder = ew_RemoveHtml($this->TglKontrak->FldCaption());
 
@@ -1734,7 +1734,7 @@ $t03_pinjaman_add->ShowMessage();
 		<label id="elh_t03_pinjaman_TglKontrak" for="x_TglKontrak" class="<?php echo $t03_pinjaman_add->LeftColumnClass ?>"><?php echo $t03_pinjaman->TglKontrak->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t03_pinjaman_add->RightColumnClass ?>"><div<?php echo $t03_pinjaman->TglKontrak->CellAttributes() ?>>
 <span id="el_t03_pinjaman_TglKontrak">
-<input type="text" data-table="t03_pinjaman" data-field="x_TglKontrak" data-format="7" name="x_TglKontrak" id="x_TglKontrak" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->TglKontrak->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->TglKontrak->EditValue ?>"<?php echo $t03_pinjaman->TglKontrak->EditAttributes() ?>>
+<input type="text" data-table="t03_pinjaman" data-field="x_TglKontrak" data-format="7" name="x_TglKontrak" id="x_TglKontrak" size="10" placeholder="<?php echo ew_HtmlEncode($t03_pinjaman->TglKontrak->getPlaceHolder()) ?>" value="<?php echo $t03_pinjaman->TglKontrak->EditValue ?>"<?php echo $t03_pinjaman->TglKontrak->EditAttributes() ?>>
 <?php if (!$t03_pinjaman->TglKontrak->ReadOnly && !$t03_pinjaman->TglKontrak->Disabled && !isset($t03_pinjaman->TglKontrak->EditAttrs["readonly"]) && !isset($t03_pinjaman->TglKontrak->EditAttrs["disabled"])) { ?>
 <script type="text/javascript">
 ew_CreateDateTimePicker("ft03_pinjamanadd", "x_TglKontrak", {"ignoreReadonly":true,"useCurrent":false,"format":7});

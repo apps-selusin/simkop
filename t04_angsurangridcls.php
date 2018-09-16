@@ -1522,7 +1522,6 @@ class ct04_angsuran_grid extends ct04_angsuran {
 
 		// TanggalBayar
 		$this->TanggalBayar->ViewValue = $this->TanggalBayar->CurrentValue;
-		$this->TanggalBayar->ViewValue = ew_FormatDateTime($this->TanggalBayar->ViewValue, 7);
 		$this->TanggalBayar->ViewCustomAttributes = "";
 
 		// TotalDenda
@@ -1646,8 +1645,8 @@ class ct04_angsuran_grid extends ct04_angsuran {
 
 			// TanggalBayar
 			$this->TanggalBayar->EditAttrs["class"] = "form-control";
-			$this->TanggalBayar->EditCustomAttributes = "";
-			$this->TanggalBayar->EditValue = ew_HtmlEncode(ew_FormatDateTime($this->TanggalBayar->CurrentValue, 7));
+			$this->TanggalBayar->EditCustomAttributes = "style='width: 100px;'";
+			$this->TanggalBayar->EditValue = ew_HtmlEncode($this->TanggalBayar->CurrentValue);
 			$this->TanggalBayar->PlaceHolder = ew_RemoveHtml($this->TanggalBayar->FldCaption());
 
 			// TotalDenda
@@ -1762,8 +1761,8 @@ class ct04_angsuran_grid extends ct04_angsuran {
 
 			// TanggalBayar
 			$this->TanggalBayar->EditAttrs["class"] = "form-control";
-			$this->TanggalBayar->EditCustomAttributes = "";
-			$this->TanggalBayar->EditValue = ew_HtmlEncode(ew_FormatDateTime($this->TanggalBayar->CurrentValue, 7));
+			$this->TanggalBayar->EditCustomAttributes = "style='width: 100px;'";
+			$this->TanggalBayar->EditValue = ew_HtmlEncode($this->TanggalBayar->CurrentValue);
 			$this->TanggalBayar->PlaceHolder = ew_RemoveHtml($this->TanggalBayar->FldCaption());
 
 			// TotalDenda
@@ -1994,7 +1993,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 			$rsnew = array();
 
 			// TanggalBayar
-			$this->TanggalBayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TanggalBayar->CurrentValue, 7), NULL, $this->TanggalBayar->ReadOnly);
+			$this->TanggalBayar->SetDbValueDef($rsnew, $this->TanggalBayar->CurrentValue, NULL, $this->TanggalBayar->ReadOnly);
 
 			// TotalDenda
 			$this->TotalDenda->SetDbValueDef($rsnew, $this->TotalDenda->CurrentValue, NULL, $this->TotalDenda->ReadOnly);
@@ -2072,7 +2071,7 @@ class ct04_angsuran_grid extends ct04_angsuran {
 		$this->SisaHutang->SetDbValueDef($rsnew, $this->SisaHutang->CurrentValue, 0, FALSE);
 
 		// TanggalBayar
-		$this->TanggalBayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->TanggalBayar->CurrentValue, 7), NULL, FALSE);
+		$this->TanggalBayar->SetDbValueDef($rsnew, $this->TanggalBayar->CurrentValue, NULL, FALSE);
 
 		// TotalDenda
 		$this->TotalDenda->SetDbValueDef($rsnew, $this->TotalDenda->CurrentValue, NULL, FALSE);

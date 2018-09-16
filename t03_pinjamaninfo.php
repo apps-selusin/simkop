@@ -1010,7 +1010,7 @@ class ct03_pinjaman extends cTable {
 
 		// TglKontrak
 		$this->TglKontrak->EditAttrs["class"] = "form-control";
-		$this->TglKontrak->EditCustomAttributes = "";
+		$this->TglKontrak->EditCustomAttributes = "style='width: 100px;'";
 		$this->TglKontrak->EditValue = ew_FormatDateTime($this->TglKontrak->CurrentValue, 7);
 		$this->TglKontrak->PlaceHolder = ew_RemoveHtml($this->TglKontrak->FldCaption());
 

@@ -370,9 +370,9 @@ Page_Rendering();
 			<div>
 to do:<br/>
 - tambah field untuk transaksi pembayaran<br/>
-- perbesar kolom tanggal bayar<br/>
 &nbsp;<br/>
 done:<br/>
+- perbesar kolom tanggal bayar<br/>
 - log at home<br/>
 - rumus [jumlah angsuran]<br/>
 - button refresh detail angsuran<br/>
