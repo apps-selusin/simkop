@@ -753,11 +753,17 @@ class ct04_angsuran extends cTable {
 		// pinjaman_id
 		// AngsuranKe
 		// AngsuranTanggal
+
+		$this->AngsuranTanggal->CellCssStyle = "white-space: nowrap;";
+
 		// AngsuranPokok
 		// AngsuranBunga
 		// AngsuranTotal
 		// SisaHutang
 		// TanggalBayar
+
+		$this->TanggalBayar->CellCssStyle = "white-space: nowrap;";
+
 		// TotalDenda
 		// Terlambat
 		// Keterangan

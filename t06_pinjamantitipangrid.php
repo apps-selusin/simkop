@@ -328,7 +328,7 @@ $t06_pinjamantitipan_grid->ListOptions->Render("body", "left", $t06_pinjamantiti
 		<td data-name="Tanggal"<?php echo $t06_pinjamantitipan->Tanggal->CellAttributes() ?>>
 <?php if ($t06_pinjamantitipan->RowType == EW_ROWTYPE_ADD) { // Add record ?>
 <span id="el<?php echo $t06_pinjamantitipan_grid->RowCnt ?>_t06_pinjamantitipan_Tanggal" class="form-group t06_pinjamantitipan_Tanggal">
-<input type="text" data-table="t06_pinjamantitipan" data-field="x_Tanggal" data-format="7" name="x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal" id="x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal" size="7" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Tanggal->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Tanggal->EditValue ?>"<?php echo $t06_pinjamantitipan->Tanggal->EditAttributes() ?>>
+<input type="text" data-table="t06_pinjamantitipan" data-field="x_Tanggal" data-format="7" name="x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal" id="x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Tanggal->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Tanggal->EditValue ?>"<?php echo $t06_pinjamantitipan->Tanggal->EditAttributes() ?>>
 <?php if (!$t06_pinjamantitipan->Tanggal->ReadOnly && !$t06_pinjamantitipan->Tanggal->Disabled && !isset($t06_pinjamantitipan->Tanggal->EditAttrs["readonly"]) && !isset($t06_pinjamantitipan->Tanggal->EditAttrs["disabled"])) { ?>
 <script type="text/javascript">
 ew_CreateDateTimePicker("ft06_pinjamantitipangrid", "x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal", {"ignoreReadonly":true,"useCurrent":false,"format":7});
@@ -339,7 +339,7 @@ ew_CreateDateTimePicker("ft06_pinjamantitipangrid", "x<?php echo $t06_pinjamanti
 <?php } ?>
 <?php if ($t06_pinjamantitipan->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
 <span id="el<?php echo $t06_pinjamantitipan_grid->RowCnt ?>_t06_pinjamantitipan_Tanggal" class="form-group t06_pinjamantitipan_Tanggal">
-<input type="text" data-table="t06_pinjamantitipan" data-field="x_Tanggal" data-format="7" name="x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal" id="x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal" size="7" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Tanggal->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Tanggal->EditValue ?>"<?php echo $t06_pinjamantitipan->Tanggal->EditAttributes() ?>>
+<input type="text" data-table="t06_pinjamantitipan" data-field="x_Tanggal" data-format="7" name="x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal" id="x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Tanggal->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Tanggal->EditValue ?>"<?php echo $t06_pinjamantitipan->Tanggal->EditAttributes() ?>>
 <?php if (!$t06_pinjamantitipan->Tanggal->ReadOnly && !$t06_pinjamantitipan->Tanggal->Disabled && !isset($t06_pinjamantitipan->Tanggal->EditAttrs["readonly"]) && !isset($t06_pinjamantitipan->Tanggal->EditAttrs["disabled"])) { ?>
 <script type="text/javascript">
 ew_CreateDateTimePicker("ft06_pinjamantitipangrid", "x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal", {"ignoreReadonly":true,"useCurrent":false,"format":7});
@@ -527,7 +527,7 @@ $t06_pinjamantitipan_grid->ListOptions->Render("body", "left", $t06_pinjamantiti
 		<td data-name="Tanggal">
 <?php if ($t06_pinjamantitipan->CurrentAction <> "F") { ?>
 <span id="el$rowindex$_t06_pinjamantitipan_Tanggal" class="form-group t06_pinjamantitipan_Tanggal">
-<input type="text" data-table="t06_pinjamantitipan" data-field="x_Tanggal" data-format="7" name="x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal" id="x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal" size="7" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Tanggal->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Tanggal->EditValue ?>"<?php echo $t06_pinjamantitipan->Tanggal->EditAttributes() ?>>
+<input type="text" data-table="t06_pinjamantitipan" data-field="x_Tanggal" data-format="7" name="x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal" id="x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Tanggal->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Tanggal->EditValue ?>"<?php echo $t06_pinjamantitipan->Tanggal->EditAttributes() ?>>
 <?php if (!$t06_pinjamantitipan->Tanggal->ReadOnly && !$t06_pinjamantitipan->Tanggal->Disabled && !isset($t06_pinjamantitipan->Tanggal->EditAttrs["readonly"]) && !isset($t06_pinjamantitipan->Tanggal->EditAttrs["disabled"])) { ?>
 <script type="text/javascript">
 ew_CreateDateTimePicker("ft06_pinjamantitipangrid", "x<?php echo $t06_pinjamantitipan_grid->RowIndex ?>_Tanggal", {"ignoreReadonly":true,"useCurrent":false,"format":7});

@@ -1361,7 +1361,7 @@ ft06_pinjamantitipanadd.CreateAutoSuggest({"id":"x_pinjaman_id","forceSelect":fa
 		<label id="elh_t06_pinjamantitipan_Tanggal" for="x_Tanggal" class="<?php echo $t06_pinjamantitipan_add->LeftColumnClass ?>"><?php echo $t06_pinjamantitipan->Tanggal->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="<?php echo $t06_pinjamantitipan_add->RightColumnClass ?>"><div<?php echo $t06_pinjamantitipan->Tanggal->CellAttributes() ?>>
 <span id="el_t06_pinjamantitipan_Tanggal">
-<input type="text" data-table="t06_pinjamantitipan" data-field="x_Tanggal" data-format="7" name="x_Tanggal" id="x_Tanggal" size="7" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Tanggal->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Tanggal->EditValue ?>"<?php echo $t06_pinjamantitipan->Tanggal->EditAttributes() ?>>
+<input type="text" data-table="t06_pinjamantitipan" data-field="x_Tanggal" data-format="7" name="x_Tanggal" id="x_Tanggal" placeholder="<?php echo ew_HtmlEncode($t06_pinjamantitipan->Tanggal->getPlaceHolder()) ?>" value="<?php echo $t06_pinjamantitipan->Tanggal->EditValue ?>"<?php echo $t06_pinjamantitipan->Tanggal->EditAttributes() ?>>
 <?php if (!$t06_pinjamantitipan->Tanggal->ReadOnly && !$t06_pinjamantitipan->Tanggal->Disabled && !isset($t06_pinjamantitipan->Tanggal->EditAttrs["readonly"]) && !isset($t06_pinjamantitipan->Tanggal->EditAttrs["disabled"])) { ?>
 <script type="text/javascript">
 ew_CreateDateTimePicker("ft06_pinjamantitipanadd", "x_Tanggal", {"ignoreReadonly":true,"useCurrent":false,"format":7});

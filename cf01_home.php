@@ -368,10 +368,14 @@ Page_Rendering();
 	<div id="log" class="panel-collapse collapse in">
 		<div class="panel-body">
 			<div>
-<p>to do:<br/>
-1. log at home; done;<br/>
-2. rumus [jumlah angsuran]; done;<br/>
-3. button refresh detail angsuran; cancel;<br/>
+to do:<br/>
+- tambah field untuk transaksi pembayaran<br/>
+- perbesar kolom tanggal bayar<br/>
+&nbsp;<br/>
+done:<br/>
+- log at home<br/>
+- rumus [jumlah angsuran]<br/>
+- button refresh detail angsuran<br/>
 			</div>
 		</div>
 	</div>
